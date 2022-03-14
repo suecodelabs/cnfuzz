@@ -57,7 +57,7 @@ IMAGE=myrepo/cnfuzz make image
 
 #### Setup development environment
 
-- Install [Kind](https://kind.sigs.k8s.io/)
+- Install [Kind](https://kind.sigs.k8s.io/).
 
 - Create a [GitHub Personal access token](https://github.com/settings/tokens) with `read:packages` rights.
 
