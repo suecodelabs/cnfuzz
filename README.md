@@ -61,7 +61,6 @@ Install [Kind](https://kind.sigs.k8s.io/)
 
 Create a [GitHub Personal access token](https://github.com/settings/tokens) with `read:packages` rights.
 
-
 `kubectl create secret docker-registry regcred --docker-server=https://ghcr.io --docker-username=<github_username> --docker-password=<github_personal_access_token>`
 
 `helm install fuzzy charts/cnfuzz --set imagePullSecrets[0].name=regcred --set image.imagePullPolicy=Always --set image.tag=<your_tag>`
