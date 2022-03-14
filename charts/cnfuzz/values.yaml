@@ -19,7 +19,7 @@ controller:
     secret: ""
 
 image:
-  repository: registry.github.com/suecodelabs/cnfuzz
+  repository: ghcr.io/suecodelabs/cnfuzz
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
