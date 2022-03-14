@@ -45,17 +45,8 @@ spec:
             - containerPort: 80
 ```
 
-### Build project
 
-For building the project you can use the [`Makefile`](./Makefile).
-
-#### Build Docker image
-
-```sh
-IMAGE=myrepo/cnfuzz make image
-```
-
-#### Setup development environment
+### Setup Kubernetes development environment
 
 - Install [Kind](https://kind.sigs.k8s.io/).
 
@@ -67,6 +58,16 @@ kubectl create secret docker-registry regcred --docker-server=https://ghcr.io --
 helm install fuzzy charts/cnfuzz --set imagePullSecrets[0].name=regcred --set image.imagePullPolicy=Always --set image.tag=<your_tag>
 ```
 
+
+### Build project
+
+For building the project you can use the [`Makefile`](./Makefile).
+
+#### Build Docker image
+
+```sh
+IMAGE=myrepo/cnfuzz make image
+```
 #### Compile binary
 
 ```sh
