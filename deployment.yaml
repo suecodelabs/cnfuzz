@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cnfuzz
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cnfuzz
+  template:
+    metadata:
+      labels:
+        app: cnfuzz
+    spec:
+      serviceAccountName: cnfuzz
+      containers:
+        - name: cnfuzz
+          image: localhost:5000/cnfuzz
+          imagePullPolicy: "Always"
+          args: [--inside-cluster, --only-marked, --job-img, localhost:5000/cnfuzz, --debug]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-script
+data:
+  "auth.py": |
+    #!/usr/bin/env python3
+    import sys
+
+    print("{'" + sys.argv[1] + "': {  }}")
+    print(sys.argv[2])
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cnfuzz-job
+  namespace: default
+rules:
+  - apiGroups:
+      - ""
+      - "batch"
+    resources:
+      - pods
+      - jobs
+      - namespaces
+    verbs:
+      - get
+      - list
+      - create
+      - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cnfuzz-job
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cnfuzz-job
+subjects:
+  - kind: ServiceAccount
+    name: cnfuzz-job
+    namespace: default
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cnfuzz-job
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cnfuzz
+rules:
+  - apiGroups:
+      - ""
+      - "batch"
+      - "apps"
+    resources:
+      - pods
+      - events
+      - jobs
+    verbs:
+      - view
+      - get
+      - list
+      - watch
+      - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cnfuzz
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cnfuzz
+subjects:
+  - kind: ServiceAccount
+    name: cnfuzz
+    namespace: default
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cnfuzz
+
