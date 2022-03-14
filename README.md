@@ -4,7 +4,7 @@
 
 _"Breaking Cloud Native Web APIs in their natural habitat."_
 
-`cnfuzz` is a project written in Golang that automates fuzzing web APIs deployed in Kubernetes clusters. By tracking hashes of all container images, (re)deployed web API versions will be fuzzed - to detect potential security and stability issues right away.
+`cnfuzz` is a project written in Golang that automates fuzzing web APIs deployed in Kubernetes clusters. By tracking hashes of all container images, _(re)deployed_ web API versions will be fuzzed - to detect potential security and stability issues right away.
 
 [OpenAPI](https://www.openapis.org/) and [RESTler](https://github.com/microsoft/restler-fuzzer) by Microsoft are being used to further automate the process.
 
