@@ -28,4 +28,4 @@ jobs:
       run: go test -v ./...
 
     - name: Vet
-      run: go fmt $(go list ./... | grep -v /vendor/)
+      run: go vet $(go list ./... | grep -v /vendor/)
