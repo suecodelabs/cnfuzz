@@ -1,2 +1,0 @@
-* include redis in chart
-* include virtual pod autoscaling for fuzzing jobs e.g. multiple fuzzing tasks per pod
