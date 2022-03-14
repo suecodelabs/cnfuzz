@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
         - name: todoapi
-          image: localhost:5000/todo-api
+          image: luukvdm/todoapi
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
