@@ -47,7 +47,7 @@ image-debug:
 kind:
 	docker build -t $(KIND_IMAGE) -f Dockerfile .
 	kind load docker-image $(KIND_IMAGE)
-	helm upgrade --install $(if $(GIT_BRANCH),$(subst /,-,$(GIT_BRANCH))) charts/cnfuzz $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+	helm upgrade --install --force $(if $(GIT_BRANCH),$(subst /,-,$(GIT_BRANCH))) charts/cnfuzz $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 
 kill-jobs:
 	# Kill running jobs
