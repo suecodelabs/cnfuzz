@@ -6,7 +6,7 @@ _"Breaking Cloud Native Web APIs in their natural habitat."_
 
 Fuzzing web APIs in their fully converged Cloud Native state renders more representative results, just like it would have been deployed in production.
 
-`cnfuzz` is a project written in Golang that automates fuzzing web APIs deployed in Kubernetes clusters. By tracking hashes of all container images, _(re)deployed_ web API versions will be fuzzed - to detect potential security and stability issues right away.
+`cnfuzz` is a project written in Golang that automates fuzzing web APIs deployed in Kubernetes clusters. By tracking hashes of all container images, _(re)deployed_ web API versions will be fuzzed - to detect potential security and stability issues.
 
 [OpenAPI](https://www.openapis.org/) and [RESTler](https://github.com/microsoft/restler-fuzzer) by Microsoft are being used to further automate the process.
 
@@ -50,12 +50,11 @@ spec:
 
 - Install [Kind](https://kind.sigs.k8s.io/).
 
-- Create a [GitHub Personal access token](https://github.com/settings/tokens) with `read:packages` rights.
+- Install [Helm](https://helm.sh/docs/intro/install/)
 
 ```sh
-kubectl create secret docker-registry regcred --docker-server=https://ghcr.io --docker-username=<github_username> --docker-password=<github_personal_access_token>
-
-helm install fuzzy charts/cnfuzz --set imagePullSecrets[0].name=regcred --set image.imagePullPolicy=Always --set image.tag=<your_tag>
+# don't forget to commit your changes locally before deploying to Kind.
+make kind
 ```
 
 

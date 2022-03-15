@@ -1,6 +1,6 @@
 SRCS = $(shell git ls-files '*.go' | grep -v '^vendor/')
 
-APP_NAME := github.com/suecodelabs/cnfuzz
+APP_NAME := ghcr.io/suecodelabs/cnfuzz
 TAG_NAME := $(shell git tag -l --contains HEAD)
 SHA := $(shell git rev-parse HEAD)
 VERSION_GIT := $(if $(TAG_NAME),$(TAG_NAME),$(SHA))
@@ -10,7 +10,9 @@ BIN_NAME ?= cnfuzz
 BIN_DIR ?= dist
 
 GIT_BRANCH := $(subst heads/,,$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null))
+GIT_COMMIT := $(subst heads/,,$(shell git rev-parse --short HEAD 2>/dev/null))
 DEV_IMAGE := cnfuzz-debug$(if $(GIT_BRANCH),:$(subst /,-,$(GIT_BRANCH)))
+KIND_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),:$(subst /,-,$(GIT_COMMIT)))
 IMAGE ?= "cnfuzz"
 
 init:
@@ -39,8 +41,20 @@ format:
 image:
 	docker build -t $(IMAGE) .
 
+image.local: build
+	docker build -t $(IMAGE) -f local.Dockerfile .
+
 image-debug:
 	docker build -t $(DEV_IMAGE) -f Dockerfile .
+
+kind: build
+	docker build -t $(KIND_IMAGE) -f local.Dockerfile .
+	kind load docker-image $(KIND_IMAGE)
+	make kill-jobs
+	helm upgrade --install $(if $(GIT_BRANCH),$(subst /,-,$(GIT_BRANCH))) charts/cnfuzz $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+
+kind-clean:
+	helm delete $(if $(GIT_BRANCH),$(subst /,-,$(GIT_BRANCH)))
 
 kill-jobs:
 	# Kill running jobs
