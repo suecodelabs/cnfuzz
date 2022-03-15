@@ -17,6 +17,6 @@ func Serv() {
 
 	http.HandleFunc("/livez", livez)
 	http.HandleFunc("/readyz", readyz)
-	http.ListenAndServe(":80", nil)
+	http.ListenAndServe(":8080", nil)
 
 }

@@ -11,5 +11,5 @@ RUN make build
 
 FROM scratch AS final
 COPY --from=build /fuzzer/dist/cnfuzz /
-EXPOSE 80
+EXPOSE 8080
 ENTRYPOINT ["/cnfuzz"]

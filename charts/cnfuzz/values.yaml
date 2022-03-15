@@ -42,8 +42,6 @@ securityContext:
   capabilities:
     drop:
     - ALL
-    add:
-    - NET_BIND_SERVICE
   #readOnlyRootFilesystem: true
   runAsNonRoot: true
   runAsUser: 1000
