@@ -50,10 +50,10 @@ image-debug:
 kind: build
 	docker build -t $(KIND_IMAGE) -f local.Dockerfile .
 	kind load docker-image $(KIND_IMAGE)
-	helm install --wait --timeout 600 $(if $(GIT_COMMIT),cnfuzz-$(subst /,-,$(GIT_COMMIT))) charts/cnfuzz $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+	helm install --wait --timeout 10m0s $(if $(GIT_COMMIT),cnfuzz-$(subst /,-,$(GIT_COMMIT))) charts/cnfuzz $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 
 kind-clean:
-	helm delete $(if $(GIT_COMMIT),$(subst /,-,$(GIT_COMMIT)))
+	helm delete $(if $(GIT_COMMIT),cnfuzz-$(subst /,-,$(GIT_COMMIT)))
 
 kill-jobs:
 	# Kill running jobs
