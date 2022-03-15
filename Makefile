@@ -47,10 +47,12 @@ image.local: build
 image-debug:
 	docker build -t $(DEV_IMAGE) -f Dockerfile .
 
-kind:
-	docker build -t $(KIND_IMAGE) -f Dockerfile .
+kind: build
+	docker build -t $(KIND_IMAGE) -f local.Dockerfile .
 	kind load docker-image $(KIND_IMAGE)
-	helm upgrade --install --force $(if $(GIT_BRANCH),$(subst /,-,$(GIT_BRANCH))) charts/cnfuzz $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+	helm delete $(if $(GIT_BRANCH),$(subst /,-,$(GIT_BRANCH))) || echo "No cnfuzz installation present, skipping."
+	make kill-jobs
+	helm upgrade --install $(if $(GIT_BRANCH),$(subst /,-,$(GIT_BRANCH))) charts/cnfuzz $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 
 kill-jobs:
 	# Kill running jobs
