@@ -1,4 +1,4 @@
-name: "Create cluster using KinD"
+name: "Kubernetes Integration"
 on: [pull_request, push]
 
 jobs:
