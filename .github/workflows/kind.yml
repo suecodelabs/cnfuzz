@@ -1,0 +1,22 @@
+name: "Kubernetes Integration"
+on:
+  pull_request:
+    branches:
+      - main
+      - 'releases/**'
+
+jobs:
+  kind:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: engineerd/setup-kind@v0.5.0
+      - name: Testing
+        with:
+          go-version: 1.17
+        run: |
+          kubectl cluster-info
+          kubectl get pods -n kube-system
+          echo "current-context:" $(kubectl config current-context)
+          echo "environment-kubeconfig:" ${KUBECONFIG}
+          make kind
