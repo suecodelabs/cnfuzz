@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
-	"github.com/suecodelabs/cnfuzz/src/log"
 )
 
 func livez(w http.ResponseWriter, req *http.Request) {
