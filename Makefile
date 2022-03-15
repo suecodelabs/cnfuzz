@@ -39,6 +39,9 @@ format:
 image:
 	docker build -t $(IMAGE) .
 
+image.local: build
+	docker build -t $(IMAGE) -f local.Dockerfile .
+
 image-debug:
 	docker build -t $(DEV_IMAGE) -f Dockerfile .
 
