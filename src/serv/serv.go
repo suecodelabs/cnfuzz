@@ -2,8 +2,9 @@ package serv
 
 import (
 	"fmt"
-	"log"
 	"net/http"
+
+	"github.com/suecodelabs/cnfuzz/src/log"
 )
 
 func livez(w http.ResponseWriter, req *http.Request) {
@@ -20,6 +21,6 @@ func Serv() {
 	http.HandleFunc("/readyz", readyz)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
-		log.Fatal(err)
+		log.L().Fatal(err)
 	}
 }
