@@ -1,3 +1,6 @@
+![Go GitHub Action](https://github.com/suecodelabs/cnfuzz/actions/workflows/go.yml/badge.svg)
+
+
 <img align="right" width="250px" src="images/gopher-throw.png">
 
 ## cnfuzz - Cloud Native Web API Fuzzer
