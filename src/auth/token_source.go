@@ -7,10 +7,13 @@ import (
 	"github.com/suecodelabs/cnfuzz/src/log"
 )
 
+// TokenSource interface for creating new auth tokens
 type TokenSource interface {
 	Token() (*Token, error)
 }
 
+// CreateTokenSource creates a new TokenSource
+// Uses the schema type (BasicSecSchemaType) to create a TokenSource for the proper auth source
 func CreateTokenSource(schema discovery.SecuritySchema, clientId string, secret string) (TokenSource, error) {
 	var createdTokenSource TokenSource
 	var err error
@@ -37,18 +40,20 @@ func CreateTokenSource(schema discovery.SecuritySchema, clientId string, secret 
 	return createdTokenSource, nil
 }
 
+// CreateTokenSourceFromSchemas creates a new TokenSource from the first schema in the slice
 func CreateTokenSourceFromSchemas(schemas []discovery.SecuritySchema, clientId string, secret string) (TokenSource, error) {
 	// Check if there are any security schemas
+	// This function could be improved by having a smarter algorithm for picking a schema
 	if len(schemas) > 0 {
 		// Just use the first one for now ...
 		// If there are multiple schemas the situation does get weird, because the user can only pass one
 		// username/secret combination, and there is currently no way to select a preferred auth scheme
 		selScheme := 0
-		for i, scheme := range schemas {
+		/* for i, scheme := range schemas {
 			if len(scheme.Flows) > 0 && scheme.Flows[0].GrantType == discovery.AuthorizationCode {
 				selScheme = i
 			}
-		}
+		} */
 		selectedAuthScheme := schemas[selScheme]
 
 		tokenSource, authErr := CreateTokenSource(selectedAuthScheme, clientId, secret)

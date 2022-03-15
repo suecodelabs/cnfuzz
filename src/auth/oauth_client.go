@@ -11,6 +11,7 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 )
 
+// CreateTokenFromOAuthFlow creates a TokenSource for a OAuthFlow
 func CreateTokenFromOAuthFlow(grantType string, clientId string, secret string, flow discovery.OAuthFlow) (TokenSource, error) {
 	ctx := context.TODO()
 
@@ -45,6 +46,8 @@ func CreateTokenFromOAuthFlow(grantType string, clientId string, secret string, 
 	return CreateOAuthTokenSource(oauthTokenSource), nil
 }
 
+// createClientCredentialsTokenSource creates an oauth2 TokenSource for the Client Credentials OAuth flow
+// https://tools.ietf.org/html/rfc6749#section-4.4
 func createClientCredentialsTokenSource(ctx context.Context, clientId string, clientSecret string, scopes []string, tokenUrl string) oauth2.TokenSource {
 	conf := clientcredentials.Config{
 		ClientID:     clientId,
@@ -56,6 +59,8 @@ func createClientCredentialsTokenSource(ctx context.Context, clientId string, cl
 	return conf.TokenSource(ctx)
 }
 
+// createPasswordTokenSource creates an oauth2 TokenSource for the Password OAuth flow
+// https://tools.ietf.org/html/rfc6749#section-4.3
 func createPasswordTokenSource(ctx context.Context, clientId string, clientSecret string, scopes []string, authUrl string, tokenUrl string) (oauth2.TokenSource, error) {
 	conf := oauth2.Config{
 		ClientID:     clientId,
@@ -74,6 +79,8 @@ func createPasswordTokenSource(ctx context.Context, clientId string, clientSecre
 	return conf.TokenSource(ctx, tok), nil
 }
 
+// createAuthorizationCodeTokenSource creates an oauth2 TokenSource for the Authorization code OAuth flow
+// https://tools.ietf.org/html/rfc6749#section-4.1
 func createAuthorizationCodeTokenSource(ctx context.Context, clientId string, clientSecret string, scopes []string, authUrl string, tokenUrl string) (oauth2.TokenSource, error) {
 	conf := oauth2.Config{
 		ClientID:     clientId,
