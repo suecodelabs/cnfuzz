@@ -4,6 +4,9 @@ on:
     branches:
       - main
       - 'releases/**'
+  push:
+    branches:
+      - main
 
 jobs:
   kind:
