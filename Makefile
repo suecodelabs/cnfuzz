@@ -47,7 +47,7 @@ image.local: build
 image-debug:
 	docker build -t $(DEV_IMAGE) -f Dockerfile .
 
-kind:
+kind: build
 	docker build -t $(KIND_IMAGE) -f local.Dockerfile .
 	kind load docker-image $(KIND_IMAGE)
 	make kill-jobs

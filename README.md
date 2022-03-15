@@ -57,7 +57,7 @@ spec:
 
 ```sh
 # don't forget to commit your changes locally before deploying to Kind.
-make build && make kind
+make kind
 ```
 
 
