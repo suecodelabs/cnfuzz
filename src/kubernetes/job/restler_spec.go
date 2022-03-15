@@ -123,12 +123,12 @@ func createRestlerCommand(targetPod *v1.Pod, fuzzConfig *config.FuzzConfig) stri
 }
 
 func createAuthToken(fuzzConfig *config.FuzzConfig) (token string, authErr error) {
-	tokenWrapper, authErr := auth.CreateTokenWrapperFromSchema(fuzzConfig.ApiDescription.SecuritySchemes, fuzzConfig.ClientId, fuzzConfig.Secret)
+	tokenSource, authErr := auth.CreateTokenSourceFromSchemas(fuzzConfig.ApiDescription.SecuritySchemes, fuzzConfig.ClientId, fuzzConfig.Secret)
 	if authErr != nil {
 		log.L().Errorf("error while building auth token provider: ", authErr)
 		return "", authErr
 	} else {
-		tok, tokErr := tokenWrapper.TokenSource.Token()
+		tok, tokErr := tokenSource.Token()
 		if tokErr != nil {
 			log.L().Errorf("error while getting a new auth token: %+v", tokErr)
 			return "", tokErr

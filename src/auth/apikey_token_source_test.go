@@ -1,4 +1,4 @@
-package source
+package auth
 
 import (
 	"github.com/stretchr/testify/assert"
