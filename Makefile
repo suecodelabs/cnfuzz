@@ -50,8 +50,7 @@ image-debug:
 kind: build
 	docker build -t $(KIND_IMAGE) -f local.Dockerfile .
 	kind load docker-image $(KIND_IMAGE)
-	make kill-jobs
-	helm upgrade --install $(if $(GIT_BRANCH),$(subst /,-,$(GIT_BRANCH))) charts/cnfuzz $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+	helm install $(if $(GIT_BRANCH),cnfuzz-$(subst /,-,$(GIT_BRANCH))) charts/cnfuzz $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 
 kind-clean:
 	helm delete $(if $(GIT_BRANCH),$(subst /,-,$(GIT_BRANCH)))
