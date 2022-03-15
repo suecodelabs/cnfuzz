@@ -1,4 +1,4 @@
-package source
+package auth
 
 import (
 	"net/http"
@@ -9,10 +9,6 @@ import (
 )
 
 const expiryDelta = 10 * time.Second
-
-type TokenSource interface {
-	Token() (*Token, error)
-}
 
 type Token struct {
 	AccessToken  string
