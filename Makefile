@@ -55,6 +55,7 @@ kind: build
 	kind load docker-image $(KIND_EXAMPLE_IMAGE)
 	kubectl apply -f example/deployment.yaml
 	kubectl set image deployment/todo-api todoapi=$(KIND_EXAMPLE_IMAGE)
+	kubectl rollout restart deployment/todo-api
 	helm install --wait --timeout 10m0s $(if $(GIT_COMMIT),cnfuzz-$(subst /,-,$(GIT_COMMIT))) charts/cnfuzz $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 
 kind-clean:
