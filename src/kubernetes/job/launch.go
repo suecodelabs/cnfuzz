@@ -11,6 +11,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+// LaunchFuzzJob launches a job that retrieves the OpenAPI doc and kicks of a RESTler job
 func LaunchFuzzJob(clientset kubernetes.Interface, kubeConfig *config.KubernetesFuzzConfig) (createdJob *batchv1.Job, err error) {
 	jobs := clientset.BatchV1().Jobs(kubeConfig.Namespace)
 
@@ -20,6 +21,7 @@ func LaunchFuzzJob(clientset kubernetes.Interface, kubeConfig *config.Kubernetes
 	return result, err
 }
 
+// LaunchRestlerJob starts a job with the RESTler fuzzer
 func LaunchRestlerJob(clientset kubernetes.Interface, fuzzConfig *config.FuzzConfig, targetPod *v1.Pod) (restlerJob *batchv1.Job, err error) {
 	// Start the RESTler container as a job
 	restlerJobSpec := createRestlerJob(fuzzConfig, targetPod)

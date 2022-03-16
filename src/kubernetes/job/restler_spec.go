@@ -12,6 +12,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// createRestlerJob creates a Kubernetes Job for the RESTler fuzzer
+// this includes an init container that gets the OpenAPI doc from the target API with curl and volumes for transferring the information
+// it uses values from the FuzzConfig to configure the fuzz command that runs inside the RESTler container
 func createRestlerJob(fuzzConfig *config.FuzzConfig, targetPod *v1.Pod) *batchv1.Job {
 	fullCommand := createRestlerCommand(targetPod, fuzzConfig)
 
@@ -91,6 +94,9 @@ func createRestlerJob(fuzzConfig *config.FuzzConfig, targetPod *v1.Pod) *batchv1
 	return restlerSpec
 }
 
+// createRestlerCommand creates command string that can be run inside the RESTler container
+// the command string consists of a compile command that analyzes the OpenAPI spec and generates a fuzzing grammar
+// and the fuzz command itself
 func createRestlerCommand(targetPod *v1.Pod, fuzzConfig *config.FuzzConfig) string {
 	targetIp := targetPod.Status.PodIP
 	targetPort := fuzzConfig.ApiDescription.BaseUrl.Port()
@@ -122,6 +128,7 @@ func createRestlerCommand(targetPod *v1.Pod, fuzzConfig *config.FuzzConfig) stri
 	return fullCommand
 }
 
+// createAuthToken creates an auth token from the fuzz config
 func createAuthToken(fuzzConfig *config.FuzzConfig) (token string, authErr error) {
 	tokenSource, authErr := auth.CreateTokenSourceFromSchemas(fuzzConfig.ApiDescription.SecuritySchemes, fuzzConfig.ClientId, fuzzConfig.Secret)
 	if authErr != nil {

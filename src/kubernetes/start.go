@@ -20,11 +20,7 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-func StartFuzzingJob() error {
-
-	return nil
-}
-
+// FuzzPod fuzz a pod from a Pod object
 func FuzzPod(pod *v1.Pod) error {
 	insideCluster := viper.GetBool(cmd.InsideClusterFlag)
 	clientset, err := CreateClientSet(insideCluster)
@@ -35,6 +31,7 @@ func FuzzPod(pod *v1.Pod) error {
 	return fuzzPod(clientset, pod)
 }
 
+// FuzzPodWithName fuzz a pod from just its name and namespace
 func FuzzPodWithName(namespace string, podName string) (err error) {
 	insideCluster := viper.GetBool(cmd.InsideClusterFlag)
 	clientset, err := CreateClientSet(insideCluster)
@@ -54,6 +51,7 @@ func FuzzPodWithName(namespace string, podName string) (err error) {
 	return fuzzPod(clientset, pod)
 }
 
+// StartInformers start informers that listen for Kubernetes events and let the EventHandler react on the events
 func StartInformers(repos *repository.Repositories) (err error) {
 	insideCluster := viper.GetBool(cmd.InsideClusterFlag)
 	clientset, err := CreateClientSet(insideCluster)
@@ -79,6 +77,7 @@ func StartInformers(repos *repository.Repositories) (err error) {
 	select {}
 }
 
+// fuzzPod start the fuzzing process for a pod
 func fuzzPod(clientSet kubernetes.Interface, pod *v1.Pod) error {
 	annos := GetAnnotations(&pod.ObjectMeta)
 	annos.SetConfigRegister()
@@ -94,6 +93,8 @@ func fuzzPod(clientSet kubernetes.Interface, pod *v1.Pod) error {
 	var oaLocs []string
 	if len(annos.OpenApiDocLocation) > 0 {
 		oaLocs = append(oaLocs, annos.OpenApiDocLocation)
+	} else {
+		oaLocs = openapi.GetCommonOpenApiLocations()
 	}
 
 	apiDesc, err := openapi.TryGetOpenApiDoc(ip, ports, oaLocs)

@@ -16,12 +16,15 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+// EventHandler that handles Kubernetes events
+// if it detects a pod with an image that hasn't been fuzzed yet, it will try to fuzz the pod
 type EventHandler struct {
 	clientSet    kubernetes.Interface
 	repositories *repository.Repositories
 	handleFunc   func(clientSet kubernetes.Interface, repositories *repository.Repositories, pod *apiv1.Pod)
 }
 
+// NewEventHandler creates a new EventHandler
 func NewEventHandler(clientset kubernetes.Interface, repositories *repository.Repositories) *EventHandler {
 	return &EventHandler{
 		clientSet:    clientset,
@@ -30,6 +33,7 @@ func NewEventHandler(clientset kubernetes.Interface, repositories *repository.Re
 	}
 }
 
+// OnAdd handles an add event
 func (handler EventHandler) OnAdd(obj interface{}) {
 	// Object types
 	switch object := obj.(type) {
@@ -41,6 +45,7 @@ func (handler EventHandler) OnAdd(obj interface{}) {
 
 }
 
+// OnUpdate handles an update event
 func (handler EventHandler) OnUpdate(oldObj interface{}, newObj interface{}) {
 	switch newObject := newObj.(type) {
 	case *apiv1.Pod:
@@ -61,11 +66,14 @@ func (handler EventHandler) OnUpdate(oldObj interface{}, newObj interface{}) {
 
 }
 
+// OnDelete handles a delete event
 func (handler EventHandler) OnDelete(obj interface{}) {
 	// We just ignore these completely
 	// No point in fuzzing a deleted object
 }
 
+// HandlePodEvent method that handles an event for a pod
+// it decides if the pod needs to be fuzzed and can start the fuzzing process when the pod is ready
 func HandlePodEvent(clientSet kubernetes.Interface, repositories *repository.Repositories, pod *apiv1.Pod) {
 	logger := log.L()
 	annos := GetAnnotations(&pod.ObjectMeta)
@@ -115,6 +123,7 @@ func HandlePodEvent(clientSet kubernetes.Interface, repositories *repository.Rep
 	}
 }
 
+// containsUnfuzzedImages gets images from a Pod and checks inside the repository if any of the images are unknown or haven't been fuzzed earlier
 func containsUnfuzzedImages(pod *apiv1.Pod, repo repository.IContainerImageRepository) (allImages []model.ContainerImage, containsUnfuzzedImages bool) {
 	logger := log.L()
 	// Get all images inside pod
