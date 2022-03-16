@@ -20,12 +20,14 @@ https://github.com/suecodelabs/cnfuzz`,
 	}
 )
 
+// initializes the base command
 func init() {
 	cobra.OnInitialize(initConfig)
 
 	SetupFlags(rootCmd)
 }
 
+// initConfig initializes viper configuration
 func initConfig() {
 	if cfgFile != "" {
 		viper.SetConfigFile(cfgFile)
@@ -38,6 +40,7 @@ func initConfig() {
 	}
 }
 
+// Execute starts the base command
 func Execute(runFunc func(cmd *cobra.Command, args []string)) error {
 	rootCmd.Run = runFunc
 	return rootCmd.Execute()

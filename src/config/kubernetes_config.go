@@ -7,6 +7,7 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
+// KubernetesFuzzConfig object that holds configuration for Kubernetes
 type KubernetesFuzzConfig struct {
 	TargetPodName      string
 	TargetPodNamespace string
@@ -20,6 +21,7 @@ type KubernetesFuzzConfig struct {
 	Image              string
 }
 
+// CreateKubernetesConfigWPod creates a KubernetesFuzzConfig from a pod object
 func CreateKubernetesConfigWPod(pod *apiv1.Pod) *KubernetesFuzzConfig {
 	namespace := getNamespace()
 	return &KubernetesFuzzConfig{
@@ -34,6 +36,7 @@ func CreateKubernetesConfigWPod(pod *apiv1.Pod) *KubernetesFuzzConfig {
 	}
 }
 
+// CreateKubernetesConfig creates a KubernetesFuzzConfig for a pod with its name and namespace
 func CreateKubernetesConfig(targetPodName string, namespace string) *KubernetesFuzzConfig {
 	return &KubernetesFuzzConfig{
 		TargetPodName:      targetPodName,
@@ -48,6 +51,7 @@ func CreateKubernetesConfig(targetPodName string, namespace string) *KubernetesF
 	}
 }
 
+// getNamespace function that gets the home namespace from viper and checks if it's valid
 func getNamespace() string {
 	namespace := viper.GetString(cmd.HomeNamespaceFlag)
 	if len(namespace) <= 0 {

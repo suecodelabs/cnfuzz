@@ -14,7 +14,14 @@ import (
 
 const UserAgent = "cnfuzz"
 
-// GetRemoteOpenApiDoc Get OpenApi doc from a URL
+// GetCommonOpenApiLocations returns a list of locations commonly used for OpenAPI specifications in web API's
+func GetCommonOpenApiLocations() []string {
+	return []string{
+		"/swagger/doc.json",
+	}
+}
+
+// GetRemoteOpenApiDoc get OpenApi doc from a URL
 // Use this method if the full URL to the OpenApi doc is known
 func GetRemoteOpenApiDoc(url *url.URL) []byte {
 	logger := log.L()
@@ -48,7 +55,7 @@ func GetRemoteOpenApiDoc(url *url.URL) []byte {
 	return body
 }
 
-// TryGetOpenApiDoc Try getting the OpenApi doc from a host without knowing the exact OpenApi doc location
+// TryGetOpenApiDoc try getting the OpenApi doc from a host without knowing the exact OpenApi doc location
 func TryGetOpenApiDoc(ip string, ports []int32, locations []string) (webApiDescription *discovery.WebApiDescription, err error) {
 	logger := log.L()
 	if len(ports) == 0 {
@@ -77,6 +84,8 @@ func TryGetOpenApiDoc(ip string, ports []int32, locations []string) (webApiDescr
 	return nil, fmt.Errorf("failed to get OpenAPI doc")
 }
 
+// tryGetOpenApiDoc attempts to retrieve the OpenAPI doc from the given locations
+// continues trying locations until a location is successful or if every location has been tried
 func tryGetOpenApiDoc(baseUri string, locations []string) (webApiDescription *discovery.WebApiDescription, err error) {
 	logger := log.L()
 	// TODO do Api versions
@@ -85,8 +94,6 @@ func tryGetOpenApiDoc(baseUri string, locations []string) (webApiDescription *di
 	client := http.Client{
 		Timeout: time.Second * 4,
 	}
-
-	locations = append(locations, "/swagger/doc.json")
 
 	for _, try := range locations {
 		fullUri := baseUri + try

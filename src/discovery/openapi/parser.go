@@ -13,6 +13,8 @@ import (
 	"github.com/suecodelabs/cnfuzz/src/log"
 )
 
+// UnMarshalOpenApiDoc unmarshal OpenAPI doc represented as a byte array
+// returns a WebApiDescription object that represents the OpenAPI document
 func UnMarshalOpenApiDoc(docFile []byte, uri *url.URL) (*discovery.WebApiDescription, error) {
 	var doc *openapi3.T
 
@@ -49,6 +51,7 @@ func UnMarshalOpenApiDoc(docFile []byte, uri *url.URL) (*discovery.WebApiDescrip
 	return parseOpenApiDoc(doc, uri, docIsVersion2)
 }
 
+// parseOpenApiDoc accepts a kin-openapi3 document and tries to convert it to a cnfuzz WebApiDescription object
 func parseOpenApiDoc(doc *openapi3.T, uri *url.URL, docIsVersion2 bool) (*discovery.WebApiDescription, error) {
 	logger := log.L()
 	// General info
@@ -173,6 +176,7 @@ func parseOpenApiDoc(doc *openapi3.T, uri *url.URL, docIsVersion2 bool) (*discov
 	return &desc, nil
 }
 
+// getMajorDocVersion tries to get the version of an OpenAPI doc
 func getMajorDocVersion(doc []byte) (version int, err error) {
 	var result map[string]interface{}
 
@@ -204,6 +208,7 @@ func getMajorDocVersion(doc []byte) (version int, err error) {
 	return 0, fmt.Errorf("version of the OpenAPI doc is unknown")
 }
 
+// transformOAuthFlow converts kin-openapi3 OAuthFlow to a cnfuzz OAuthFlow object
 func transformOAuthFlow(grantType string, flow *openapi3.OAuthFlow) discovery.OAuthFlow {
 	return discovery.OAuthFlow{
 		GrantType:        grantType,
@@ -214,6 +219,7 @@ func transformOAuthFlow(grantType string, flow *openapi3.OAuthFlow) discovery.OA
 	}
 }
 
+// transformBody converts kin-openapi3 RequestBody to a cnfuzz Body object
 func transformBody(rBody *openapi3.RequestBody) discovery.Body {
 	body := discovery.Body{
 		Description: rBody.Description,
@@ -225,6 +231,7 @@ func transformBody(rBody *openapi3.RequestBody) discovery.Body {
 	return body
 }
 
+// transformSchema converts kin-openapi3 Schema to a cnfuzz Schema object
 func transformSchema(id string, schema *openapi3.Schema) discovery.Schema {
 	schemaModel := discovery.Schema{
 		Key:        id,
@@ -247,6 +254,7 @@ func transformSchema(id string, schema *openapi3.Schema) discovery.Schema {
 	return schemaModel
 }
 
+// transformContent converts kin-openapi3 Content to a cnfuzz Content object
 func transformContent(contents openapi3.Content) []discovery.Content {
 	if contents == nil {
 		return nil
