@@ -56,6 +56,11 @@ spec:
 - Install [Helm](https://helm.sh/docs/intro/install/)
 
 ```sh
+# deploy example web api which is already annotated
+kubectl apply -f example/deployment.yaml
+```
+
+```sh
 # don't forget to commit your changes locally before deploying to Kind.
 make kind
 ```
