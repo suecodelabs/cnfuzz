@@ -49,7 +49,7 @@ image-debug:
 	docker build -t $(DEV_IMAGE) -f Dockerfile .
 
 kind: build
-    cd example && docker build -t $(KIND_EXAMPLE_IMAGE) -f Dockerfile . && cd ..
+	cd example && docker build -t $(KIND_EXAMPLE_IMAGE) -f Dockerfile . && cd ..
 	docker build -t $(KIND_IMAGE) -f local.Dockerfile .
 	kind load docker-image $(KIND_IMAGE)
 	kind load docker-image $(KIND_EXAMPLE_IMAGE)
