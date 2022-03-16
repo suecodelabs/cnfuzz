@@ -13,7 +13,7 @@ GIT_BRANCH := $(subst heads/,,$(shell git rev-parse --abbrev-ref HEAD 2>/dev/nul
 GIT_COMMIT := $(subst heads/,,$(shell git rev-parse --short HEAD 2>/dev/null))
 DEV_IMAGE := cnfuzz-debug$(if $(GIT_BRANCH),:$(subst /,-,$(GIT_BRANCH)))
 KIND_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),:$(subst /,-,$(GIT_COMMIT)))
-KIND_EXAMPLE_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),todo-api:$(subst /,-,$(GIT_COMMIT)))
+KIND_EXAMPLE_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),-todo-api:$(subst /,-,$(GIT_COMMIT)))
 IMAGE ?= "cnfuzz"
 
 init:
@@ -51,8 +51,7 @@ image-debug:
 kind: build
 	cd example && docker build -t $(KIND_EXAMPLE_IMAGE) -f Dockerfile . && cd ..
 	docker build -t $(KIND_IMAGE) -f local.Dockerfile .
-	kind load docker-image $(KIND_IMAGE)
-	kind load docker-image $(KIND_EXAMPLE_IMAGE)
+	kind load docker-image $(KIND_IMAGE) && kind load docker-image $(KIND_EXAMPLE_IMAGE)
 	kubectl apply -f example/deployment.yaml
 	kubectl set image deployment/todo-api todoapi=$(KIND_EXAMPLE_IMAGE)
 	kubectl rollout restart deployment/todo-api
