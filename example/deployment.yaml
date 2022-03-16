@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
         - name: todoapi
-          image: luukvdm/todoapi
+          image: ghcr.io/suecodelabs/cnfuzz-todo-api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
