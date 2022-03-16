@@ -1,10 +1,5 @@
 name: "Kubernetes Integration"
-on:
-  pull_request:
-    branches:
-      - main
-      - "releases/**"
-  push:
+on: [pull_request, push]
 
 jobs:
   kind:
