@@ -56,15 +56,14 @@ spec:
 - Install [Helm](https://helm.sh/docs/intro/install/)
 
 ```sh
+# build the image
+IMAGE=cnfuzz:latest make image.local
+kind load docker-image cnfuzz:latest
+# deploy cnfuzz
+kubectl apply -f deployment.yaml
 # deploy example web api which is already annotated
 kubectl apply -f example/deployment.yaml
 ```
-
-```sh
-# don't forget to commit your changes locally before deploying to Kind.
-make kind
-```
-
 
 ### Build project
 

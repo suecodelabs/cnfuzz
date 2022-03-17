@@ -15,9 +15,9 @@ spec:
       serviceAccountName: cnfuzz
       containers:
         - name: cnfuzz
-          image: localhost:5000/cnfuzz
-          imagePullPolicy: "Always"
-          args: [--inside-cluster, --only-marked, --job-img, localhost:5000/cnfuzz, --debug]
+          image: cnfuzz:latest
+          imagePullPolicy: "IfNotPresent"
+          args: [--inside-cluster, --only-marked, --job-img, cnfuzz, --debug]
 ---
 apiVersion: v1
 kind: ConfigMap
