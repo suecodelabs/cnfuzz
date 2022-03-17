@@ -55,7 +55,7 @@ kind: build
 	kubectl apply -f example/deployment.yaml
 	kubectl set image deployment/todo-api todoapi=$(KIND_EXAMPLE_IMAGE)
 	kubectl rollout restart deployment/todo-api
-	helm upgrade --install --wait --timeout 10m0s $(if $(GIT_COMMIT),cnfuzz-$(subst /,-,$(GIT_COMMIT))) charts/cnfuzz $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+	helm upgrade --install --wait --timeout 10m0s $(if $(GIT_COMMIT),cnfuzz-$(subst /,-,$(GIT_COMMIT))) charts/cnfuzz $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT))) --set redis.architecture=standalone
 
 kind-clean:
 	helm delete $(if $(GIT_COMMIT),cnfuzz-$(subst /,-,$(GIT_COMMIT)))
