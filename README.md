@@ -1,4 +1,4 @@
-![Go GitHub Action](https://github.com/suecodelabs/cnfuzz/actions/workflows/go.yml/badge.svg) ![Container Build GitHub Action](https://github.com/suecodelabs/cnfuzz/actions/workflows/docker-publish.yml/badge.svg) ![Kubernetes Integration GitHub Action](https://github.com/suecodelabs/cnfuzz/actions/workflows/kind.yml/badge.svg)
+[![Go GitHub Action](https://github.com/suecodelabs/cnfuzz/actions/workflows/go.yml/badge.svg)](https://github.com/suecodelabs/cnfuzz/actions/workflows/go.yml) [![Container Build GitHub Action](https://github.com/suecodelabs/cnfuzz/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/suecodelabs/cnfuzz/actions/workflows/docker-publish.yml) [![Kubernetes Integration GitHub Action](https://github.com/suecodelabs/cnfuzz/actions/workflows/kind.yml/badge.svg)](https://github.com/suecodelabs/cnfuzz/actions/workflows/kind.yml)
 
 
 <img align="right" width="250px" src="images/gopher-throw.png">
