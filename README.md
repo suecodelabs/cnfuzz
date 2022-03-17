@@ -13,6 +13,16 @@ Fuzzing web APIs in their fully converged Cloud Native state renders more repres
 
 [OpenAPI](https://www.openapis.org/) and [RESTler](https://github.com/microsoft/restler-fuzzer) by Microsoft are being used to further automate the process.
 
+## Why?
+
+- [x] Fuzzing web API logic where they actually operate, especially when fuzzing complete *Service Mesh-es*
+- [x] Save expensive Cloud CI/CD pipeline credits by using idle Kubernetes cluster resources
+- [x] If you want fuzzing te be done, but not as a blocking step in your CI/CD pipeline
+- [x] You have heavy performance requirements for your fuzzing and Cloud based CI/CD pipelines do not suffice
+- [x] You want to fuzz web API's of services which are interconnected and are being deployed by different teams in the same Kubernetes cluster
+- [x] You don't want fuzzing to be bound to a CI/CD system
+- [x] You get excited over fuzzing farms
+
 ### Installation
 
 `helm install cnfuzz ./charts/cnfuzz`
