@@ -33,6 +33,7 @@ func NewFuzzerConfig(apiDesc *discovery.WebApiDescription, targetPod *v1.Pod) *F
 	return &FuzzerConfig{
 		JobName:              "cnfuzz-restler-" + targetPod.Name,
 		InitJobName:          "cnfuzz-restler-init-" + targetPod.Name,
+		Namespace:            targetPod.Namespace,
 		Image:                viper.GetString(cmd.RestlerImageFlag),
 		InitImage:            viper.GetString(cmd.RestlerInitImageFlag),
 		TimeBudget:           viper.GetString(cmd.RestlerTimeBudget),
