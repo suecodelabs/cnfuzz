@@ -3,12 +3,10 @@ package job
 import (
 	"context"
 	"github.com/stretchr/testify/assert"
+	"github.com/suecodelabs/cnfuzz/src/auth"
 	"github.com/suecodelabs/cnfuzz/src/config"
-	"github.com/suecodelabs/cnfuzz/src/discovery"
-	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/fake"
-	"net/url"
 	"testing"
 )
 
@@ -16,7 +14,7 @@ func TestLaunchK8sJob(t *testing.T) {
 	clientSet := fake.NewSimpleClientset()
 	testNamespaceName := "my-test-ns"
 	testJobName := "my-job"
-	config := &config.KubernetesFuzzConfig{
+	config := &config.SchedulerConfig{
 		Namespace: testNamespaceName,
 		JobName:   testJobName,
 	}
@@ -32,25 +30,29 @@ func TestLaunchRestlerJob(t *testing.T) {
 	clientSet := fake.NewSimpleClientset()
 	testNamespaceName := "my-test-ns"
 	testJobName := "my-restler-job"
-	testUri, _ := url.Parse("http://testservice:8080")
-	fuzzConf := &config.FuzzConfig{
-		ApiDescription: &discovery.WebApiDescription{
-			BaseUrl: *testUri,
-		},
-		KubernetesConfig: &config.KubernetesFuzzConfig{
-			RestlerImage:   "mcr.microsoft.com/restlerfuzzer/restler:v7.4.0",
-			RestlerJobName: testJobName,
-			Namespace:      testNamespaceName,
+
+	restlerConf := &config.FuzzerConfig{
+		JobName:   testJobName,
+		Namespace: testNamespaceName,
+		Target: config.FuzzerTarget{
+			IP:   "10.0.0.1",
+			Port: "8080",
 		},
 	}
 
-	_, launchErr := LaunchRestlerJob(clientSet, fuzzConf, &v1.Pod{ObjectMeta: metav1.ObjectMeta{
-		Name:      "target-api",
-		Namespace: testNamespaceName,
-	}})
+	testTokenSource := testTSource{}
+
+	_, launchErr := LaunchRestlerJob(clientSet, restlerConf, testTokenSource)
 	assert.NoError(t, launchErr)
 	result, err := clientSet.BatchV1().Jobs(testNamespaceName).Get(context.TODO(), testJobName, metav1.GetOptions{})
 	if assert.NoError(t, err) {
 		assert.Equal(t, testJobName, result.Name)
 	}
+}
+
+type testTSource struct {
+}
+
+func (testTSource) Token() (*auth.Token, error) {
+	return &auth.Token{}, nil
 }

@@ -10,7 +10,7 @@ type oAuthTokenSource struct {
 	oauthSource oauth2.TokenSource
 }
 
-// CreateOAuthTokenSource creates an oAuthTokenSource from a TokenSource from the oauth2 library
+// CreateOAuthTokenSource creates an oAuthTokenSource from a ITokenSource from the oauth2 library
 func CreateOAuthTokenSource(source oauth2.TokenSource) *oAuthTokenSource {
 	return &oAuthTokenSource{
 		oauthSource: source,

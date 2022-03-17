@@ -113,7 +113,7 @@ func HandlePodEvent(clientSet kubernetes.Interface, repositories *repository.Rep
 	logger.Debug("pod contains unfuzzed images")
 	logger.Infof("start fuzzing of %s", pod.Name)
 
-	kConfig := config.CreateKubernetesConfigWPod(pod)
+	kConfig := config.CreateSchedulerConfigWPod(pod)
 	createdJob, jErr := job.LaunchFuzzJob(clientSet, kConfig)
 	if jErr != nil {
 		// TODO get this error to the user

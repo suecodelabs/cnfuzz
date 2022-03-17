@@ -3,11 +3,12 @@ package kubernetes
 import (
 	"context"
 	"fmt"
+	"github.com/suecodelabs/cnfuzz/src/auth"
+	"github.com/suecodelabs/cnfuzz/src/config"
 	"time"
 
 	"github.com/spf13/viper"
 	"github.com/suecodelabs/cnfuzz/src/cmd"
-	"github.com/suecodelabs/cnfuzz/src/config"
 	"github.com/suecodelabs/cnfuzz/src/discovery/openapi"
 	"github.com/suecodelabs/cnfuzz/src/kubernetes/job"
 	"github.com/suecodelabs/cnfuzz/src/kubernetes/util"
@@ -102,9 +103,17 @@ func fuzzPod(clientSet kubernetes.Interface, pod *v1.Pod) error {
 		return fmt.Errorf("error while retrieving OpenAPI document from target %s: %w", pod.Name, err)
 	}
 
-	fuzzConfig := config.NewFuzzConfig(apiDesc, pod.Name, pod.Namespace)
+	clientId := viper.GetString(cmd.AuthUsername)
+	secret := viper.GetString(cmd.AuthSecretFlag)
 
-	restlerJob, restlerErr := job.LaunchRestlerJob(clientSet, fuzzConfig, pod)
+	tokenSource, authErr := auth.CreateTokenSourceFromSchemas(apiDesc.SecuritySchemes, clientId, secret)
+	if authErr != nil {
+		log.L().Errorf("error while building auth token provider: ", authErr)
+	}
+
+	restlerConf := config.NewFuzzerConfig(apiDesc, pod)
+
+	restlerJob, restlerErr := job.LaunchRestlerJob(clientSet, restlerConf, tokenSource)
 	if restlerErr != nil {
 		return fmt.Errorf("error while starting restler pod: %v", restlerErr)
 	}

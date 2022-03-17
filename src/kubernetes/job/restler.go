@@ -15,18 +15,18 @@ import (
 // createRestlerJob creates a Kubernetes Job for the RESTler fuzzer
 // this includes an init container that gets the OpenAPI doc from the target API with curl and volumes for transferring the information
 // it uses values from the FuzzConfig to configure the fuzz command that runs inside the RESTler container
-func createRestlerJob(fuzzConfig *config.FuzzConfig, targetPod *v1.Pod) *batchv1.Job {
-	fullCommand := createRestlerCommand(targetPod, fuzzConfig)
+func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *batchv1.Job {
+	fullCommand := createRestlerCommand(cnf, tokenSource)
 
-	openApiVolumeName := "openapi-volume-" + fuzzConfig.KubernetesConfig.RestlerJobName
+	openApiVolumeName := "openapi-volume-" + cnf.JobName
 	initContainerUser := int64(0)
 	volQuant := resource.MustParse("1Mi")
 
 	restlerSpec := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			// Maybe make this name unique?
-			Name:        fuzzConfig.KubernetesConfig.RestlerJobName,
-			Namespace:   fuzzConfig.KubernetesConfig.Namespace,
+			Name:        cnf.JobName,
+			Namespace:   cnf.Namespace,
 			Annotations: map[string]string{"cnfuzz/ignore": "true"},
 		},
 		Spec: batchv1.JobSpec{
@@ -54,9 +54,9 @@ func createRestlerJob(fuzzConfig *config.FuzzConfig, targetPod *v1.Pod) *batchv1
 					},
 					InitContainers: []v1.Container{
 						{
-							Name:  fuzzConfig.KubernetesConfig.RestlerInitJobName,
-							Image: fuzzConfig.KubernetesConfig.RestlerInitImage,
-							Args:  []string{fuzzConfig.ApiDescription.DiscoveryDoc.String(), "-s", "-S", "-o", "/openapi/doc.json"},
+							Name:  cnf.InitJobName,
+							Image: cnf.InitImage,
+							Args:  []string{cnf.DiscoveryDocLocation, "-s", "-S", "-o", "/openapi/doc.json"},
 							SecurityContext: &v1.SecurityContext{
 								RunAsUser: &initContainerUser,
 							},
@@ -70,8 +70,8 @@ func createRestlerJob(fuzzConfig *config.FuzzConfig, targetPod *v1.Pod) *batchv1
 					},
 					Containers: []v1.Container{
 						{
-							Name:    fuzzConfig.KubernetesConfig.RestlerJobName,
-							Image:   fuzzConfig.KubernetesConfig.RestlerImage,
+							Name:    cnf.JobName,
+							Image:   cnf.Image,
 							Command: []string{"/bin/sh", "-c"},
 							Args:    []string{fullCommand},
 							VolumeMounts: []v1.VolumeMount{
@@ -97,13 +97,13 @@ func createRestlerJob(fuzzConfig *config.FuzzConfig, targetPod *v1.Pod) *batchv1
 // createRestlerCommand creates command string that can be run inside the RESTler container
 // the command string consists of a compile command that analyzes the OpenAPI spec and generates a fuzzing grammar
 // and the fuzz command itself
-func createRestlerCommand(targetPod *v1.Pod, fuzzConfig *config.FuzzConfig) string {
-	targetIp := targetPod.Status.PodIP
-	targetPort := fuzzConfig.ApiDescription.BaseUrl.Port()
-	timeBudget := fuzzConfig.TimeBudget
+func createRestlerCommand(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) string {
+	targetIp := cnf.Target.IP
+	targetPort := cnf.Target.Port
+	timeBudget := cnf.TimeBudget
 	// Should we use SSL?
 	isSsl := false
-	if fuzzConfig.ApiDescription.BaseUrl.Scheme == "https" {
+	if cnf.Target.Scheme == "https" {
 		log.L().Debug("using SSL")
 		isSsl = true
 	} else {
@@ -117,31 +117,20 @@ func createRestlerCommand(targetPod *v1.Pod, fuzzConfig *config.FuzzConfig) stri
 	if !isSsl {
 		fuzzCommand = fmt.Sprintf("%s --no_ssl", fuzzCommand)
 	}
-	token, authErr := createAuthToken(fuzzConfig)
-	if authErr == nil && len(token) > 0 {
-		// Use a high refresh interval because we have a static token (for now?)
-		tokenCommand := fmt.Sprintf("--token_refresh_interval 999999 --token_refresh_command \"python3 /scripts/auth.py '%s' '%s'\"", targetPod.Name, token)
-		fuzzCommand += " " + tokenCommand
+	// create a new auth token using the tokensource
+	tok, tokErr := tokenSource.Token()
+	if tokErr != nil {
+		log.L().Errorf("error while getting a new auth token: %+v", tokErr)
+	} else {
+		token := fmt.Sprintf("%s: %s", "Authorization", tok.CreateAuthHeaderValue())
+		if tokErr == nil && len(token) > 0 {
+			// Use a high refresh interval because we have a static token (for now?)
+			tokenCommand := fmt.Sprintf("--token_refresh_interval 999999 --token_refresh_command \"python3 /scripts/auth.py '%s' '%s'\"", cnf.Target.PodName, token)
+			fuzzCommand += " " + tokenCommand
+		}
 	}
+
 	fullCommand := fmt.Sprintf("%s && %s", compileCommand, fuzzCommand)
 
 	return fullCommand
-}
-
-// createAuthToken creates an auth token from the fuzz config
-func createAuthToken(fuzzConfig *config.FuzzConfig) (token string, authErr error) {
-	tokenSource, authErr := auth.CreateTokenSourceFromSchemas(fuzzConfig.ApiDescription.SecuritySchemes, fuzzConfig.ClientId, fuzzConfig.Secret)
-	if authErr != nil {
-		log.L().Errorf("error while building auth token provider: ", authErr)
-		return "", authErr
-	} else {
-		tok, tokErr := tokenSource.Token()
-		if tokErr != nil {
-			log.L().Errorf("error while getting a new auth token: %+v", tokErr)
-			return "", tokErr
-		} else {
-			token = fmt.Sprintf("%s: %s", "Authorization", tok.CreateAuthHeaderValue())
-			return token, nil
-		}
-	}
 }

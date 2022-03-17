@@ -4,9 +4,9 @@ import (
 	"errors"
 )
 
-// apiKeyTokenSource TokenSource for API key authentication
+// apiKeyTokenSource ITokenSource for API key authentication
 type apiKeyTokenSource struct {
-	new TokenSource // called when t is expired.
+	new ITokenSource // called when t is expired.
 	t   *Token
 }
 
@@ -19,7 +19,7 @@ func (s *apiKeyTokenSource) Token() (*Token, error) {
 }
 
 // ApiKeyTokenSource creates a new apiKeyTokenSource for API key authentication
-func ApiKeyTokenSource(secret string) (TokenSource, error) {
+func ApiKeyTokenSource(secret string) (ITokenSource, error) {
 	if len(secret) == 0 {
 		return nil, errors.New("failed to create token because secret is empty")
 	}

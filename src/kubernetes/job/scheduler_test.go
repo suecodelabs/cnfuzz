@@ -10,12 +10,12 @@ import (
 )
 
 func TestGetJobSpec(t *testing.T) {
-	testConfig := &config.KubernetesFuzzConfig{
+	testConfig := &config.SchedulerConfig{
 		JobName:   "test-job",
 		Image:     "test-img",
 		Namespace: "test",
 	}
-	result := GetJobSpec(testConfig)
+	result := createSchedulerJob(testConfig)
 	assert.Equal(t, testConfig.JobName, result.Name)
 	assert.Equal(t, testConfig.Namespace, result.Namespace)
 	assert.Equal(t, "true", result.Annotations["cnfuzz/ignore"])
@@ -28,7 +28,7 @@ func TestGetJobSpec(t *testing.T) {
 }
 
 func TestBuildJobArgs(t *testing.T) {
-	testConfig := &config.KubernetesFuzzConfig{
+	testConfig := &config.SchedulerConfig{
 		TargetPodName:      "test-target",
 		TargetPodNamespace: "test-target-namespace",
 	}
@@ -40,7 +40,7 @@ func TestBuildJobArgs(t *testing.T) {
 	viper.Set(cmd.AuthSecretFlag, secret)
 	viper.Set(cmd.HomeNamespaceFlag, targetNamespace)
 
-	resultArgs := buildJobArgs(testConfig)
+	resultArgs := buildSchedulerArgs(testConfig)
 
 	for i, arg := range resultArgs {
 		if arg == testConfig.TargetPodName {

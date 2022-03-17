@@ -5,10 +5,10 @@ import (
 	"errors"
 )
 
-// basicAuthTokenSource TokenSource for basic authentication
+// basicAuthTokenSource ITokenSource for basic authentication
 // https://datatracker.ietf.org/doc/html/rfc7617
 type basicAuthTokenSource struct {
-	new TokenSource // called when t is expired.
+	new ITokenSource // called when t is expired.
 	t   *Token
 }
 
@@ -21,7 +21,7 @@ func (s *basicAuthTokenSource) Token() (*Token, error) {
 }
 
 // BasicAuthTokenSource creates a new basicAuthTokenSource for basic authentication
-func BasicAuthTokenSource(clientId string, secret string) (TokenSource, error) {
+func BasicAuthTokenSource(clientId string, secret string) (ITokenSource, error) {
 
 	if len(secret) == 0 {
 		return nil, errors.New("failed to create token because secret is empty")

@@ -15,7 +15,7 @@ const (
 	// misc Kubernetes flags
 	InsideClusterFlag  = "inside-cluster"
 	OnlyFuzzMarkedFlag = "only-marked"
-	JobImageFlag       = "job-img"
+	SchedulerImageFlag = "job-img"
 	HomeNamespaceFlag  = "home-ns" // Namespace to start containers in (jobs etc.)
 
 	// fuzzing related flags
@@ -69,8 +69,8 @@ func registerKubernetesFlags(rootCmd *cobra.Command) {
 
 	// TODO change current temp default image to actual image ones it exists
 	defaultJImg := ""
-	rootCmd.PersistentFlags().StringP(JobImageFlag, "i", defaultJImg, "Image used for the Kubernetes job, you can use this to change image version or replace the entire image")
-	_ = viper.BindPFlag(JobImageFlag, rootCmd.PersistentFlags().Lookup(JobImageFlag))
+	rootCmd.PersistentFlags().StringP(SchedulerImageFlag, "i", defaultJImg, "Image used for the Kubernetes job, you can use this to change image version or replace the entire image")
+	_ = viper.BindPFlag(SchedulerImageFlag, rootCmd.PersistentFlags().Lookup(SchedulerImageFlag))
 
 	rootCmd.Flags().StringP(HomeNamespaceFlag, "", "default", "Namespace to start fuzzing containers in")
 	_ = viper.BindPFlag(HomeNamespaceFlag, rootCmd.Flags().Lookup(HomeNamespaceFlag))

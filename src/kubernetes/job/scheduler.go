@@ -11,14 +11,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// GetJobSpec creates a Kubernetes Job for the cnfuzz instance that gets the OpenAPI spec and starts the RESTler fuzzer job
-func GetJobSpec(config *config.KubernetesFuzzConfig) *batchv1.Job {
+// createSchedulerJob creates a Kubernetes Job for the cnfuzz instance that gets the OpenAPI spec and starts the RESTler fuzzer job
+func createSchedulerJob(config *config.SchedulerConfig) *batchv1.Job {
 	var backOffLimit int32 = 1
 	var terminateAfter int64 = 240
 	var TTLAfterFinish int32 = 120
 
 	// Args for the job
-	args := buildJobArgs(config)
+	args := buildSchedulerArgs(config)
 
 	jobSpec := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
@@ -49,8 +49,8 @@ func GetJobSpec(config *config.KubernetesFuzzConfig) *batchv1.Job {
 	return jobSpec
 }
 
-// buildJobArgs creates a string array with flags/arguments for the cnfuzz job
-func buildJobArgs(config *config.KubernetesFuzzConfig) []string {
+// buildSchedulerArgs creates a string array with flags/arguments for the cnfuzz job
+func buildSchedulerArgs(config *config.SchedulerConfig) []string {
 	// Args for the job
 	podNameArg := fmt.Sprintf("--%s", cmd.TargetPodName)
 	podNameVal := config.TargetPodName
