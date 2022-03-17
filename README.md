@@ -60,11 +60,30 @@ spec:
 kubectl apply -f example/deployment.yaml
 ```
 
+#### Build and run
+
+This command does the following:
+- Docker build a local image and load it in kind
+- Helm install charts/cnfuzz with the above image
+- Kubectl apply the example/deployment.yaml
+- Kubectl set image and scale deployment
+
 ```sh
 # don't forget to commit your changes locally before deploying to Kind.
 make kind
 ```
 
+#### Cleanup the build
+
+This command does the following:
+- helm delete "cnfuzz-$(GIT_COMMIT)
+
+```sh
+make kind-clean
+# If you did a git pull between the above build and the below kind-clean
+# you will see an error. Specify the release as follows:
+make kind-clean GIT_COMMIT=f4fd3d2
+```
 
 ### Build project
 
