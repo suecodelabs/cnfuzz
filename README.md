@@ -110,7 +110,7 @@ Every first Thursday of the month at 18:30 CET there will be a hybrid community 
 ## Swag
 
 Do you want swag that our awesome marketing team created for this project?
-Come to our community meetup on prem and receive your swag!
+Come to our community meetup on prem or contact marketing@sue.nl to receive receive your swag!
 
 ### Stickers & Gear
 
