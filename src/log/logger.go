@@ -85,6 +85,7 @@ var singleInstance ILogger
 	return log.Sugar()
 } */
 
+// InitLogger initialize zap logger
 func InitLogger(isDebug bool) {
 	var zapErr error
 	var logger *zap.Logger

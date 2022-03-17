@@ -6,17 +6,14 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
+// ContainerImage object that holds information about a container image
 type ContainerImage struct {
 	Id       string
 	Name     string
 	Versions []ContainerImageVersion
 }
 
-func CreateContainerImage(kImage *apiv1.ContainerImage) (ContainerImage, error) {
-
-	return ContainerImage{}, nil
-}
-
+// CreateContainerImagesFromPod extract all container images from a pod
 func CreateContainerImagesFromPod(pod *apiv1.Pod) ([]ContainerImage, error) {
 	logger := log.L()
 	var images []ContainerImage

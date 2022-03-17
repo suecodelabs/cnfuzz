@@ -15,6 +15,8 @@ func readyz(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "Ready.\n")
 }
 
+// Serv start http server that contains ready and live endpoints
+// warning: this function is blocking
 func Serv() {
 
 	http.HandleFunc("/livez", livez)
