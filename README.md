@@ -16,11 +16,11 @@ Fuzzing web APIs in their fully converged Cloud Native state renders more repres
 ## Why?
 
 - [x] You want to fuzz web API logic where they actually operate, especially when fuzzing complete *Service Meshes*
-- [x] You want to save expensive Cloud CI/CD pipeline credits by using idle Kubernetes cluster resources
+- [x] You want to save expensive Cloud CI/CD pipeline credits by using *idle* Kubernetes cluster resources
 - [x] You want fuzzing te be done outside of your CI/CD pipeline
 - [x] You have heavy performance requirements for your fuzzing and Cloud based CI/CD pipelines do not suffice
 - [x] You want to fuzz web API's of services which are interconnected and are being deployed by different teams in the same Kubernetes cluster
-- [x] You want to automatically existing opensource software for instability issues
+- [x] You want to automatically fuzz existing opensource software for instability issues
 - [x] You get excited over fuzzing farms
 
 ### Installation
