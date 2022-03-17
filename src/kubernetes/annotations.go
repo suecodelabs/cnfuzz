@@ -18,6 +18,7 @@ const (
 	UsernameAnno     = "username"
 )
 
+// Annotations annotation values for annotations to be used inside Kubernetes configurations
 type Annotations struct {
 	IgnoreMe           bool
 	FuzzMe             bool
@@ -26,6 +27,7 @@ type Annotations struct {
 	Username           string
 }
 
+// SetConfigRegister looks in the annotations object for empty values and tries to fill them with values from the config register
 func (annos Annotations) SetConfigRegister() {
 	if len(annos.Username) > 0 {
 		viper.Set(cmd.AuthUsername, annos.Username)
@@ -36,6 +38,7 @@ func (annos Annotations) SetConfigRegister() {
 	}
 }
 
+// GetAnnotations gather annotations inside the metadata of a Kubernetes object
 func GetAnnotations(objectMeta *metav1.ObjectMeta) Annotations {
 	strIgnoreMe := getAnnotationFromMeta(objectMeta, IgnoreMeAnno)
 	strFuzzMe := getAnnotationFromMeta(objectMeta, FuzzMeAnno)
@@ -62,6 +65,7 @@ func GetAnnotations(objectMeta *metav1.ObjectMeta) Annotations {
 
 }
 
+// getAnnotationFromMeta get a single annotation value from Kubernetes object meta
 func getAnnotationFromMeta(objectMeta *metav1.ObjectMeta, annotationName string) string {
 	return objectMeta.Annotations[fmt.Sprintf("%s/%s", AnnotationPrefix, annotationName)]
 }

@@ -8,26 +8,27 @@ import (
 const (
 	IsDebug = "debug"
 
-	// TargetPodName start job with Kubernetes
+	// start job with Kubernetes
 	TargetPodName      = "pod"
 	TargetPodNamespace = "namespace" // Namespace that target lives in
 
-	// Misc Kubernetes flags
+	// misc Kubernetes flags
 	InsideClusterFlag  = "inside-cluster"
 	OnlyFuzzMarkedFlag = "only-marked"
 	JobImageFlag       = "job-img"
 	HomeNamespaceFlag  = "home-ns" // Namespace to start containers in (jobs etc.)
 
-	// Fuzzing related flags
+	// fuzzing related flags
 	RestlerInitImageFlag = "restler-init-img"
 	RestlerImageFlag     = "restler-img"
 	RestlerTimeBudget    = "restler-time-budget"
 
-	// Auth related flags
+	// auth related flags
 	AuthUsername   = "username"
 	AuthSecretFlag = "secret"
 )
 
+// SetupFlags registers all flags with viper
 func SetupFlags(rootCmd *cobra.Command) {
 	// Debug flag
 	rootCmd.Flags().BoolP(IsDebug, "d", false, "Debug mode")
@@ -49,7 +50,7 @@ func SetupFlags(rootCmd *cobra.Command) {
 	registerAuthFlags(rootCmd)
 }
 
-// registerDirectFuzzingFlags Register flags used when directly fuzzing a target
+// registerDirectFuzzingFlags registers flags used when directly fuzzing a target
 func registerDirectFuzzingFlags(rootCmd *cobra.Command) {
 	rootCmd.Flags().StringP(TargetPodName, "", "", "Kubernetes pod to target for fuzzing")
 	_ = viper.BindPFlag(TargetPodName, rootCmd.Flags().Lookup(TargetPodName))
@@ -58,6 +59,7 @@ func registerDirectFuzzingFlags(rootCmd *cobra.Command) {
 	_ = viper.BindPFlag(TargetPodNamespace, rootCmd.Flags().Lookup(TargetPodNamespace))
 }
 
+// registerKubernetesFlags registers flags for Kubernetes configuration
 func registerKubernetesFlags(rootCmd *cobra.Command) {
 	rootCmd.Flags().BoolP(InsideClusterFlag, "k", true, "Tells the fuzzer that it is running inside Kubernetes")
 	_ = viper.BindPFlag(InsideClusterFlag, rootCmd.Flags().Lookup(InsideClusterFlag))
@@ -74,6 +76,7 @@ func registerKubernetesFlags(rootCmd *cobra.Command) {
 	_ = viper.BindPFlag(HomeNamespaceFlag, rootCmd.Flags().Lookup(HomeNamespaceFlag))
 }
 
+// registerAuthFlags registers flags for auth
 func registerAuthFlags(rootCmd *cobra.Command) {
 	rootCmd.PersistentFlags().StringP(AuthUsername, "", "fuzz-client", "Username to be used in auth (only works for basic auth)")
 	rootCmd.PersistentFlags().StringP(AuthSecretFlag, "", "", "Secret to be used for authentication")

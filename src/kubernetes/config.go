@@ -9,6 +9,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
+// CreateClientSet create a client to interact with the Kubernetes API
 func CreateClientSet(insideCluster bool) (clientset kubernetes.Interface, err error) {
 	logger := log.L()
 	if insideCluster {

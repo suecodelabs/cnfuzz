@@ -6,6 +6,7 @@ import (
 	"github.com/suecodelabs/cnfuzz/src/discovery"
 )
 
+// FuzzConfig config object that holds configuration needed for fuzzing
 type FuzzConfig struct {
 	ApiDescription   *discovery.WebApiDescription
 	ClientId         string
@@ -14,6 +15,7 @@ type FuzzConfig struct {
 	TimeBudget       string
 }
 
+// NewFuzzConfigWKubeConfig creates a FuzzConfig object by getting information from KubernetesFuzzConfig
 func NewFuzzConfigWKubeConfig(apiDescription *discovery.WebApiDescription, kubeConfig *KubernetesFuzzConfig) *FuzzConfig {
 	clientId := viper.GetString(cmd.AuthUsername)
 	secret := viper.GetString(cmd.AuthSecretFlag)
@@ -28,6 +30,7 @@ func NewFuzzConfigWKubeConfig(apiDescription *discovery.WebApiDescription, kubeC
 	}
 }
 
+// NewFuzzConfig creates a FuzzConfig object for a pod with its name, namespace and API description
 func NewFuzzConfig(apiDescription *discovery.WebApiDescription, podName string, namespace string) *FuzzConfig {
 	knConfig := CreateKubernetesConfig(podName, namespace)
 	return NewFuzzConfigWKubeConfig(apiDescription, knConfig)

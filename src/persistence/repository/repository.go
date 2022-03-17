@@ -5,10 +5,15 @@ import (
 	"github.com/suecodelabs/cnfuzz/src/persistence/repository/in_memory"
 )
 
+// IContainerImageRepository interface for a repository
 type IContainerImageRepository interface {
+	// GetContainerImages get all the container images
 	GetContainerImages() ([]model.ContainerImage, error)
+	// FindContainerImageByName find a single container image by its name
 	FindContainerImageByName(name string) (containerImage model.ContainerImage, found bool, err error)
+	// CreateContainerImage create a new container image
 	CreateContainerImage(image model.ContainerImage) error
+	// UpdateContainerImage edit an existing container image
 	UpdateContainerImage(image model.ContainerImage) error
 }
 
