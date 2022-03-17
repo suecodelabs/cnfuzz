@@ -44,7 +44,7 @@ spec:
             {{- end }}
             - "--home-ns"
             - {{ $.Release.Namespace }}
-            - "--job-img"
+            - "--scheduler-img"
             - "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
             - "--restler-time-budget"
             - "{{ $.Values.controller.restlerConfig.timeBudget }}"
