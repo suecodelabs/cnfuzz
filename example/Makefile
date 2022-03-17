@@ -2,6 +2,7 @@ IMAGE ?= todo-api
 BIN_DIR ?= dist
 BIN_NAME ?= todo-api
 SWAG_BIN := $(shell go env GOPATH)/bin/swag
+APP_NAME := ghcr.io/suecodelabs/cnfuzz-todo-api
 KIND_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),:$(subst /,-,$(GIT_COMMIT)))
 DEPLOYMENT_NAME := todo-api
 
