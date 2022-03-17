@@ -15,7 +15,7 @@ const (
 	// misc Kubernetes flags
 	InsideClusterFlag  = "inside-cluster"
 	OnlyFuzzMarkedFlag = "only-marked"
-	SchedulerImageFlag = "job-img"
+	SchedulerImageFlag = "scheduler-img"
 	HomeNamespaceFlag  = "home-ns" // Namespace to start containers in (jobs etc.)
 
 	// fuzzing related flags

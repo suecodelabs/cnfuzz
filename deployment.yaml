@@ -17,7 +17,7 @@ spec:
         - name: cnfuzz
           image: localhost:5000/cnfuzz
           imagePullPolicy: "Always"
-          args: [--inside-cluster, --only-marked, --job-img, localhost:5000/cnfuzz, --debug]
+          args: [--inside-cluster, --only-marked, --scheduler-img, localhost:5000/cnfuzz, --debug]
 ---
 apiVersion: v1
 kind: ConfigMap
