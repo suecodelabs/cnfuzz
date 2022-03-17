@@ -107,10 +107,23 @@ Every first Thursday of the month at 18:30 CET there will be a hybrid community 
 
 [Google Meet](https://meet.google.com/zom-asij-qkq) or see you at [Sue B.V.](https://g.page/SueBV?share) including lovely drinks and food before the meetup!
 
-## Support
+## Swag
 
-Do you need support that cannot be handled via issue tracking? Please contact us at <engineering@sue.nl>
+Do you want swag that our awesome marketing created for this project?
+Come to our community meetup on prem and receive your swag!
+
+### Stickers
 
 <div align="center">
 <img src="images/gopher-throw.png" width="250px" /><img src="images/gopher-hold.png" width="250px" />
 </div>
+
+### Gear
+
+<div align="center">
+<img src="images/gopher-cap.png" width="250px" /><img src="images/gopher-.png" width="250px" />
+</div>
+
+## Support
+
+Do you need support that cannot be handled via issue tracking? Please contact us at <engineering@sue.nl>
