@@ -121,7 +121,7 @@ Come to our community meetup on prem and receive your swag!
 ### Gear
 
 <div align="center">
-<img src="images/gopher-cap.png" width="250px" /><img src="images/gopher-.png" width="250px" />
+<img src="images/cnfuzz-cap.png" width="250px" /><img src="images/cnfuzz-shirt.png" width="250px" />
 </div>
 
 ## Support
