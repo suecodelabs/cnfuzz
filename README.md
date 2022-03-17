@@ -112,13 +112,11 @@ Every first Thursday of the month at 18:30 CET there will be a hybrid community 
 Do you want swag that our awesome marketing created for this project?
 Come to our community meetup on prem and receive your swag!
 
-### Stickers
+### Stickers & Gear
 
 <div align="center">
 <img src="images/gopher-throw.png" width="250px" /><img src="images/gopher-hold.png" width="250px" />
 </div>
-
-### Gear
 
 <div align="center">
 <img src="images/cnfuzz-cap.png" width="250px" /><img src="images/cnfuzz-shirt.png" width="250px" />
