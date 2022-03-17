@@ -52,10 +52,10 @@ kind: build
 	cd example && docker build -t $(KIND_EXAMPLE_IMAGE) -f Dockerfile . && cd ..
 	docker build -t $(KIND_IMAGE) -f local.Dockerfile .
 	kind load docker-image $(KIND_IMAGE) && kind load docker-image $(KIND_EXAMPLE_IMAGE)
+	helm install --wait --timeout 10m0s $(if $(GIT_COMMIT),cnfuzz-$(subst /,-,$(GIT_COMMIT))) charts/cnfuzz $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 	kubectl apply -f example/deployment.yaml
 	kubectl set image deployment/todo-api todoapi=$(KIND_EXAMPLE_IMAGE)
-	kubectl rollout restart deployment/todo-api
-	helm install --wait --timeout 10m0s $(if $(GIT_COMMIT),cnfuzz-$(subst /,-,$(GIT_COMMIT))) charts/cnfuzz $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+	kubectl scale deployment --replicas=1 todo-api
 
 kind-clean:
 	helm delete $(if $(GIT_COMMIT),cnfuzz-$(subst /,-,$(GIT_COMMIT)))

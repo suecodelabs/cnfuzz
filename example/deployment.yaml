@@ -22,20 +22,20 @@ spec:
   selector:
     matchLabels:
       app: todo-api
-  replicas: 1
+  replicas: 0
   template:
     metadata:
       labels:
         app: todo-api
       annotations:
         cnfuzz/enable: "true"
-        cnfuzz/open-api-doc: "/swagger/swagger.json"
+        cnfuzz/open-api-doc: "/swagger/doc.json"
         cnfuzz/secret: "0d5989ed-d60c-470e-b1b5-576fcf0f5d8c"
     spec:
       containers:
         - name: todoapi
           image: ghcr.io/suecodelabs/cnfuzz-todo-api:latest
-          imagePullPolicy: Always
+          imagePullPolicy: Never
           ports:
             - containerPort: 8080
 ---
