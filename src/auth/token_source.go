@@ -7,15 +7,15 @@ import (
 	"github.com/suecodelabs/cnfuzz/src/log"
 )
 
-// TokenSource interface for creating new auth tokens
-type TokenSource interface {
+// ITokenSource interface for creating new auth tokens
+type ITokenSource interface {
 	Token() (*Token, error)
 }
 
-// CreateTokenSource creates a new TokenSource
-// Uses the schema type (BasicSecSchemaType) to create a TokenSource for the proper auth source
-func CreateTokenSource(schema discovery.SecuritySchema, clientId string, secret string) (TokenSource, error) {
-	var createdTokenSource TokenSource
+// CreateTokenSource creates a new ITokenSource
+// Uses the schema type (BasicSecSchemaType) to create a ITokenSource for the proper auth source
+func CreateTokenSource(schema discovery.SecuritySchema, clientId string, secret string) (ITokenSource, error) {
+	var createdTokenSource ITokenSource
 	var err error
 	switch schema.Type {
 	case discovery.BasicSecSchemaType:
@@ -40,8 +40,8 @@ func CreateTokenSource(schema discovery.SecuritySchema, clientId string, secret 
 	return createdTokenSource, nil
 }
 
-// CreateTokenSourceFromSchemas creates a new TokenSource from the first schema in the slice
-func CreateTokenSourceFromSchemas(schemas []discovery.SecuritySchema, clientId string, secret string) (TokenSource, error) {
+// CreateTokenSourceFromSchemas creates a new ITokenSource from the first schema in the slice
+func CreateTokenSourceFromSchemas(schemas []discovery.SecuritySchema, clientId string, secret string) (ITokenSource, error) {
 	// Check if there are any security schemas
 	// This function could be improved by having a smarter algorithm for picking a schema
 	if len(schemas) > 0 {
