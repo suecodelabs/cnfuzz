@@ -60,6 +60,7 @@ kind-init: build
 
 kind-build: build
 	docker build -t $(KIND_IMAGE) -f local.Dockerfile .
+	kind load docker-image $(KIND_IMAGE)
 	helm upgrade --install dev charts/cnfuzz $(DEFAULT_HELM_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 
 kind-clean:
