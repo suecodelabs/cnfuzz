@@ -129,9 +129,12 @@ make build
 
 - Luuk van den Maagdenberg, Lead Developer
 - Pim Merks, Developer
-- Hans Strijker, Developer
 - Robert Scholts, Developer
+- Sylvia van Os, Developer
 - Serge van Namen, Developer / Community Lead
+- Hans Strijker, Maintainer
+- Sam Crauwels, Maintainer
+- Michiel Westerink, Maintainer
 
 ## Community
 
