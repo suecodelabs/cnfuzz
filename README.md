@@ -65,28 +65,31 @@ spec:
 
 - Install [Helm](https://helm.sh/docs/intro/install/)
 
-```sh
-# deploy example web api which is already annotated
-kubectl apply -f example/deployment.yaml
-```
-
 #### Build and run
-
-This command does the following:
-- Docker build a local image and load it in kind
-- Helm install charts/cnfuzz with the above image
-- Kubectl apply the example/deployment.yaml
-- Kubectl set image and scale deployment
 
 ```sh
 # don't forget to commit your changes locally before deploying to Kind.
-make kind
+make kind-init
 ```
+
+This command does the following:
+- Setup initial deployment of `cnfuzz` in `KinD`
+- Docker build a local built image and load it into `KinD`
+- Install `cnfuzz` via helm with the local built image
+- Create example webapi deployment to fuzz
+
+```sh
+# don't forget to commit your changes locally before deploying to Kind.
+make kind-build
+```
+
+This command does the following:
+- (re)-build `cnfuzz` and upgrade deployment with latest image
 
 #### Cleanup the build
 
 This command does the following:
-- helm delete "cnfuzz-$(GIT_COMMIT)
+- delete the `cnfuzz` installation from `KinD`
 
 ```sh
 make kind-clean
