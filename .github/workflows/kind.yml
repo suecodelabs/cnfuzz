@@ -31,4 +31,4 @@ jobs:
           kubectl get pods -n kube-system
           echo "current-context:" $(kubectl config current-context)
           echo "environment-kubeconfig:" ${KUBECONFIG}
-          make kind
+          make kind-init
