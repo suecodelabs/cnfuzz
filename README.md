@@ -61,7 +61,7 @@ spec:
 
 ### Setup Kubernetes development environment
 
-- Install [Kind](https://kind.sigs.k8s.io/).
+- Install [Kind](https://kind.sigs.k8s.io/)
 
 - Install [Helm](https://helm.sh/docs/intro/install/)
 
