@@ -49,13 +49,13 @@ func (repo containerImageJsonRepository) GetContainerImages() ([]model.Container
 	return images, nil
 }
 
-func (repo containerImageJsonRepository) FindContainerImageByName(name string) (containerImage model.ContainerImage, found bool, err error) {
+func (repo containerImageJsonRepository) FindContainerImageByHash(hash string) (containerImage model.ContainerImage, found bool, err error) {
 	images, err := repo.GetContainerImages()
 	if err != nil {
 		return model.ContainerImage{}, false, err
 	}
 	for _, image := range images {
-		if image.Name == name {
+		if image.Hash == hash {
 			return image, true, nil
 		}
 	}
@@ -64,12 +64,9 @@ func (repo containerImageJsonRepository) FindContainerImageByName(name string) (
 }
 
 func (repo containerImageJsonRepository) CreateContainerImage(image model.ContainerImage) error {
-	// TODO: Move validation to model
-	if len(image.Id) == 0 {
-		return errors.New("image id is empty")
-	}
-	if len(image.Name) == 0 {
-		return errors.New("image name is empty")
+	valErr := image.Verify()
+	if valErr != nil {
+		return valErr
 	}
 
 	images, err := repo.GetContainerImages()

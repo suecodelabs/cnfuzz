@@ -14,22 +14,23 @@ func TestGetContainerImages(t *testing.T) {
 	assert.Equal(t, repo.fuzzedImages, returnedImages)
 }
 
-func TestFindContainerImageByNameFound(t *testing.T) {
-	targetName := "someimage"
+func TestFindContainerImageByHashFound(t *testing.T) {
 	images := []model.ContainerImage{
 		{
-			Id:       targetName + "-123456789",
-			Name:     targetName,
-			Versions: []model.ContainerImageVersion{{}},
+			Hash:     "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+			HashType: "sha256",
+			Status:   model.Fuzzed,
+			Tags:     []string{"latest"},
 		},
 		{
-			Id:       "someotherimage-123456789",
-			Name:     "someotherimage",
-			Versions: []model.ContainerImageVersion{{}},
+			Hash:     "afa27b44d43b02a9fea41d13cedc2e4016cfcf87c5dbf990e593669aa8ce286d",
+			HashType: "sha256",
+			Status:   model.Fuzzed,
+			Tags:     []string{"latest", "0.1.1"},
 		},
 	}
 	repo := createMocRepo(images)
-	response, found, err := repo.FindContainerImageByName(targetName)
+	response, found, err := repo.FindContainerImageByHash(images[0].Hash)
 	assert.NoError(t, err)
 	assert.True(t, found)
 	assert.Equal(t, images[0], response)
@@ -38,20 +39,21 @@ func TestFindContainerImageByNameFound(t *testing.T) {
 func TestFindContainerImageByNameNil(t *testing.T) {
 	var images []model.ContainerImage
 	repo := createMocRepo(images)
-	response, found, err := repo.FindContainerImageByName("some-unknown-image")
+	response, found, err := repo.FindContainerImageByHash("some-unknown-image-hash")
 	assert.NoError(t, err)
 	assert.False(t, found)
-	assert.Empty(t, response.Id)
-	assert.Empty(t, response.Name)
+	assert.Empty(t, response.Hash)
+	assert.Empty(t, response.HashType)
 }
 
 func TestCreateContainerImage(t *testing.T) {
 	repo := createFilledMocRepo()
 	initLength := len(repo.fuzzedImages)
 	newImage := model.ContainerImage{
-		Id:       "somenewimage-123456789",
-		Name:     "somenewimage",
-		Versions: []model.ContainerImageVersion{{}},
+		Hash:     "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+		HashType: "sha256",
+		Status:   model.BeingFuzzed,
+		Tags:     []string{"latest"},
 	}
 	err := repo.CreateContainerImage(newImage)
 	assert.NoError(t, err)
@@ -62,27 +64,29 @@ func TestCreateContainerImageIdFail(t *testing.T) {
 	repo := createFilledMocRepo()
 	initLength := len(repo.fuzzedImages)
 	newImage := model.ContainerImage{
-		Id:       "",
-		Name:     "someimage",
-		Versions: []model.ContainerImageVersion{{}},
+		Hash:     "",
+		HashType: "sha256",
+		Status:   model.Fuzzed,
+		Tags:     []string{"latest"},
 	}
 	err := repo.CreateContainerImage(newImage)
 	assert.Error(t, err)
-	assert.EqualError(t, err, "image id is empty")
+	assert.EqualError(t, err, "image hash is empty")
 	assert.Equal(t, initLength, len(repo.fuzzedImages))
 }
 
-func TestCreateContainerImageNameFail(t *testing.T) {
+func TestCreateContainerImageHashTypeFail(t *testing.T) {
 	repo := createFilledMocRepo()
 	initLength := len(repo.fuzzedImages)
 	newImage := model.ContainerImage{
-		Id:       "someimage-123456789",
-		Name:     "",
-		Versions: []model.ContainerImageVersion{{}},
+		Hash:     "afa27b44d43b02a9fea41d13cedc2e4016cfcf87c5dbf990e593669aa8ce286d",
+		HashType: "",
+		Status:   model.Fuzzed,
+		Tags:     []string{"latest"},
 	}
 	err := repo.CreateContainerImage(newImage)
 	assert.Error(t, err)
-	assert.EqualError(t, err, "image name is empty")
+	assert.EqualError(t, err, "image hash type can't be empty")
 	assert.Equal(t, initLength, len(repo.fuzzedImages))
 }
 
@@ -95,14 +99,16 @@ func createMocRepo(containerImages []model.ContainerImage) *containerImageInMemo
 func createFilledMocRepo() *containerImageInMemoryRepository {
 	images := []model.ContainerImage{
 		{
-			Id:       "someimage-123456789",
-			Name:     "someimage",
-			Versions: []model.ContainerImageVersion{{}},
+			Hash:     "ac8f12f465a1300db7fbb2416bd922adc59a9c570ce8d54f8f7dd20ef2945464",
+			HashType: "sha256",
+			Status:   model.NotFuzzed,
+			Tags:     []string{"latest", "slim"},
 		},
 		{
-			Id:       "someotherimage-123456789",
-			Name:     "someotherimage",
-			Versions: []model.ContainerImageVersion{{}},
+			Hash:     "3e27b58e2a4afe6db3020403403c1798adacb9adf0e60db2df27b120df521995",
+			HashType: "sha256",
+			Status:   model.Fuzzed,
+			Tags:     []string{"latest", "0.1.1"},
 		},
 	}
 	return &containerImageInMemoryRepository{fuzzedImages: images}

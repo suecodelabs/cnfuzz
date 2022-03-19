@@ -138,26 +138,32 @@ func containsUnfuzzedImages(pod *apiv1.Pod, repo repository.IContainerImageRepos
 	containsUnfuzzedImages = false
 	for _, image := range images {
 		// Check if the image is known
-		foundImage, found, err := repo.FindContainerImageByName(image.Name)
+		foundImage, found, err := repo.FindContainerImageByHash(image.Hash)
 		if err != nil {
 			logger.Errorf("error while getting image from storage: %+v", err)
 		} else if !found {
 			// The image doesn't exist yet
 			containsUnfuzzedImages = true
 
-			// Create it, image fuzz status is still unknown, we will update this later
+			// Create it, and set status to being fuzzed
+			image.Status = model.BeingFuzzed
 			err := repo.CreateContainerImage(image)
 			if err != nil {
 				logger.Errorf("error while saving fuzzed image information to storage: %+v", err)
 			} else {
 				// Finally, add it to our image collection for the pod that triggered the event
+				allImages = append(allImages, image)
 			}
 
-			allImages = append(allImages, image)
 		} else { // Image has already been added before
 			// Check if there is still an unfuzzed version inside the pod
-			for _, version := range foundImage.Versions {
-				if version.Status == model.NotFuzzed {
+			if foundImage.Status == model.NotFuzzed {
+				// Update the status to being fuzzed
+				foundImage.Status = model.BeingFuzzed
+				updateErr := repo.UpdateContainerImage(image)
+				if updateErr != nil {
+					logger.Errorf("error while trying to update the status of image %s to beingfuzzed", image.Hash)
+				} else {
 					containsUnfuzzedImages = true
 				}
 			}

@@ -27,11 +27,40 @@ func TestCreateContainerImagesFromPod(t *testing.T) {
 	result, err := CreateContainerImagesFromPod(testPod)
 	assert.NoError(t, err)
 	assert.Len(t, result, len(testPod.Status.ContainerStatuses))
-	for _, image := range result {
-		// Container can only have one image
-		if assert.Len(t, image.Versions, 1) {
-			assert.Equal(t, image.Versions[0].Status, Unknown)
-		}
+	assert.Equal(t, result[0].Status, NotFuzzed)
+}
 
+func TestContainerImage_Verify(t *testing.T) {
+	newImage := ContainerImage{
+		Hash:     "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+		HashType: "sha256",
+		Status:   Fuzzed,
+		Tags:     []string{"latest"},
 	}
+	err := newImage.Verify()
+	assert.NoError(t, err, "this container image is valid, but the verify function says differently")
+}
+
+func TestContainerImage_VerifyIdError(t *testing.T) {
+	newImage := ContainerImage{
+		Hash:     "",
+		HashType: "sha256",
+		Status:   Fuzzed,
+		Tags:     []string{"latest"},
+	}
+	err := newImage.Verify()
+	assert.Error(t, err)
+	assert.EqualError(t, err, "image hash is empty")
+}
+
+func TestContainerImage_VerifyHashTypeError(t *testing.T) {
+	newImage := ContainerImage{
+		Hash:     "afa27b44d43b02a9fea41d13cedc2e4016cfcf87c5dbf990e593669aa8ce286d",
+		HashType: "",
+		Status:   Fuzzed,
+		Tags:     []string{"latest"},
+	}
+	err := newImage.Verify()
+	assert.Error(t, err)
+	assert.EqualError(t, err, "image hash type can't be empty")
 }

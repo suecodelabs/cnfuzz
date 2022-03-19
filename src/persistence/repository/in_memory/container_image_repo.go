@@ -19,9 +19,9 @@ func (repo containerImageInMemoryRepository) GetContainerImages() ([]model.Conta
 	return repo.fuzzedImages, nil
 }
 
-func (repo containerImageInMemoryRepository) FindContainerImageByName(name string) (containerImage model.ContainerImage, found bool, err error) {
+func (repo containerImageInMemoryRepository) FindContainerImageByHash(hash string) (containerImage model.ContainerImage, found bool, err error) {
 	for _, image := range repo.fuzzedImages {
-		if image.Name == name {
+		if image.Hash == hash {
 			return image, true, nil
 		}
 	}
@@ -30,12 +30,9 @@ func (repo containerImageInMemoryRepository) FindContainerImageByName(name strin
 }
 
 func (repo *containerImageInMemoryRepository) CreateContainerImage(image model.ContainerImage) error {
-	// TODO: Move validation to model
-	if len(image.Id) == 0 {
-		return errors.New("image id is empty")
-	}
-	if len(image.Name) == 0 {
-		return errors.New("image name is empty")
+	valErr := image.Verify()
+	if valErr != nil {
+		return valErr
 	}
 
 	repo.fuzzedImages = append(repo.fuzzedImages, image)
@@ -44,7 +41,7 @@ func (repo *containerImageInMemoryRepository) CreateContainerImage(image model.C
 
 func (repo containerImageInMemoryRepository) UpdateContainerImage(image model.ContainerImage) error {
 	for i, savedImage := range repo.fuzzedImages {
-		if savedImage.Name == image.Name {
+		if savedImage.Hash == image.Hash {
 			repo.fuzzedImages[i] = image
 			return nil
 		}
