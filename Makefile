@@ -17,6 +17,7 @@ DEFAULT_HELM_ARGS_LOCAL := --set controller.restlerConfig.timeBudget='0.02' -f .
 DEFAULT_HELM_ARGS_CLOUD := --set controller.restlerConfig.timeBudget='0.02' -f .dev.cloud.values.yaml
 KIND_EXAMPLE_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),-todo-api:$(subst /,-,$(GIT_COMMIT)))
 IMAGE ?= "cnfuzz"
+GH_PR=$(shell gh pr list | grep "$$(git rev-parse --abbrev-ref HEAD)" | awk '{print $$1}')
 
 init:
 	mkdir -p $(BIN_DIR)
@@ -54,7 +55,7 @@ kind-init: build
 	cd example && docker build -t $(KIND_EXAMPLE_IMAGE) -f Dockerfile . && cd ..
 	docker build -t $(KIND_IMAGE) -f local.Dockerfile .
 	kind load docker-image $(KIND_IMAGE) && kind load docker-image $(KIND_EXAMPLE_IMAGE)
-	helm install --wait --timeout 10m0s dev charts/cnfuzz $(DEFAULT_HELM_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+	helm install --wait --timeout 10m0s cnfuzz-dev charts/cnfuzz $(DEFAULT_HELM_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 	kubectl apply -f example/deployment.yaml
 	kubectl set image deployment/todo-api todoapi=$(KIND_EXAMPLE_IMAGE)
 	kubectl scale deployment --replicas=1 todo-api
@@ -62,13 +63,15 @@ kind-init: build
 kind-build: build
 	docker build -t $(KIND_IMAGE) -f local.Dockerfile .
 	kind load docker-image $(KIND_IMAGE)
-	helm upgrade --install dev charts/cnfuzz $(DEFAULT_HELM_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+	helm upgrade --install cnfuzz-dev charts/cnfuzz $(DEFAULT_HELM_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 
 kind-clean:
-	helm delete dev
+	helm delete cnfuzz-dev
 
 cloud-init: build
-	helm install --wait --timeout 10m0s dev charts/cnfuzz $(DEFAULT_HELM_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+	# wait until Github Workflow has finished.
+	gh run watch || echo "No runs seems to be active.."
+	helm install --wait --timeout 10m0s cnfuzz-dev charts/cnfuzz $(DEFAULT_HELM_ARGS) --set image.tag=pr-$(GH_PR) -f .dev.cloud.values.yaml
 	kubectl apply -f example/deployment.yaml
 	kubectl set image deployment/todo-api todoapi=$(KIND_EXAMPLE_IMAGE)
 	kubectl scale deployment --replicas=1 todo-api

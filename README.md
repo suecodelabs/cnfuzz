@@ -83,6 +83,12 @@ This command does the following:
 make kind-build
 ```
 
+```sh
+kubectl create secret docker-registry regcred --docker-server=https://ghcr.io --docker-username=<github_username> --docker-password=<your_github_personal_access_token>
+make cloud-init
+```
+
+
 This command does the following:
 - (re)-build `cnfuzz` and upgrade deployment with latest image
 
