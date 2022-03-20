@@ -65,6 +65,8 @@ spec:
 
 - Install [Helm](https://helm.sh/docs/intro/install/)
 
+- Install [Github CLI](https://github.com/cli/cli)
+
 #### Build and run
 
 ```sh
