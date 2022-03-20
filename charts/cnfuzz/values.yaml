@@ -2,6 +2,18 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+redis:
+  enabled: true
+  architecture: standalone
+minio:
+  enabled: true
+  replicas: 1
+  persistence:
+    size: 1Gi
+  resources:
+    requests:
+      memory: 1Gi
+
 replicaCount: 1
 
 imagePullSecrets: []

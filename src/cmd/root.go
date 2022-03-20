@@ -12,8 +12,8 @@ var (
 
 	rootCmd = &cobra.Command{
 		Use:   "cnfuzz targetUrl",
-		Short: "Native Cloud Fuzzer is a fuzzer build for native cloud environments",
-		Long: `Native Cloud Fuzzer is a fuzzer build for native cloud environments.
+		Short: "cnfuzz is a fuzzer build for Cloud Native environments",
+		Long: `cnfuzz is a fuzzer build for Cloud Native environments.
 More info here:
 https://github.com/suecodelabs/cnfuzz`,
 		Args: cobra.NoArgs, // cobra.ExactArgs(1),
@@ -35,7 +35,7 @@ func initConfig() {
 		cfgDir, err := os.UserConfigDir()
 		cobra.CheckErr(err)
 
-		cfgDir = cfgDir + "/ncfuzzer"
+		cfgDir = cfgDir + "/cnfuzz"
 		viper.AddConfigPath(cfgDir)
 	}
 }

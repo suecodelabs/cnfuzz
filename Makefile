@@ -13,7 +13,8 @@ GIT_BRANCH := $(subst heads/,,$(shell git rev-parse --abbrev-ref HEAD 2>/dev/nul
 GIT_COMMIT := $(subst heads/,,$(shell git rev-parse --short HEAD 2>/dev/null))
 DEV_IMAGE := cnfuzz-debug$(if $(GIT_BRANCH),:$(subst /,-,$(GIT_BRANCH)))
 KIND_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),:$(subst /,-,$(GIT_COMMIT)))
-DEFAULT_HELM_ARGS := --set controller.restlerConfig.timeBudget='0.02'
+DEFAULT_HELM_ARGS_LOCAL := --set controller.restlerConfig.timeBudget='0.02' -f .dev.kind.values.yaml
+DEFAULT_HELM_ARGS_CLOUD := --set controller.restlerConfig.timeBudget='0.02' -f .dev.cloud.values.yaml
 KIND_EXAMPLE_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),-todo-api:$(subst /,-,$(GIT_COMMIT)))
 IMAGE ?= "cnfuzz"
 
@@ -65,6 +66,12 @@ kind-build: build
 
 kind-clean:
 	helm delete dev
+
+cloud-init: build
+	helm install --wait --timeout 10m0s dev charts/cnfuzz $(DEFAULT_HELM_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+	kubectl apply -f example/deployment.yaml
+	kubectl set image deployment/todo-api todoapi=$(KIND_EXAMPLE_IMAGE)
+	kubectl scale deployment --replicas=1 todo-api
 
 kill-jobs:
 	# Kill running jobs

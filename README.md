@@ -123,7 +123,7 @@ make build
 
 ## Sponsors
 
-- [Sue B.V. - Cloud Native Solutions](https://sue.nl/)
+- [Sue B.V. - Cloud Native Solutions](https://sue.nl/?utm_source=github&utm_medium=github&utm_campaign=github_default)
 
 ## Engineering Team
 
