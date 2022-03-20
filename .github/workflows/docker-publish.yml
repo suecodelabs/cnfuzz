@@ -77,7 +77,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Build and push Docker image for PR
-        id: build-and-push
+        id: build-and-push-pr
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
