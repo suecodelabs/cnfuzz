@@ -82,7 +82,7 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name == 'pull_request' }}
-          tags: ${{ github.actor }}-pr-${{ github.event.number }}
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
       # Sign the resulting Docker image digest except on PRs.
