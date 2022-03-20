@@ -1,0 +1,5 @@
+redis:
+  enabled: true
+  architecture: standalone
+minio:
+  enabled: false
