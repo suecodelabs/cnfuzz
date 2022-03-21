@@ -17,6 +17,7 @@ type FuzzerConfig struct {
 	TimeBudget           string
 	DiscoveryDocLocation string
 	Target               FuzzerTarget
+	Resources            FuzzerJobResources
 }
 
 // FuzzerTarget configuration for the fuzzing target
@@ -26,6 +27,14 @@ type FuzzerTarget struct {
 	IP        string
 	Port      string
 	Scheme    string // http, https
+}
+
+// FuzzerJobResources contains resource limits/requests for all fuzzer jobs
+type FuzzerJobResources struct {
+	CpuLimits      string
+	CpuRequests    string
+	MemoryLimits   string
+	MemoryRequests string
 }
 
 // NewFuzzerConfig constructor for FuzzerConfig
@@ -38,6 +47,12 @@ func NewFuzzerConfig(apiDesc *discovery.WebApiDescription, targetPod *v1.Pod) *F
 		InitImage:            viper.GetString(cmd.RestlerInitImageFlag),
 		TimeBudget:           viper.GetString(cmd.RestlerTimeBudget),
 		DiscoveryDocLocation: apiDesc.DiscoveryDoc.String(),
+		Resources: FuzzerJobResources{
+			CpuLimits:      viper.GetString(cmd.RestlerCpuLimits),
+			CpuRequests:    viper.GetString(cmd.RestlerCpuRequests),
+			MemoryLimits:   viper.GetString(cmd.RestlerMemoryLimits),
+			MemoryRequests: viper.GetString(cmd.RestlerMemoryRequests),
+		},
 		Target: FuzzerTarget{
 			PodName:   targetPod.Name,
 			Namespace: targetPod.Namespace,

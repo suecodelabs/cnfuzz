@@ -23,6 +23,12 @@ const (
 	RestlerImageFlag     = "restler-img"
 	RestlerTimeBudget    = "restler-time-budget"
 
+	// fuzzing job related flags
+	RestlerCpuRequests    = "restler-job-cpu-requests"
+	RestlerCpuLimits      = "restler-job-cpu-limits"
+	RestlerMemoryRequests = "restler-job-mem-requests"
+	RestlerMemoryLimits   = "restler-job-mem-limits"
+
 	// auth related flags
 	AuthUsername   = "username"
 	AuthSecretFlag = "secret"
@@ -37,6 +43,8 @@ func SetupFlags(rootCmd *cobra.Command) {
 	registerDirectFuzzingFlags(rootCmd)
 
 	registerKubernetesFlags(rootCmd)
+
+	registerResourceFlags(rootCmd)
 
 	rootCmd.Flags().StringP(RestlerInitImageFlag, "", "curlimages/curl:7.81.0", "Init Image for preparing RESTler runtime")
 	_ = viper.BindPFlag(RestlerInitImageFlag, rootCmd.Flags().Lookup(RestlerInitImageFlag))
@@ -83,4 +91,19 @@ func registerAuthFlags(rootCmd *cobra.Command) {
 	_ = viper.BindPFlag(AuthUsername, rootCmd.PersistentFlags().Lookup(AuthUsername))
 	_ = viper.BindPFlag(AuthSecretFlag, rootCmd.PersistentFlags().Lookup(AuthSecretFlag))
 	// TODO add a scopes flag
+}
+
+// registerResourceFlags registers flags for container resource limits
+func registerResourceFlags(rootCmd *cobra.Command) {
+	rootCmd.Flags().String(RestlerCpuRequests, "", "")
+	_ = viper.BindPFlag(RestlerCpuRequests, rootCmd.Flags().Lookup(RestlerCpuRequests))
+
+	rootCmd.Flags().String(RestlerCpuLimits, "", "")
+	_ = viper.BindPFlag(RestlerCpuLimits, rootCmd.Flags().Lookup(RestlerCpuLimits))
+
+	rootCmd.Flags().String(RestlerMemoryRequests, "", "")
+	_ = viper.BindPFlag(RestlerMemoryRequests, rootCmd.Flags().Lookup(RestlerMemoryRequests))
+
+	rootCmd.Flags().String(RestlerMemoryLimits, "", "")
+	_ = viper.BindPFlag(RestlerMemoryLimits, rootCmd.Flags().Lookup(RestlerMemoryLimits))
 }
