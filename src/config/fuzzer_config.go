@@ -5,6 +5,7 @@ import (
 	"github.com/suecodelabs/cnfuzz/src/cmd"
 	"github.com/suecodelabs/cnfuzz/src/discovery"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 // FuzzerConfig config that is used to configure the RESTler fuzzer
@@ -31,14 +32,21 @@ type FuzzerTarget struct {
 
 // FuzzerJobResources contains resource limits/requests for all fuzzer jobs
 type FuzzerJobResources struct {
-	CpuLimits      string
-	CpuRequests    string
-	MemoryLimits   string
-	MemoryRequests string
+	CpuLimits      resource.Quantity
+	CpuRequests    resource.Quantity
+	MemoryLimits   resource.Quantity
+	MemoryRequests resource.Quantity
 }
 
 // NewFuzzerConfig constructor for FuzzerConfig
 func NewFuzzerConfig(apiDesc *discovery.WebApiDescription, targetPod *v1.Pod) *FuzzerConfig {
+	res := FuzzerJobResources{
+		CpuLimits:      resource.MustParse(viper.GetString(cmd.RestlerCpuLimits)),
+		CpuRequests:    resource.MustParse(viper.GetString(cmd.RestlerCpuRequests)),
+		MemoryLimits:   resource.MustParse(viper.GetString(cmd.RestlerMemoryLimits)),
+		MemoryRequests: resource.MustParse(viper.GetString(cmd.RestlerMemoryRequests)),
+	}
+
 	return &FuzzerConfig{
 		JobName:              "cnfuzz-restler-" + targetPod.Name,
 		InitJobName:          "cnfuzz-restler-init-" + targetPod.Name,
@@ -47,12 +55,7 @@ func NewFuzzerConfig(apiDesc *discovery.WebApiDescription, targetPod *v1.Pod) *F
 		InitImage:            viper.GetString(cmd.RestlerInitImageFlag),
 		TimeBudget:           viper.GetString(cmd.RestlerTimeBudget),
 		DiscoveryDocLocation: apiDesc.DiscoveryDoc.String(),
-		Resources: FuzzerJobResources{
-			CpuLimits:      viper.GetString(cmd.RestlerCpuLimits),
-			CpuRequests:    viper.GetString(cmd.RestlerCpuRequests),
-			MemoryLimits:   viper.GetString(cmd.RestlerMemoryLimits),
-			MemoryRequests: viper.GetString(cmd.RestlerMemoryRequests),
-		},
+		Resources:            res,
 		Target: FuzzerTarget{
 			PodName:   targetPod.Name,
 			Namespace: targetPod.Namespace,

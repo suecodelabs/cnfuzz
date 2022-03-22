@@ -70,10 +70,11 @@ func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *
 					},
 					Containers: []v1.Container{
 						{
-							Name:    cnf.JobName,
-							Image:   cnf.Image,
-							Command: []string{"/bin/sh", "-c"},
-							Args:    []string{fullCommand},
+							Name:      cnf.JobName,
+							Image:     cnf.Image,
+							Command:   []string{"/bin/sh", "-c"},
+							Args:      []string{fullCommand},
+							Resources: v1.ResourceRequirements{},
 							VolumeMounts: []v1.VolumeMount{
 								{
 									Name:      openApiVolumeName,
@@ -91,6 +92,26 @@ func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *
 			},
 		},
 	}
+
+	// Limits: v1.ResourceList{
+	// 	v1.ResourceCPU:    cnf.Resources.CpuLimits,
+	// 	v1.ResourceMemory: cnf.Resources.MemoryLimits,
+	// },
+	// Requests: v1.ResourceList{
+	// 	v1.ResourceCPU:    cnf.Resources.CpuRequests,
+	// 	v1.ResourceMemory: cnf.Resources.MemoryRequests,
+	// },
+
+	restlerSpec.Spec.Template.Spec.Containers[0].Resources.Limits = v1.ResourceList{
+		v1.ResourceCPU:    cnf.Resources.CpuLimits,
+		v1.ResourceMemory: cnf.Resources.MemoryLimits,
+	}
+
+	restlerSpec.Spec.Template.Spec.Containers[0].Resources.Requests = v1.ResourceList{
+		v1.ResourceCPU:    cnf.Resources.CpuRequests,
+		v1.ResourceMemory: cnf.Resources.MemoryRequests,
+	}
+
 	return restlerSpec
 }
 
