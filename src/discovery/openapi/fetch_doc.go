@@ -1,6 +1,7 @@
 package openapi
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -55,9 +56,21 @@ func GetRemoteOpenApiDoc(url *url.URL) []byte {
 	return body
 }
 
+// TryGetOpenApiDocFromUrl tries to get the OpenAPI doc from the exact OpenAPI doc location
+func TryGetOpenApiDocFromUrl(baseUri string) (webApiDescription *discovery.WebApiDescription, err error) {
+	client := http.Client{
+		Timeout: time.Second * 4,
+	}
+
+	return tryGetOpenApiDocFromUrl(baseUri, &client)
+}
+
 // TryGetOpenApiDoc try getting the OpenApi doc from a host without knowing the exact OpenApi doc location
 func TryGetOpenApiDoc(ip string, ports []int32, locations []string) (webApiDescription *discovery.WebApiDescription, err error) {
 	logger := log.L()
+
+	// TODO: If debugging, use local port
+
 	if len(ports) == 0 {
 		baseUri := "http://" + ip
 		return tryGetOpenApiDoc(baseUri, locations)
@@ -98,42 +111,60 @@ func tryGetOpenApiDoc(baseUri string, locations []string) (webApiDescription *di
 	for _, try := range locations {
 		fullUri := baseUri + try
 		logger.Debugf("trying to get OpenAPI doc from location %s ...", fullUri)
-		req, err := http.NewRequest(http.MethodGet, fullUri, nil)
+		doc, err := tryGetOpenApiDocFromUrl(fullUri, &client)
 		if err != nil {
-			logger.Errorf("error while attempting to get the OpenAPI doc: %+v", err)
 			continue
 		}
 
-		req.Header.Set("User-Agent", UserAgent)
-
-		res, getErr := client.Do(req)
-		if getErr != nil {
-			logger.Errorf("error while sending Http request to get OpenAPI doc: %+v", getErr)
-			continue
-		}
-		if res.StatusCode == 200 {
-			body, readErr := ioutil.ReadAll(res.Body)
-			if readErr != nil {
-				logger.Errorf("error while reading body from Http response while getting OpenAPI doc: %+v", readErr)
-				continue
-			}
-			if res.Body != nil {
-				defer res.Body.Close()
-			} else {
-				// Body is empty
-				continue
-			}
-
-			result, err := UnMarshalOpenApiDoc(body, req.URL)
-			if err != nil {
-				logger.Errorf("error while unmarshalling OpenAPI doc request body: %+v", err)
-				continue
-			} else {
-				// Got the OpenApi Doc :)
-				return result, nil
-			}
-		}
+		return doc, nil
 	}
 
 	return nil, fmt.Errorf("failed to get the OpenApi doc from %s", baseUri)
+}
+
+func tryGetOpenApiDocFromUrl(fullUri string, client *http.Client) (webApiDescription *discovery.WebApiDescription, err error) {
+	logger := log.L()
+
+	logger.Debugf("trying to get OpenAPI doc from location %s ...", fullUri)
+	req, err := http.NewRequest(http.MethodGet, fullUri, nil)
+	if err != nil {
+		logger.Errorf("error while attempting to create request: %+v", err)
+		return nil, err
+	}
+
+	req.Header.Set("User-Agent", UserAgent)
+
+	res, getErr := client.Do(req)
+	if getErr != nil {
+		logger.Errorf("error while sending Http request to get OpenAPI doc: %+v", getErr)
+		return nil, getErr
+	}
+
+	if res.StatusCode != 200 {
+		logger.Errorf("error while retrieving apidoc, statuscode != 200")
+		return nil, errors.New("Statuscode is not 200")
+	}
+
+	body, readErr := ioutil.ReadAll(res.Body)
+	if readErr != nil {
+		logger.Errorf("error while reading body from Http response while getting OpenAPI doc: %+v", readErr)
+		return nil, err
+	}
+
+	if res.Body != nil {
+		defer res.Body.Close()
+	} else {
+		// Body is empty
+		logger.Errorf("error while reading body, body is empty")
+		return nil, err
+	}
+
+	result, err := UnMarshalOpenApiDoc(body, req.URL)
+	if err != nil {
+		logger.Errorf("error while unmarshalling OpenAPI doc request body: %+v", err)
+		return nil, err
+	}
+
+	// Got the OpenApi Doc :)
+	return result, nil
 }
