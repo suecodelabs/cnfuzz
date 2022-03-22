@@ -10,7 +10,8 @@ const (
 
 	// start job with Kubernetes
 	TargetPodName      = "pod"
-	TargetPodNamespace = "namespace" // Namespace that target lives in
+	TargetPodNamespace = "namespace"          // Namespace that target lives in
+	TargetOpenApiUrl   = "target-openapi-url" // For debugging only: target a specific swagger url accessible from the local machine.
 
 	// misc Kubernetes flags
 	InsideClusterFlag  = "inside-cluster"
@@ -65,6 +66,9 @@ func registerDirectFuzzingFlags(rootCmd *cobra.Command) {
 
 	rootCmd.Flags().StringP(TargetPodNamespace, "n", "default", "Namespace for the target pod")
 	_ = viper.BindPFlag(TargetPodNamespace, rootCmd.Flags().Lookup(TargetPodNamespace))
+
+	rootCmd.Flags().String(TargetOpenApiUrl, "", "For debugging only: target a specific swagger url accessible from the local machine")
+	_ = viper.BindPFlag(TargetOpenApiUrl, rootCmd.Flags().Lookup(TargetOpenApiUrl))
 }
 
 // registerKubernetesFlags registers flags for Kubernetes configuration

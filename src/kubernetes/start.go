@@ -3,9 +3,11 @@ package kubernetes
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/suecodelabs/cnfuzz/src/auth"
 	"github.com/suecodelabs/cnfuzz/src/config"
-	"time"
+	"github.com/suecodelabs/cnfuzz/src/discovery"
 
 	"github.com/spf13/viper"
 	"github.com/suecodelabs/cnfuzz/src/cmd"
@@ -98,9 +100,19 @@ func fuzzPod(clientSet kubernetes.Interface, pod *v1.Pod) error {
 		oaLocs = openapi.GetCommonOpenApiLocations()
 	}
 
-	apiDesc, err := openapi.TryGetOpenApiDoc(ip, ports, oaLocs)
-	if err != nil {
-		return fmt.Errorf("error while retrieving OpenAPI document from target %s: %w", pod.Name, err)
+	// Check if we are targetting a specific swaggerdoc url
+	targetOpenApiUrl := viper.GetString(cmd.TargetOpenApiUrl)
+	var apiDesc *discovery.WebApiDescription
+	var getErr error
+
+	if len(targetOpenApiUrl) > 0 {
+		apiDesc, getErr = openapi.TryGetOpenApiDocFromUrl(targetOpenApiUrl)
+	} else {
+		apiDesc, getErr = openapi.TryGetOpenApiDoc(ip, ports, oaLocs)
+	}
+
+	if getErr != nil {
+		return fmt.Errorf("error while retrieving OpenAPI document from target %s: %w", pod.Name, getErr)
 	}
 
 	clientId := viper.GetString(cmd.AuthUsername)
