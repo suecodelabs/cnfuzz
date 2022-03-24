@@ -78,7 +78,7 @@ type Schema struct {
 	Format     string
 	Nullable   bool
 	AllowEmpty bool
-	Example    interface{}
+	Example    any
 	Properties []Schema
 }
 
