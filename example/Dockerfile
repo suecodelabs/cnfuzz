@@ -1,4 +1,4 @@
-FROM golang:1.17 AS build
+FROM golang:1.18 AS build
 # RUN apt-get -y update
 RUN go install github.com/swaggo/swag/cmd/swag@v1.7.9
 RUN mkdir /app

@@ -178,7 +178,7 @@ func parseOpenApiDoc(doc *openapi3.T, uri *url.URL, docIsVersion2 bool) (*discov
 
 // getMajorDocVersion tries to get the version of an OpenAPI doc
 func getMajorDocVersion(doc []byte) (version int, err error) {
-	var result map[string]interface{}
+	var result map[string]any
 
 	err = json.Unmarshal(doc, &result)
 	if err != nil {
