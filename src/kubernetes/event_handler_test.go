@@ -1,6 +1,7 @@
 package kubernetes
 
 import (
+	"context"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/suecodelabs/cnfuzz/src/model"
@@ -51,7 +52,7 @@ func TestContainsUnfuzzedImages(t *testing.T) {
 		Status:   model.Fuzzed,
 		Tags:     []string{"latest"},
 	}
-	err := imageRepo.CreateContainerImage(existingImage)
+	_, err := imageRepo.Create(context.TODO(), existingImage)
 	if err != nil {
 		log.Fatalln(fmt.Errorf("failed to prep image repo for ContainsUnfuzzedImages function test: %w", err))
 	}

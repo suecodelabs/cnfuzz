@@ -1,13 +1,14 @@
 package in_memory
 
 import (
+	"context"
 	"errors"
 
 	"github.com/suecodelabs/cnfuzz/src/model"
 )
 
 type containerImageInMemoryRepository struct {
-	fuzzedImages []model.ContainerImage
+	fuzzedImages []*model.ContainerImage
 }
 
 func CreateContainerImageRepository() *containerImageInMemoryRepository {
@@ -15,37 +16,33 @@ func CreateContainerImageRepository() *containerImageInMemoryRepository {
 	return &containerImageInMemoryRepository{}
 }
 
-func (repo containerImageInMemoryRepository) GetContainerImages() ([]model.ContainerImage, error) {
+func (repo *containerImageInMemoryRepository) GetAll(ctx context.Context) ([]*model.ContainerImage, error) {
 	return repo.fuzzedImages, nil
 }
 
-func (repo containerImageInMemoryRepository) FindContainerImageByHash(hash string) (containerImage model.ContainerImage, found bool, err error) {
+func (repo *containerImageInMemoryRepository) Create(ctx context.Context, model model.ContainerImage) (*model.ContainerImage, error) {
+	image := &model
+	repo.fuzzedImages = append(repo.fuzzedImages, &model)
+	return image, nil
+}
+
+func (repo *containerImageInMemoryRepository) Update(ctx context.Context, model model.ContainerImage) (*model.ContainerImage, error) {
+	for i, savedImage := range repo.fuzzedImages {
+		if savedImage.Hash == model.Hash {
+			repo.fuzzedImages[i] = &model
+			return repo.fuzzedImages[i], nil
+		}
+	}
+
+	return nil, errors.New("couldn't find image to update")
+}
+
+func (repo *containerImageInMemoryRepository) FindByHash(hash string) (containerImage *model.ContainerImage, found bool, err error) {
 	for _, image := range repo.fuzzedImages {
 		if image.Hash == hash {
 			return image, true, nil
 		}
 	}
 
-	return model.ContainerImage{}, false, nil
-}
-
-func (repo *containerImageInMemoryRepository) CreateContainerImage(image model.ContainerImage) error {
-	valErr := image.Verify()
-	if valErr != nil {
-		return valErr
-	}
-
-	repo.fuzzedImages = append(repo.fuzzedImages, image)
-	return nil
-}
-
-func (repo containerImageInMemoryRepository) UpdateContainerImage(image model.ContainerImage) error {
-	for i, savedImage := range repo.fuzzedImages {
-		if savedImage.Hash == image.Hash {
-			repo.fuzzedImages[i] = image
-			return nil
-		}
-	}
-
-	return errors.New("couldn't find image to update")
+	return nil, false, nil
 }
