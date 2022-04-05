@@ -34,7 +34,7 @@ func NewEventHandler(clientset kubernetes.Interface, repositories *repository.Re
 }
 
 // OnAdd handles an add event
-func (handler EventHandler) OnAdd(obj interface{}) {
+func (handler EventHandler) OnAdd(obj any) {
 	// Object types
 	switch object := obj.(type) {
 	case *apiv1.Pod:
@@ -46,7 +46,7 @@ func (handler EventHandler) OnAdd(obj interface{}) {
 }
 
 // OnUpdate handles an update event
-func (handler EventHandler) OnUpdate(oldObj interface{}, newObj interface{}) {
+func (handler EventHandler) OnUpdate(oldObj any, newObj any) {
 	switch newObject := newObj.(type) {
 	case *apiv1.Pod:
 		/* Could check if pod image ID changed
@@ -67,7 +67,7 @@ func (handler EventHandler) OnUpdate(oldObj interface{}, newObj interface{}) {
 }
 
 // OnDelete handles a delete event
-func (handler EventHandler) OnDelete(obj interface{}) {
+func (handler EventHandler) OnDelete(obj any) {
 	// We just ignore these completely
 	// No point in fuzzing a deleted object
 }
