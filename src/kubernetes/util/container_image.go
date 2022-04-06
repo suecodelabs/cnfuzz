@@ -45,6 +45,8 @@ func SplitImageId(imageId string) (hash string, hashType string) {
 			hashTypeSplit := strings.Split(imageIdPart, "@")
 			// Last piece should be the hash type
 			hashType = hashTypeSplit[len(hashTypeSplit)-1]
+		} else {
+			return hashSplit[1], hashSplit[0]
 		}
 	}
 

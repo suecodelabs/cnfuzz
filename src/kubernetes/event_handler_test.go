@@ -50,9 +50,8 @@ func TestContainsUnfuzzedImages(t *testing.T) {
 		Hash:     "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
 		HashType: "sha256",
 		Status:   model.Fuzzed,
-		Tags:     []string{"latest"},
 	}
-	_, err := imageRepo.Create(context.TODO(), existingImage)
+	err := imageRepo.Create(context.TODO(), existingImage)
 	if err != nil {
 		log.Fatalln(fmt.Errorf("failed to prep image repo for ContainsUnfuzzedImages function test: %w", err))
 	}
@@ -83,7 +82,7 @@ func TestContainsUnfuzzedImages(t *testing.T) {
 		Status: apiv1.PodStatus{
 			ContainerStatuses: []apiv1.ContainerStatus{
 				{
-					Image:   fmt.Sprintf("%s:%s", existingImageName, existingImage.Tags[0]),
+					Image:   fmt.Sprintf("%s:%s", existingImageName, "latest"),
 					ImageID: fmt.Sprintf("docker-pullable://%s@%s:%s", existingImageName, existingImage.HashType, existingImage.Hash),
 				},
 			},

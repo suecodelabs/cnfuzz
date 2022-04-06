@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"fmt"
 	kutil "github.com/suecodelabs/cnfuzz/src/kubernetes/util"
 	"github.com/suecodelabs/cnfuzz/src/log"
 	apiv1 "k8s.io/api/core/v1"
@@ -19,7 +20,6 @@ const (
 type ContainerImage struct {
 	Hash     string
 	HashType string
-	Tags     []string
 	Status   ImageFuzzStatus
 }
 
@@ -33,12 +33,25 @@ func (img ContainerImage) Verify() error {
 	return nil
 }
 
+// String ContainerImage to string representation (format doesn't include status)
+func (img ContainerImage) String() string {
+	return fmt.Sprintf("%s:%s", img.HashType, img.Hash)
+}
+
+// ContainerImageFromString create ContainerImage from a string in format hashtype:hash
+func ContainerImageFromString(hashString string) ContainerImage {
+	hash, hashType := kutil.SplitImageId(hashString)
+	return ContainerImage{
+		Hash:     hash,
+		HashType: hashType,
+	}
+}
+
 // CreateContainerImage
-func CreateContainerImage(hash string, hashType string, tags []string, status ImageFuzzStatus) (*ContainerImage, error) {
+func CreateContainerImage(hash string, hashType string, status ImageFuzzStatus) (*ContainerImage, error) {
 	img := &ContainerImage{
 		Hash:     hash,
 		HashType: hashType,
-		Tags:     tags,
 		Status:   status,
 	}
 	return img, img.Verify()
@@ -57,7 +70,6 @@ mainloop:
 		}
 
 		hash, hashType := kutil.SplitImageId(status.ImageID)
-		_, tags := kutil.GetImageName(status.Image)
 
 		// Look for duplicate image hashes/versions
 		for _, image := range images {
@@ -70,7 +82,6 @@ mainloop:
 		newImage := ContainerImage{
 			Hash:     hash,
 			HashType: hashType,
-			Tags:     tags,
 			Status:   NotFuzzed,
 		}
 

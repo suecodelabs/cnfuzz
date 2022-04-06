@@ -139,7 +139,7 @@ func containsUnfuzzedImages(pod *apiv1.Pod, repo repository.IContainerImageRepos
 	containsUnfuzzedImages = false
 	for _, image := range images {
 		// Check if the image is known
-		foundImage, found, err := repo.FindByHash(image.Hash)
+		foundImage, found, err := repo.FindByHash(context.TODO(), image.String())
 		if err != nil {
 			logger.Errorf("error while getting image from storage: %+v", err)
 		} else if !found {
@@ -148,7 +148,7 @@ func containsUnfuzzedImages(pod *apiv1.Pod, repo repository.IContainerImageRepos
 
 			// Create it, and set status to being fuzzed
 			image.Status = model.BeingFuzzed
-			_, err := repo.Create(context.TODO(), image)
+			err := repo.Create(context.TODO(), image)
 			if err != nil {
 				logger.Errorf("error while saving fuzzed image information to storage: %+v", err)
 			} else {
@@ -161,7 +161,7 @@ func containsUnfuzzedImages(pod *apiv1.Pod, repo repository.IContainerImageRepos
 			if foundImage.Status == model.NotFuzzed {
 				// Update the status to being fuzzed
 				foundImage.Status = model.BeingFuzzed
-				_, updateErr := repo.Update(context.TODO(), image)
+				updateErr := repo.Update(context.TODO(), image)
 				if updateErr != nil {
 					logger.Errorf("error while trying to update the status of image %s to beingfuzzed", image.Hash)
 				} else {

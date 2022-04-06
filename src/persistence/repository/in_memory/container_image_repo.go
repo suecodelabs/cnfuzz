@@ -20,26 +20,25 @@ func (repo *containerImageInMemoryRepository) GetAll(ctx context.Context) ([]*mo
 	return repo.fuzzedImages, nil
 }
 
-func (repo *containerImageInMemoryRepository) Create(ctx context.Context, model model.ContainerImage) (*model.ContainerImage, error) {
-	image := &model
+func (repo *containerImageInMemoryRepository) Create(ctx context.Context, model model.ContainerImage) error {
 	repo.fuzzedImages = append(repo.fuzzedImages, &model)
-	return image, nil
+	return nil
 }
 
-func (repo *containerImageInMemoryRepository) Update(ctx context.Context, model model.ContainerImage) (*model.ContainerImage, error) {
+func (repo *containerImageInMemoryRepository) Update(ctx context.Context, model model.ContainerImage) error {
 	for i, savedImage := range repo.fuzzedImages {
-		if savedImage.Hash == model.Hash {
+		if savedImage.String() == model.String() {
 			repo.fuzzedImages[i] = &model
-			return repo.fuzzedImages[i], nil
+			return nil
 		}
 	}
 
-	return nil, errors.New("couldn't find image to update")
+	return errors.New("couldn't find image to update")
 }
 
-func (repo *containerImageInMemoryRepository) FindByHash(hash string) (containerImage *model.ContainerImage, found bool, err error) {
+func (repo *containerImageInMemoryRepository) FindByHash(ctx context.Context, hash string) (containerImage *model.ContainerImage, found bool, err error) {
 	for _, image := range repo.fuzzedImages {
-		if image.Hash == hash {
+		if image.String() == hash {
 			return image, true, nil
 		}
 	}

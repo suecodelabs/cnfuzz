@@ -53,6 +53,7 @@ func TestSplitImageId1(t *testing.T) {
 		{name: "no-docker-prefix-test", imageId: "localhost:5000/imagename@sha256:abcdefghijklmnopqrstuvw", wantHash: "abcdefghijklmnopqrstuvw", wantHashType: "sha256"},
 		{name: "common-registry-test", imageId: "docker-pullable://bla.com/imagename@sha256:abcdefghijklmnopqrstuvw", wantHash: "abcdefghijklmnopqrstuvw", wantHashType: "sha256"},
 		{name: "short-hash-test", imageId: "docker-pullable://bla.com/imagename@sha256:a", wantHash: "a", wantHashType: "sha256"},
+		{name: "just-hash-test", imageId: "sha256:5add8f7cf10b367af0fd4d9779a48891d9083ab56a691065421571b4d4cf4789", wantHash: "5add8f7cf10b367af0fd4d9779a48891d9083ab56a691065421571b4d4cf4789", wantHashType: "sha256"},
 	}
 
 	for _, tt := range tests {
