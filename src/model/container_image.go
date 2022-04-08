@@ -6,6 +6,8 @@ import (
 	kutil "github.com/suecodelabs/cnfuzz/src/kubernetes/util"
 	"github.com/suecodelabs/cnfuzz/src/log"
 	apiv1 "k8s.io/api/core/v1"
+	"strconv"
+	"strings"
 )
 
 type ImageFuzzStatus int
@@ -39,12 +41,19 @@ func (img ContainerImage) String() string {
 }
 
 // ContainerImageFromString create ContainerImage from a string in format hashtype:hash
-func ContainerImageFromString(hashString string) ContainerImage {
-	hash, hashType := kutil.SplitImageId(hashString)
+func ContainerImageFromString(hashString string, statusString string) (image ContainerImage, convErr error) {
+	hashSplit := strings.Split(hashString, ":")
+	hashType := hashSplit[0]
+	hash := hashSplit[1]
+	status, convErr := strconv.ParseInt(statusString, 10, 16)
+	if convErr != nil {
+		return ContainerImage{}, convErr
+	}
 	return ContainerImage{
 		Hash:     hash,
 		HashType: hashType,
-	}
+		Status:   ImageFuzzStatus(status),
+	}, nil
 }
 
 // CreateContainerImage
