@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/go-redis/redis/v8"
 	"github.com/suecodelabs/cnfuzz/src/model"
-	"strconv"
 	"time"
 )
 
@@ -42,12 +41,10 @@ func (repo containerImageRedisRepository) FindByHash(ctx context.Context, key st
 		return nil, false, err
 	}
 
-	imgRepo := model.ContainerImageFromString(key)
-	statusInt, convErr := strconv.ParseInt(val, 10, 16)
+	imgRepo, convErr := model.ContainerImageFromString(key, val)
 	if convErr != nil {
 		return nil, true, convErr
 	}
-	imgRepo.Status = model.ImageFuzzStatus(statusInt)
 
 	return &imgRepo, true, nil
 }

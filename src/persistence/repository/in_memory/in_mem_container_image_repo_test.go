@@ -29,7 +29,7 @@ func TestFindContainerImageByHashFound(t *testing.T) {
 		},
 	}
 	repo := createMocRepo(images)
-	response, found, err := repo.FindByHash(context.TODO(), images[0].Hash)
+	response, found, err := repo.FindByHash(context.TODO(), images[0].String())
 	assert.NoError(t, err)
 	assert.True(t, found)
 	assert.Equal(t, images[0], response)
