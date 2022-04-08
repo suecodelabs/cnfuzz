@@ -17,8 +17,7 @@ func (repo containerImageRedisRepository) GetAll(ctx context.Context) ([]*model.
 }
 
 func (repo containerImageRedisRepository) Create(ctx context.Context, containerImage model.ContainerImage) error {
-	key := containerImage.String()
-	val := containerImage.Status
+	key, val := containerImage.String()
 	exp := time.Duration(0) // 0 means keep forever
 
 	err := repo.client.Set(ctx, key, val, exp).Err()

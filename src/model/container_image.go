@@ -36,8 +36,8 @@ func (img ContainerImage) Verify() error {
 }
 
 // String ContainerImage to string representation (format doesn't include status)
-func (img ContainerImage) String() string {
-	return fmt.Sprintf("%s:%s", img.HashType, img.Hash)
+func (img ContainerImage) String() (key string, status string) {
+	return fmt.Sprintf("%s:%s", img.HashType, img.Hash), strconv.Itoa(int(img.Status))
 }
 
 // ContainerImageFromString create ContainerImage from a string in format hashtype:hash

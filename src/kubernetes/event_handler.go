@@ -139,7 +139,8 @@ func containsUnfuzzedImages(pod *apiv1.Pod, repo repository.IContainerImageRepos
 	containsUnfuzzedImages = false
 	for _, image := range images {
 		// Check if the image is known
-		foundImage, found, err := repo.FindByHash(context.TODO(), image.String())
+		hashKey, _ := image.String()
+		foundImage, found, err := repo.FindByHash(context.TODO(), hashKey)
 		if err != nil {
 			logger.Errorf("error while getting image from storage: %+v", err)
 		} else if !found {

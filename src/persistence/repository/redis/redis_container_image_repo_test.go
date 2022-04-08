@@ -23,10 +23,10 @@ func TestCreateContainerImage(t *testing.T) {
 		Status:   model.BeingFuzzed,
 	}
 
-	expVal := strconv.Itoa(int(newImage.Status))
+	expectedVal := strconv.Itoa(int(newImage.Status))
 	expectedKey := fmt.Sprintf("%s:%s", newImage.HashType, newImage.Hash)
 	expectedExp := time.Duration(0)
-	mock.ExpectSet(expectedKey, newImage.Status, expectedExp).SetVal(expVal)
+	mock.ExpectSet(expectedKey, expectedVal, expectedExp).SetVal(expectedVal)
 	err := repo.Create(context.TODO(), newImage)
 	assert.NoError(t, err)
 }
@@ -43,16 +43,17 @@ func TestFindByHash(t *testing.T) {
 		Status:   model.BeingFuzzed,
 	}
 
+	strHash, strStatus := newImage.String()
+
 	// mock store returns an error if you don't add the ExpectSet line :(
-	mock.ExpectSet(newImage.String(), newImage.Status, time.Duration(0)).SetVal(newImage.String())
-	createErr := db.Set(context.TODO(), newImage.String(), newImage.Status, time.Duration(0)).Err()
+	mock.ExpectSet(strHash, strStatus, time.Duration(0)).SetVal(strStatus)
+	createErr := db.Set(context.TODO(), strHash, strStatus, time.Duration(0)).Err()
 	if !assert.NoError(t, createErr) {
 		return
 	}
 
-	expVal := strconv.Itoa(int(newImage.Status))
-	mock.ExpectGet(newImage.String()).SetVal(expVal)
-	foundImage, didFind, findErr := repo.FindByHash(context.TODO(), newImage.String())
+	mock.ExpectGet(strHash).SetVal(strStatus)
+	foundImage, didFind, findErr := repo.FindByHash(context.TODO(), strHash)
 
 	assert.NoError(t, findErr)
 	assert.True(t, didFind)
