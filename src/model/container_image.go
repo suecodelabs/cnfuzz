@@ -18,13 +18,14 @@ const (
 	BeingFuzzed
 )
 
-// ContainerImage
+// ContainerImage container image struct that contains a fuzz status
 type ContainerImage struct {
 	Hash     string
 	HashType string
 	Status   ImageFuzzStatus
 }
 
+// Verify verifies if this model is valid, model is not valid if some non nullable properties are empty or nil
 func (img ContainerImage) Verify() error {
 	if len(img.Hash) == 0 {
 		return errors.New("image hash is empty")
@@ -35,12 +36,12 @@ func (img ContainerImage) Verify() error {
 	return nil
 }
 
-// String ContainerImage to string representation (format doesn't include status)
+// String ContainerImage to string representation
 func (img ContainerImage) String() (key string, status string) {
 	return fmt.Sprintf("%s:%s", img.HashType, img.Hash), strconv.Itoa(int(img.Status))
 }
 
-// ContainerImageFromString create ContainerImage from a string in format hashtype:hash
+// ContainerImageFromString create ContainerImage from a string in format hashtype:hash and a string representing the status as an int
 func ContainerImageFromString(hashString string, statusString string) (image ContainerImage, convErr error) {
 	hashSplit := strings.Split(hashString, ":")
 	hashType := hashSplit[0]
@@ -56,7 +57,6 @@ func ContainerImageFromString(hashString string, statusString string) (image Con
 	}, nil
 }
 
-// CreateContainerImage
 func CreateContainerImage(hash string, hashType string, status ImageFuzzStatus) (*ContainerImage, error) {
 	img := &ContainerImage{
 		Hash:     hash,
@@ -66,9 +66,10 @@ func CreateContainerImage(hash string, hashType string, status ImageFuzzStatus) 
 	return img, img.Verify()
 }
 
-func CreateContainerImagesFromPod(pod *apiv1.Pod) ([]ContainerImage, error) {
+// CreateContainerImagesFromPod extracts container info from a pod and converts their images to ContainerImages
+func CreateContainerImagesFromPod(pod *apiv1.Pod) ([]*ContainerImage, error) {
 	logger := log.L()
-	var images []ContainerImage
+	var images []*ContainerImage
 mainloop:
 	for _, status := range pod.Status.ContainerStatuses {
 		if len(status.ImageID) == 0 || len(status.Image) == 0 {
@@ -88,10 +89,12 @@ mainloop:
 			}
 		}
 
-		newImage := ContainerImage{
-			Hash:     hash,
-			HashType: hashType,
-			Status:   NotFuzzed,
+		newImage, createErr := CreateContainerImage(hash, hashType, NotFuzzed)
+		if createErr != nil {
+			// This means either the hash or hash type is empty
+			// Returning the error instead of ignoring it because it shouldn't happen
+			// every image/container should have this information
+			return nil, createErr
 		}
 
 		images = append(images, newImage)

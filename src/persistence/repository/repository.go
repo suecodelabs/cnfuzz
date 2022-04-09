@@ -12,11 +12,11 @@ type BaseRepo[T any] interface {
 	Update(ctx context.Context, model T) error
 }
 
-// IContainerImageRepository interface for a repository
+// IContainerImageRepository interface for a ContainerImage repository that uses the BaseRepo
 type IContainerImageRepository interface {
 	BaseRepo[model.ContainerImage]
-	// FindByHash find a single container image by its name
-	FindByHash(ctx context.Context, hash string) (containerImage *model.ContainerImage, found bool, err error)
+	// FindByHash find a single container image by its hash key (format: hashtype:hash)
+	FindByHash(ctx context.Context, hashKey string) (containerImage *model.ContainerImage, found bool, err error)
 }
 
 // Repositories contains all the repo structs

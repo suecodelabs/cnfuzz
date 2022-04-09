@@ -32,15 +32,15 @@ func (repo containerImageRedisRepository) Update(ctx context.Context, containerI
 	return repo.Create(ctx, containerImage)
 }
 
-func (repo containerImageRedisRepository) FindByHash(ctx context.Context, key string) (containerImage *model.ContainerImage, found bool, err error) {
-	val, err := repo.client.Get(ctx, key).Result()
+func (repo containerImageRedisRepository) FindByHash(ctx context.Context, hashKey string) (containerImage *model.ContainerImage, found bool, err error) {
+	val, err := repo.client.Get(ctx, hashKey).Result()
 	if err == redis.Nil {
 		return nil, false, nil
 	} else if err != nil {
 		return nil, false, err
 	}
 
-	imgRepo, convErr := model.ContainerImageFromString(key, val)
+	imgRepo, convErr := model.ContainerImageFromString(hashKey, val)
 	if convErr != nil {
 		return nil, true, convErr
 	}

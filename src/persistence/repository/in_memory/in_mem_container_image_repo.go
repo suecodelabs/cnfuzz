@@ -38,10 +38,10 @@ func (repo *containerImageInMemoryRepository) Update(ctx context.Context, model 
 	return errors.New("couldn't find image to update")
 }
 
-func (repo *containerImageInMemoryRepository) FindByHash(ctx context.Context, hash string) (containerImage *model.ContainerImage, found bool, err error) {
+func (repo *containerImageInMemoryRepository) FindByHash(ctx context.Context, hashKey string) (containerImage *model.ContainerImage, found bool, err error) {
 	for _, image := range repo.fuzzedImages {
 		strHash, _ := image.String()
-		if strHash == hash {
+		if strHash == hashKey {
 			return image, true, nil
 		}
 	}
