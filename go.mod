@@ -4,6 +4,8 @@ go 1.18
 
 require (
 	github.com/getkin/kin-openapi v0.83.0
+	github.com/go-redis/redis/v8 v8.11.5
+	github.com/go-redis/redismock/v8 v8.0.6
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0
@@ -26,8 +28,6 @@ require (
 	github.com/go-logr/logr v1.2.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/swag v0.19.14 // indirect
-	github.com/go-redis/redis/v8 v8.11.5 // indirect
-	github.com/go-redis/redismock/v8 v8.0.6 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
