@@ -57,8 +57,8 @@ func ContainerImageFromString(hashString string, statusString string) (image Con
 	}, nil
 }
 
-func CreateContainerImage(hash string, hashType string, status ImageFuzzStatus) (*ContainerImage, error) {
-	img := &ContainerImage{
+func CreateContainerImage(hash string, hashType string, status ImageFuzzStatus) (ContainerImage, error) {
+	img := ContainerImage{
 		Hash:     hash,
 		HashType: hashType,
 		Status:   status,
@@ -67,9 +67,9 @@ func CreateContainerImage(hash string, hashType string, status ImageFuzzStatus) 
 }
 
 // CreateContainerImagesFromPod extracts container info from a pod and converts their images to ContainerImages
-func CreateContainerImagesFromPod(pod *apiv1.Pod) ([]*ContainerImage, error) {
+func CreateContainerImagesFromPod(pod *apiv1.Pod) ([]ContainerImage, error) {
 	logger := log.L()
-	var images []*ContainerImage
+	var images []ContainerImage
 mainloop:
 	for _, status := range pod.Status.ContainerStatuses {
 		if len(status.ImageID) == 0 || len(status.Image) == 0 {

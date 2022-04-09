@@ -46,11 +46,7 @@ func TestContainsUnfuzzedImages(t *testing.T) {
 	// func containsUnfuzzedImages(pod *apiv1.Pod, repo repository.IContainerImageRepository) (allImages []model.ContainerImage, containsUnfuzzedImages bool) {
 	imageRepo := in_memory.CreateContainerImageRepository()
 	existingImageName := "mycontainer"
-	existingImage := model.ContainerImage{
-		Hash:     "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
-		HashType: "sha256",
-		Status:   model.Fuzzed,
-	}
+	existingImage, _ := model.CreateContainerImage("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", "sha256", model.Fuzzed)
 	err := imageRepo.Create(context.TODO(), existingImage)
 	if err != nil {
 		log.Fatalln(fmt.Errorf("failed to prep image repo for ContainsUnfuzzedImages function test: %w", err))

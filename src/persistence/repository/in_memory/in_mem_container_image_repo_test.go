@@ -18,7 +18,7 @@ func TestGetContainerImages(t *testing.T) {
 func TestFindContainerImageByHashFound(t *testing.T) {
 	img1, _ := model.CreateContainerImage("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", "sha256", model.Fuzzed)
 	img2, _ := model.CreateContainerImage("afa27b44d43b02a9fea41d13cedc2e4016cfcf87c5dbf990e593669aa8ce286d", "sha256", model.Fuzzed)
-	images := []*model.ContainerImage{img1, img2}
+	images := []*model.ContainerImage{&img1, &img2}
 	repo := createMocRepo(images)
 	hashKey, _ := images[0].String()
 	response, found, err := repo.FindByHash(context.TODO(), hashKey)
@@ -40,7 +40,7 @@ func TestCreateContainerImage(t *testing.T) {
 	repo := createFilledMocRepo()
 	initLength := len(repo.fuzzedImages)
 	newImage, _ := model.CreateContainerImage("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", "sha256", model.BeingFuzzed)
-	err := repo.Create(context.TODO(), *newImage)
+	err := repo.Create(context.TODO(), newImage)
 	assert.NoError(t, err)
 	assert.Greater(t, len(repo.fuzzedImages), initLength)
 }
@@ -84,7 +84,7 @@ func createMocRepo(containerImages []*model.ContainerImage) *containerImageInMem
 func createFilledMocRepo() *containerImageInMemoryRepository {
 	img1, _ := model.CreateContainerImage("ac8f12f465a1300db7fbb2416bd922adc59a9c570ce8d54f8f7dd20ef2945464", "sha256", model.NotFuzzed)
 	img2, _ := model.CreateContainerImage("3e27b58e2a4afe6db3020403403c1798adacb9adf0e60db2df27b120df521995", "sha256", model.Fuzzed)
-	images := []*model.ContainerImage{img1, img2}
+	images := []*model.ContainerImage{&img1, &img2}
 
 	return &containerImageInMemoryRepository{fuzzedImages: images}
 }
