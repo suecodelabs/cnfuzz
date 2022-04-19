@@ -130,7 +130,7 @@ func containsUnfuzzedImages(pod *apiv1.Pod, repo repository.IContainerImageRepos
 	// Get all images inside pod
 	images, err := model.CreateContainerImagesFromPod(pod)
 	if err != nil {
-		logger.Errorf("Failed to retrieve image information from pods in service %s\n", pod.Name)
+		logger.Errorf("Failed to retrieve image information from pods in service %s: %+v\n", pod.Name, err)
 		// Skip the image
 		return
 	}

@@ -28,10 +28,10 @@ type ContainerImage struct {
 // Verify verifies if this model is valid, model is not valid if some non nullable properties are empty or nil
 func (img ContainerImage) Verify() error {
 	if len(img.Hash) == 0 {
-		return errors.New("image hash is empty")
+		return errors.New("container image is invalid because image hash is empty")
 	}
 	if len(img.HashType) == 0 {
-		return errors.New("image hash type can't be empty")
+		return errors.New("container image is invalid because image hash type can't be empty")
 	}
 	return nil
 }
@@ -94,6 +94,7 @@ mainloop:
 			// This means either the hash or hash type is empty
 			// Returning the error instead of ignoring it because it shouldn't happen
 			// every image/container should have this information
+			log.L().Debug("this means either the hash or hash type is empty, returning an error because every image/container should have this information")
 			return nil, createErr
 		}
 

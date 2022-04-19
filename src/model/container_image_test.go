@@ -49,7 +49,7 @@ func TestContainerImage_VerifyIdError(t *testing.T) {
 	}
 	err := newImage.Verify()
 	assert.Error(t, err)
-	assert.EqualError(t, err, "image hash is empty")
+	assert.EqualError(t, err, "container image is invalid because image hash is empty")
 }
 
 func TestContainerImage_VerifyHashTypeError(t *testing.T) {
@@ -60,7 +60,7 @@ func TestContainerImage_VerifyHashTypeError(t *testing.T) {
 	}
 	err := newImage.Verify()
 	assert.Error(t, err)
-	assert.EqualError(t, err, "image hash type can't be empty")
+	assert.EqualError(t, err, "container image is invalid because image hash type can't be empty")
 }
 
 func TestString(t *testing.T) {
