@@ -8,7 +8,7 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-controller:
+scheduler:
   redisConfig:
     hostname:
     port: 6379

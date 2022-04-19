@@ -34,12 +34,12 @@ spec:
             # this will be deprecated over time.
             - "--inside-cluster"
             - "--restler-img"
-            - "{{ $.Values.controller.restlerImage.repository }}:{{ $.Values.controller.restlerImage.tag }}"
+            - "{{ $.Values.scheduler.restlerImage.repository }}:{{ $.Values.scheduler.restlerImage.tag }}"
             - "--username"
-            - "{{ $.Values.controller.restlerConfig.userName }}"
+            - "{{ $.Values.scheduler.restlerConfig.userName }}"
             - "--secret"
-            - "{{ $.Values.controller.restlerConfig.secret }}"
-            {{- if $.Values.controller.restlerConfig.onlyMarked }}
+            - "{{ $.Values.scheduler.restlerConfig.secret }}"
+            {{- if $.Values.scheduler.restlerConfig.onlyMarked }}
             - "--only-marked"
             {{- end }}
             - "--home-ns"
@@ -47,11 +47,11 @@ spec:
             - "--scheduler-img"
             - "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
             - "--restler-time-budget"
-            - "{{ $.Values.controller.restlerConfig.timeBudget }}"
+            - "{{ $.Values.scheduler.restlerConfig.timeBudget }}"
             - "--redis-hostname"
-            - "{{ $.Values.controller.redisConfig.hostname | default (printf "%s-redis-master" (include "cnfuzz.fullname" .)) }}"
+            - "{{ $.Values.scheduler.redisConfig.hostname | default (printf "%s-redis-master" (include "cnfuzz.fullname" .)) }}"
             - "--redis-port"
-            - "{{ $.Values.controller.redisConfig.port }}"
+            - "{{ $.Values.scheduler.redisConfig.port }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
