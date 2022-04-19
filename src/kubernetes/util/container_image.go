@@ -34,6 +34,7 @@ func SplitImageId(imageId string) (hash string, hashType string) {
 	log.L().Debugf("splitting image name \"%s\"", imageId)
 	// Format:
 	// docker-pullable://localhost:5000/imagename@sha256:5add8f7cf10b367af0fd4d9779a48891d9083ab56a691065421571b4d4cf4789
+	// sha256:5add8f7cf10b367af0fd4d9779a48891d9083ab56a691065421571b4d4cf4789
 	if strings.Contains(imageId, ":") {
 		hashSplit := strings.Split(imageId, ":")
 		if len(hashSplit) > 2 {
@@ -45,6 +46,8 @@ func SplitImageId(imageId string) (hash string, hashType string) {
 			hashTypeSplit := strings.Split(imageIdPart, "@")
 			// Last piece should be the hash type
 			hashType = hashTypeSplit[len(hashTypeSplit)-1]
+		} else if len(hashSplit) == 2 {
+			return hashSplit[1], hashSplit[0]
 		}
 	}
 
