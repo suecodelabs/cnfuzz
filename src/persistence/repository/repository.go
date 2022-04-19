@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/suecodelabs/cnfuzz/src/model"
 	"github.com/suecodelabs/cnfuzz/src/persistence/repository/in_memory"
+	"github.com/suecodelabs/cnfuzz/src/persistence/repository/redis"
 )
 
 type BaseRepo[T any] interface {
@@ -25,7 +26,13 @@ type Repositories struct {
 }
 
 // InitRepositories should be called only ones
-func InitRepositories() *Repositories {
-	containerImageRepo := in_memory.CreateContainerImageRepository()
-	return &Repositories{ContainerImageRepo: containerImageRepo}
+func InitRepositories(repoType RepoType) *Repositories {
+	if repoType == Redis {
+		containerImageRepo := redis.CreateContainerImageRepository()
+		return &Repositories{ContainerImageRepo: containerImageRepo}
+	} else if repoType == InMemory {
+		containerImageRepo := in_memory.CreateContainerImageRepository()
+		return &Repositories{ContainerImageRepo: containerImageRepo}
+	}
+	return nil
 }

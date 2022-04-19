@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/spf13/viper"
-	"github.com/suecodelabs/cnfuzz/src/cmd"
 	"go.uber.org/zap"
 )
 
@@ -105,7 +104,8 @@ func InitLogger(isDebug bool) {
 // L get log instance
 func L() ILogger {
 	if singleInstance == nil {
-		isDebug := viper.GetBool(cmd.IsDebug)
+		// FIXME: create a cleaner solution for testing for debug mode
+		isDebug := viper.GetBool("debug")
 		InitLogger(isDebug)
 	}
 	return singleInstance

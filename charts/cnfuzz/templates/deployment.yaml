@@ -48,6 +48,8 @@ spec:
             - "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
             - "--restler-time-budget"
             - "{{ $.Values.scheduler.restlerConfig.timeBudget }}"
+            - "--cache"
+            - "redis"
             - "--redis-hostname"
             - "{{ $.Values.scheduler.redisConfig.hostname | default (printf "%s-redis-master" (include "cnfuzz.fullname" .)) }}"
             - "--redis-port"

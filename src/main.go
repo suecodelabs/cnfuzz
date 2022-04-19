@@ -56,7 +56,13 @@ func Run(command *cobra.Command, args []string) {
 
 		// Init repositories for persistence
 		// Storage is only necessary in this "scheduler" mode
-		repos := repository.InitRepositories()
+		strCacheSolution := viper.GetString(cmd.CacheSolution)
+		repoType, repoErr := repository.RepoTypeFromString(strCacheSolution)
+		if repoErr != nil {
+			log.L().Fatalf("%s is not a valid repo type: %+v", strCacheSolution, repoErr)
+		}
+
+		repos := repository.InitRepositories(repoType)
 
 		err := kubernetes.StartInformers(repos)
 		if err != nil {

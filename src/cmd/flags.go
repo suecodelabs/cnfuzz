@@ -3,6 +3,8 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/suecodelabs/cnfuzz/src/persistence/repository"
+	"strings"
 )
 
 const (
@@ -24,6 +26,7 @@ const (
 	RestlerTimeBudget    = "restler-time-budget"
 
 	// caching related flags
+	CacheSolution = "cache"
 	RedisHostName = "redis-hostname"
 	RedisPort     = "redis-port"
 
@@ -42,6 +45,8 @@ func SetupFlags(rootCmd *cobra.Command) {
 
 	registerKubernetesFlags(rootCmd)
 
+	registerCacheFlags(rootCmd)
+
 	rootCmd.Flags().StringP(RestlerInitImageFlag, "", "curlimages/curl:7.81.0", "Init Image for preparing RESTler runtime")
 	_ = viper.BindPFlag(RestlerInitImageFlag, rootCmd.Flags().Lookup(RestlerInitImageFlag))
 
@@ -50,12 +55,6 @@ func SetupFlags(rootCmd *cobra.Command) {
 
 	rootCmd.Flags().StringP(RestlerTimeBudget, "", "1", "Maximum hours a Fuzzing Job may take.")
 	_ = viper.BindPFlag(RestlerTimeBudget, rootCmd.Flags().Lookup(RestlerTimeBudget))
-
-	rootCmd.Flags().StringP(RedisHostName, "", "redis-master", "The Redis hostname that the scheduler will use for caching purposes.")
-	_ = viper.BindPFlag(RedisHostName, rootCmd.Flags().Lookup(RedisHostName))
-
-	rootCmd.Flags().StringP(RedisPort, "", "6379", "The Redis port that the scheduler will use for caching purposes.")
-	_ = viper.BindPFlag(RedisPort, rootCmd.Flags().Lookup(RedisPort))
 
 	registerAuthFlags(rootCmd)
 }
@@ -93,4 +92,16 @@ func registerAuthFlags(rootCmd *cobra.Command) {
 	_ = viper.BindPFlag(AuthUsername, rootCmd.PersistentFlags().Lookup(AuthUsername))
 	_ = viper.BindPFlag(AuthSecretFlag, rootCmd.PersistentFlags().Lookup(AuthSecretFlag))
 	// TODO add a scopes flag
+}
+
+func registerCacheFlags(rootCmd *cobra.Command) {
+	rootCmd.Flags().StringP(CacheSolution, "c", "redis", "Select which caching solution to use (options: "+strings.Join(repository.RepoTypes[:], ", ")+")")
+	_ = viper.BindPFlag(CacheSolution, rootCmd.Flags().Lookup(CacheSolution))
+
+	rootCmd.Flags().StringP(RedisHostName, "", "redis-master", "The Redis hostname that the scheduler will use for caching purposes.")
+	_ = viper.BindPFlag(RedisHostName, rootCmd.Flags().Lookup(RedisHostName))
+
+	rootCmd.Flags().StringP(RedisPort, "", "6379", "The Redis port that the scheduler will use for caching purposes.")
+	_ = viper.BindPFlag(RedisPort, rootCmd.Flags().Lookup(RedisPort))
+
 }
