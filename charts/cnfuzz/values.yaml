@@ -2,6 +2,14 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+  replica:
+    replicaCount: 1
+
 replicaCount: 1
 
 imagePullSecrets: []
