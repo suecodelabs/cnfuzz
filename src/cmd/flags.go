@@ -23,6 +23,10 @@ const (
 	RestlerImageFlag     = "restler-img"
 	RestlerTimeBudget    = "restler-time-budget"
 
+	// caching related flags
+	RedisHostName = "redis-hostname"
+	RedisPort     = "redis-port"
+
 	// auth related flags
 	AuthUsername   = "username"
 	AuthSecretFlag = "secret"
@@ -46,6 +50,12 @@ func SetupFlags(rootCmd *cobra.Command) {
 
 	rootCmd.Flags().StringP(RestlerTimeBudget, "", "1", "Maximum hours a Fuzzing Job may take.")
 	_ = viper.BindPFlag(RestlerTimeBudget, rootCmd.Flags().Lookup(RestlerTimeBudget))
+
+	rootCmd.Flags().StringP(RedisHostName, "", "redis-master", "The Redis hostname that the scheduler will use for caching purposes.")
+	_ = viper.BindPFlag(RedisHostName, rootCmd.Flags().Lookup(RedisHostName))
+
+	rootCmd.Flags().StringP(RedisPort, "", "6379", "The Redis port that the scheduler will use for caching purposes.")
+	_ = viper.BindPFlag(RedisPort, rootCmd.Flags().Lookup(RedisPort))
 
 	registerAuthFlags(rootCmd)
 }
