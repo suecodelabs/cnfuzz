@@ -52,10 +52,10 @@ func Run(command *cobra.Command, args []string) {
 			logger.Fatal(err)
 		}
 	} else {
-		// Running as "controller" starting new jobs when new API's start
+		// Running as "scheduler" starting new jobs when new API's start
 
 		// Init repositories for persistence
-		// Storage is only necessary in this "controller" mode
+		// Storage is only necessary in this "scheduler" mode
 		repos := repository.InitRepositories()
 
 		err := kubernetes.StartInformers(repos)
