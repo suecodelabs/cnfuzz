@@ -48,6 +48,10 @@ spec:
             - "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
             - "--restler-time-budget"
             - "{{ $.Values.controller.restlerConfig.timeBudget }}"
+            - "--redis-hostname"
+            - "{{ $.Values.controller.redisConfig.hostname | default (printf "%s-redis-master" (include "cnfuzz.fullname" .)) }}"
+            - "--redis-port"
+            - "{{ $.Values.controller.redisConfig.port }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http

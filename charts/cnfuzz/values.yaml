@@ -9,6 +9,9 @@ nameOverride: ""
 fullnameOverride: ""
 
 controller:
+  redisConfig:
+    hostname:
+    port: 6379
   restlerImage:
     repository: mcr.microsoft.com/restlerfuzzer/restler
     tag: v7.4.0
