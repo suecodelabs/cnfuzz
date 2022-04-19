@@ -48,9 +48,6 @@ func SetupFlags(rootCmd *cobra.Command) {
 	rootCmd.Flags().StringP(RestlerTimeBudget, "", "1", "Maximum hours a Fuzzing Job may take.")
 	_ = viper.BindPFlag(RestlerTimeBudget, rootCmd.Flags().Lookup(RestlerTimeBudget))
 
-	rootCmd.Flags().StringP(RestlerTimeBudget, "", "1", "Maximum hours a Fuzzing Job may take.")
-	_ = viper.BindPFlag(RestlerTimeBudget, rootCmd.Flags().Lookup(RestlerTimeBudget))
-
 	rootCmd.Flags().StringP(RedisHostName, "", "redis-master", "The Redis hostname that the scheduler will use for caching purposes.")
 	_ = viper.BindPFlag(RedisHostName, rootCmd.Flags().Lookup(RedisHostName))
 
