@@ -3,8 +3,6 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/suecodelabs/cnfuzz/src/persistence/repository"
-	"strings"
 )
 
 const (
@@ -95,7 +93,7 @@ func registerAuthFlags(rootCmd *cobra.Command) {
 }
 
 func registerCacheFlags(rootCmd *cobra.Command) {
-	rootCmd.Flags().StringP(CacheSolution, "c", "redis", "Select which caching solution to use (options: "+strings.Join(repository.RepoTypes[:], ", ")+")")
+	rootCmd.Flags().StringP(CacheSolution, "c", "redis", "Select which caching solution to use (options: 'redis', 'in_memory'")
 	_ = viper.BindPFlag(CacheSolution, rootCmd.Flags().Lookup(CacheSolution))
 
 	rootCmd.Flags().StringP(RedisHostName, "", "redis-master", "The Redis hostname that the scheduler will use for caching purposes.")

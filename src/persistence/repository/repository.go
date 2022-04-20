@@ -2,6 +2,10 @@ package repository
 
 import (
 	"context"
+	"fmt"
+	"github.com/spf13/viper"
+	"github.com/suecodelabs/cnfuzz/src/cmd"
+	"github.com/suecodelabs/cnfuzz/src/log"
 	"github.com/suecodelabs/cnfuzz/src/model"
 	"github.com/suecodelabs/cnfuzz/src/persistence/repository/in_memory"
 	"github.com/suecodelabs/cnfuzz/src/persistence/repository/redis"
@@ -28,7 +32,16 @@ type Repositories struct {
 // InitRepositories should be called only ones
 func InitRepositories(repoType RepoType) *Repositories {
 	if repoType == Redis {
-		containerImageRepo := redis.CreateContainerImageRepository()
+		// Would prefer to get the config in some other way
+		addr := viper.GetString(cmd.RedisHostName)
+		port := viper.GetString(cmd.RedisPort)
+		if len(port) > 0 {
+			addr = fmt.Sprintf("%s:%s", addr, port)
+		}
+		pass := ""
+		db := 0
+		log.L().Infof("using redis hostname: %s\n", addr)
+		containerImageRepo := redis.CreateContainerImageRepository(addr, pass, db)
 		return &Repositories{ContainerImageRepo: containerImageRepo}
 	} else if repoType == InMemory {
 		containerImageRepo := in_memory.CreateContainerImageRepository()

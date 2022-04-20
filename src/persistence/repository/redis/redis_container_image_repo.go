@@ -49,11 +49,11 @@ func (repo containerImageRedisRepository) FindByHash(ctx context.Context, hashKe
 	return &imgRepo, true, nil
 }
 
-func CreateContainerImageRepository() *containerImageRedisRepository {
+func CreateContainerImageRepository(addr string, password string, db int) *containerImageRedisRepository {
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Addr:     addr,
+		Password: password,
+		DB:       db,
 	})
 
 	return &containerImageRedisRepository{
