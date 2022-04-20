@@ -51,7 +51,7 @@ spec:
             - "--cache"
             - "redis"
             - "--redis-hostname"
-            - "{{ $.Values.scheduler.redisConfig.hostname | default (printf "%s-redis-master" (include "cnfuzz.fullname" .)) }}"
+            - "{{ $.Values.scheduler.redisConfig.hostname | default (printf "%s-redis-master" .Release.Name ) }}"
             - "--redis-port"
             - "{{ $.Values.scheduler.redisConfig.port }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}

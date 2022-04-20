@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"github.com/suecodelabs/cnfuzz/src/cmd"
-	"github.com/suecodelabs/cnfuzz/src/log"
 	"github.com/suecodelabs/cnfuzz/src/model"
 	"github.com/suecodelabs/cnfuzz/src/persistence/repository/in_memory"
 	"github.com/suecodelabs/cnfuzz/src/persistence/repository/redis"
@@ -40,7 +39,6 @@ func InitRepositories(repoType RepoType) *Repositories {
 		}
 		pass := ""
 		db := 0
-		log.L().Infof("using redis hostname: %s\n", addr)
 		containerImageRepo := redis.CreateContainerImageRepository(addr, pass, db)
 		return &Repositories{ContainerImageRepo: containerImageRepo}
 	} else if repoType == InMemory {
