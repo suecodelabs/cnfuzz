@@ -74,6 +74,13 @@ func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *
 							Image:   cnf.Image,
 							Command: []string{"/bin/sh", "-c"},
 							Args:    []string{fullCommand},
+							Resources: {
+								v1.LimitRangeSpec: {
+									// TODO: proper references
+									cpu:    cnf.RestlerCpuLimit,
+									memory: cnf.RestlerMemoryLimit,
+								},
+							},
 							VolumeMounts: []v1.VolumeMount{
 								{
 									Name:      openApiVolumeName,

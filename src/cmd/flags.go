@@ -22,6 +22,8 @@ const (
 	RestlerInitImageFlag = "restler-init-img"
 	RestlerImageFlag     = "restler-img"
 	RestlerTimeBudget    = "restler-time-budget"
+	RestlerCpuLimit      = "restler-cpu-limit"
+	RestlerMemoryLimit   = "restler-memory-limit"
 
 	// caching related flags
 	CacheSolution = "cache"
@@ -53,6 +55,12 @@ func SetupFlags(rootCmd *cobra.Command) {
 
 	rootCmd.Flags().StringP(RestlerTimeBudget, "", "1", "Maximum hours a Fuzzing Job may take.")
 	_ = viper.BindPFlag(RestlerTimeBudget, rootCmd.Flags().Lookup(RestlerTimeBudget))
+
+	rootCmd.Flags().StringP(RestlerCpuLimit, "", "1.0", "Maximum CPU a Fuzzing Job may use.")
+	_ = viper.BindPFlag(RestlerCpuLimit, rootCmd.Flags().Lookup(RestlerCpuLimit))
+
+	rootCmd.Flags().StringP(RestlerMemoryLimit, "", "500M", "Maximum memory a Fuzzing Job may use.")
+	_ = viper.BindPFlag(RestlerMemoryLimit, rootCmd.Flags().Lookup(RestlerMemoryLimit))
 
 	registerAuthFlags(rootCmd)
 }
