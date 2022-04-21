@@ -30,6 +30,7 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: ["/cnfuzz"]
           args:
             # In the future we will also support ConfigMaps if debugging locally becomes more convenient.
             - "--inside-cluster"
