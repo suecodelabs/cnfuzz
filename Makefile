@@ -9,7 +9,7 @@ VERSION := $(if $(VERSION),$(VERSION),$(VERSION_GIT))
 BIN_NAME ?= cnfuzz
 BIN_DIR ?= dist
 
-TIMESTAMP = $$(date +'%Y%m%d%H%M%S')
+TIMESTAMP := $(shell date "+'%Y%m%d%H%M%S'")
 GIT_BRANCH := $(subst heads/,,$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null))
 GIT_COMMIT := $(subst heads/,,$(shell git rev-parse --short HEAD 2>/dev/null))
 DEV_IMAGE := cnfuzz-debug$(if $(GIT_BRANCH),:$(subst /,-,$(GIT_BRANCH)))
@@ -19,7 +19,7 @@ KIND_EXAMPLE_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),-todo-api:$(subst /,-,$(GIT_
 IMAGE ?= "cnfuzz"
 
 init:
-	mkdir -p $(BIN_DIR)
+	mkdir -p $$(BIN_DIR)
 
 run:
 	go run src/main.go $(RUN_ARGS)
