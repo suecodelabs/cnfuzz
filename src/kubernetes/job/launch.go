@@ -2,6 +2,7 @@ package job
 
 import (
 	"context"
+
 	"github.com/suecodelabs/cnfuzz/src/auth"
 
 	"github.com/suecodelabs/cnfuzz/src/config"

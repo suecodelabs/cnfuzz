@@ -1,6 +1,7 @@
 package kubernetes
 
 import (
+	"context"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/suecodelabs/cnfuzz/src/model"
@@ -44,19 +45,9 @@ func TestFindPodInfoAndFuzz(t *testing.T) {
 func TestContainsUnfuzzedImages(t *testing.T) {
 	// func containsUnfuzzedImages(pod *apiv1.Pod, repo repository.IContainerImageRepository) (allImages []model.ContainerImage, containsUnfuzzedImages bool) {
 	imageRepo := in_memory.CreateContainerImageRepository()
-	existingImage := model.ContainerImage{
-		Id:   "12345",
-		Name: "myregistry/test-image",
-		Versions: []model.ContainerImageVersion{
-			{
-				Hash:     "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
-				HashType: "sha256",
-				Status:   model.Fuzzed,
-				Tags:     []string{"latest"},
-			},
-		},
-	}
-	err := imageRepo.CreateContainerImage(existingImage)
+	existingImageName := "mycontainer"
+	existingImage, _ := model.CreateContainerImage("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", "sha256", model.Fuzzed)
+	err := imageRepo.Create(context.TODO(), existingImage)
 	if err != nil {
 		log.Fatalln(fmt.Errorf("failed to prep image repo for ContainsUnfuzzedImages function test: %w", err))
 	}
@@ -80,28 +71,25 @@ func TestContainsUnfuzzedImages(t *testing.T) {
 	assert.Equal(t, expectedResult1, containsUnfuzzedImages1)
 	assert.Len(t, allImages1, len(testPod1.Status.ContainerStatuses))
 	for _, image := range allImages1 {
-		assert.Len(t, image.Versions, 1)
-		assert.Equal(t, model.Unknown, image.Versions[0].Status)
+		assert.Equal(t, model.BeingFuzzed, image.Status)
 	}
 
-	expectedResult2 := false
 	testPod2 := &apiv1.Pod{
 		Status: apiv1.PodStatus{
 			ContainerStatuses: []apiv1.ContainerStatus{
 				{
-					Image:   fmt.Sprintf("%s:%s", existingImage.Name, existingImage.Versions[0].Tags[0]),
-					ImageID: fmt.Sprintf("docker-pullable://%s@%s:%s", existingImage.Name, existingImage.Versions[0].HashType, existingImage.Versions[0].Hash),
+					Image:   fmt.Sprintf("%s:%s", existingImageName, "latest"),
+					ImageID: fmt.Sprintf("docker-pullable://%s@%s:%s", existingImageName, existingImage.HashType, existingImage.Hash),
 				},
 			},
 		},
 	}
 	// Get images currently in repo
 	allImages2, containsUnfuzzedImages2 := containsUnfuzzedImages(testPod2, imageRepo)
-	assert.Equal(t, expectedResult2, containsUnfuzzedImages2)
+	assert.Equal(t, false, containsUnfuzzedImages2)
 	assert.Len(t, allImages2, len(testPod2.Status.ContainerStatuses))
 	for _, image := range allImages2 {
-		assert.Len(t, image.Versions, 1)
-		assert.Equal(t, model.Fuzzed, image.Versions[0].Status)
+		assert.Equal(t, model.Fuzzed, image.Status)
 	}
 
 }

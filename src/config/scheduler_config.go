@@ -12,6 +12,8 @@ type SchedulerConfig struct {
 	TargetPodName      string
 	TargetPodNamespace string
 	ServiceAccountName string
+	RedisHostName      string
+	RedisPort          string
 	JobName            string
 	Namespace          string
 	Image              string
@@ -25,6 +27,8 @@ func CreateSchedulerConfigWPod(pod *apiv1.Pod) *SchedulerConfig {
 		TargetPodNamespace: pod.Namespace,
 		ServiceAccountName: "cnfuzz-scheduler",
 		JobName:            "cnfuzz-" + pod.Name,
+		RedisHostName:      viper.GetString(cmd.RedisHostName),
+		RedisPort:          viper.GetString(cmd.RedisPort),
 		Namespace:          namespace,
 		Image:              viper.GetString(cmd.SchedulerImageFlag),
 	}

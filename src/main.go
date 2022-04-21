@@ -52,11 +52,17 @@ func Run(command *cobra.Command, args []string) {
 			logger.Fatal(err)
 		}
 	} else {
-		// Running as "controller" starting new jobs when new API's start
+		// Running as "scheduler" starting new jobs when new API's start
 
 		// Init repositories for persistence
-		// Storage is only necessary in this "controller" mode
-		repos := repository.InitRepositories()
+		// Storage is only necessary in this "scheduler" mode
+		strCacheSolution := viper.GetString(cmd.CacheSolution)
+		repoType, repoErr := repository.RepoTypeFromString(strCacheSolution)
+		if repoErr != nil {
+			log.L().Fatalf("%s is not a valid repo type: %+v", strCacheSolution, repoErr)
+		}
+
+		repos := repository.InitRepositories(repoType)
 
 		err := kubernetes.StartInformers(repos)
 		if err != nil {

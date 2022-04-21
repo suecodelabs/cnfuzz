@@ -9,6 +9,7 @@ VERSION := $(if $(VERSION),$(VERSION),$(VERSION_GIT))
 BIN_NAME ?= cnfuzz
 BIN_DIR ?= dist
 
+TIMESTAMP = $$(date +'%Y%m%d%H%M%S')
 GIT_BRANCH := $(subst heads/,,$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null))
 GIT_COMMIT := $(subst heads/,,$(shell git rev-parse --short HEAD 2>/dev/null))
 DEV_IMAGE := cnfuzz-debug$(if $(GIT_BRANCH),:$(subst /,-,$(GIT_BRANCH)))
@@ -66,15 +67,8 @@ kind-build: build
 	helm upgrade --install cnfuzz-dev charts/cnfuzz $(DEFAULT_HELM_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 
 kind-clean:
-	helm delete cnfuzz-dev
-
-cloud-init: build
-	# wait until Github Workflow has finished.
-	gh run watch || echo "No runs seems to be active.."
-	helm install --wait --timeout 10m0s cnfuzz-dev charts/cnfuzz $(DEFAULT_HELM_ARGS) --set image.tag=pr-$(GH_PR) -f .dev.cloud.values.yaml
-	kubectl apply -f example/deployment.yaml
-	kubectl set image deployment/todo-api todoapi=$(KIND_EXAMPLE_IMAGE)
-	kubectl scale deployment --replicas=1 todo-api
+	helm delete dev
+	kubectl delete deployment todo-api
 
 kill-jobs:
 	# Kill running jobs
