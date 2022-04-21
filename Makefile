@@ -9,6 +9,7 @@ VERSION := $(if $(VERSION),$(VERSION),$(VERSION_GIT))
 BIN_NAME ?= cnfuzz
 BIN_DIR ?= dist
 
+TIMESTAMP = $$(date +'%Y%m%d%H%M%S')
 GIT_BRANCH := $(subst heads/,,$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null))
 GIT_COMMIT := $(subst heads/,,$(shell git rev-parse --short HEAD 2>/dev/null))
 DEV_IMAGE := cnfuzz-debug$(if $(GIT_BRANCH),:$(subst /,-,$(GIT_BRANCH)))
