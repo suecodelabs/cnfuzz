@@ -24,6 +24,8 @@ scheduler:
     repository: mcr.microsoft.com/restlerfuzzer/restler
     tag: v7.4.0
   restlerConfig:
+    memoryLimit: 500 #Mi
+    cpuLimit: 500 #m
     onlyMarked: True
     timeBudget: "1" # hour(s)
     userName: fuzz-client

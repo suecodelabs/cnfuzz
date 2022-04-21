@@ -15,8 +15,8 @@ type FuzzerConfig struct {
 	Image                string
 	InitImage            string
 	TimeBudget           string
-	CpuLimit             string
-	MemoryLimit          string
+	CpuLimit             int64
+	MemoryLimit          int64
 	DiscoveryDocLocation string
 	Target               FuzzerTarget
 }
@@ -39,8 +39,8 @@ func NewFuzzerConfig(apiDesc *discovery.WebApiDescription, targetPod *v1.Pod) *F
 		Namespace:            viper.GetString(cmd.HomeNamespaceFlag),
 		InitImage:            viper.GetString(cmd.RestlerInitImageFlag),
 		TimeBudget:           viper.GetString(cmd.RestlerTimeBudget),
-		CpuLimit:             viper.GetString(cmd.RestlerCpuLimit),
-		MemoryLimit:          viper.GetString(cmd.RestlerMemoryLimit),
+		CpuLimit:             viper.GetInt64(cmd.RestlerCpuLimit),
+		MemoryLimit:          viper.GetInt64(cmd.RestlerMemoryLimit),
 		DiscoveryDocLocation: apiDesc.DiscoveryDoc.String(),
 		Target: FuzzerTarget{
 			PodName:   targetPod.Name,
