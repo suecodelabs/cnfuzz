@@ -7,4 +7,4 @@ scheduler:
   restlerConfig:
     memoryLimit: 100 #Mi
     cpuLimit: 100 #m  
-    timeBudget: "0.02"
+    timeBudget: "0.001"

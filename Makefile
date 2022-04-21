@@ -66,6 +66,7 @@ kind-build: build
 
 kind-clean:
 	helm delete dev
+	kubectl delete pvc redis-data-dev-redis-master-0
 	kubectl delete deployment todo-api
 
 kill-jobs:
