@@ -65,6 +65,7 @@ kind-build: build
 
 kind-clean:
 	helm delete dev
+	kubectl delete deployment todo-api
 
 kill-jobs:
 	# Kill running jobs

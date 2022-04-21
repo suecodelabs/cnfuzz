@@ -23,6 +23,11 @@ const (
 	RestlerImageFlag     = "restler-img"
 	RestlerTimeBudget    = "restler-time-budget"
 
+	// caching related flags
+	CacheSolution = "cache"
+	RedisHostName = "redis-hostname"
+	RedisPort     = "redis-port"
+
 	// auth related flags
 	AuthUsername   = "username"
 	AuthSecretFlag = "secret"
@@ -37,6 +42,8 @@ func SetupFlags(rootCmd *cobra.Command) {
 	registerDirectFuzzingFlags(rootCmd)
 
 	registerKubernetesFlags(rootCmd)
+
+	registerCacheFlags(rootCmd)
 
 	rootCmd.Flags().StringP(RestlerInitImageFlag, "", "curlimages/curl:7.81.0", "Init Image for preparing RESTler runtime")
 	_ = viper.BindPFlag(RestlerInitImageFlag, rootCmd.Flags().Lookup(RestlerInitImageFlag))
@@ -83,4 +90,16 @@ func registerAuthFlags(rootCmd *cobra.Command) {
 	_ = viper.BindPFlag(AuthUsername, rootCmd.PersistentFlags().Lookup(AuthUsername))
 	_ = viper.BindPFlag(AuthSecretFlag, rootCmd.PersistentFlags().Lookup(AuthSecretFlag))
 	// TODO add a scopes flag
+}
+
+func registerCacheFlags(rootCmd *cobra.Command) {
+	rootCmd.Flags().StringP(CacheSolution, "c", "redis", "Select which caching solution to use (options: 'redis', 'in_memory'")
+	_ = viper.BindPFlag(CacheSolution, rootCmd.Flags().Lookup(CacheSolution))
+
+	rootCmd.Flags().StringP(RedisHostName, "", "redis-master", "The Redis hostname that the scheduler will use for caching purposes.")
+	_ = viper.BindPFlag(RedisHostName, rootCmd.Flags().Lookup(RedisHostName))
+
+	rootCmd.Flags().StringP(RedisPort, "", "6379", "The Redis port that the scheduler will use for caching purposes.")
+	_ = viper.BindPFlag(RedisPort, rootCmd.Flags().Lookup(RedisPort))
+
 }
