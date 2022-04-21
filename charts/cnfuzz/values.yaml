@@ -23,7 +23,7 @@ scheduler:
   restlerConfig:
     memoryLimit: 1024 #Mi
     cpuLimit: 1024 #m
-    onlyMarked: true
+    onlyMarked: True
     timeBudget: "1" # hour(s)
     userName: fuzz-client
     secret: ""
