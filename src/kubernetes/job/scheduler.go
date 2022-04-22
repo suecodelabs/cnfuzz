@@ -63,7 +63,7 @@ func buildSchedulerArgs(config *config.SchedulerConfig) []string {
 		args = append(args, "--debug")
 	}
 
-	stringFlagsToPassDown := []string{cmd.AuthUsername, cmd.AuthSecretFlag, cmd.HomeNamespaceFlag}
+	stringFlagsToPassDown := []string{cmd.AuthUsername, cmd.AuthSecretFlag, cmd.HomeNamespaceFlag, cmd.RestlerTimeBudget}
 	for _, arg := range stringFlagsToPassDown {
 		setValue := viper.GetString(arg)
 		if len(setValue) == 0 {

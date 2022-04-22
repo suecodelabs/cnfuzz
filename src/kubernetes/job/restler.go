@@ -16,8 +16,13 @@ import (
 // this includes an init container that gets the OpenAPI doc from the target API with curl and volumes for transferring the information
 // it uses values from the FuzzConfig to configure the fuzz command that runs inside the RESTler container
 func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *batchv1.Job {
-	fullCommand := createRestlerCommand(cnf, tokenSource)
+	reportDir := "/reportdir"
+	// FIXME don't hardcode the endpoint url
 
+	restlerCommand := createRestlerCommand(cnf, tokenSource, reportDir)
+	awsCliCommand := createAwsCliCommand(cnf.ProcessResultConf, reportDir)
+
+	reportVolumeName := "result-volume-" + cnf.JobName
 	openApiVolumeName := "openapi-volume-" + cnf.JobName
 	initContainerUser := int64(0)
 	volQuant := resource.MustParse("1Mi")
@@ -33,6 +38,14 @@ func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *
 			Template: v1.PodTemplateSpec{
 				Spec: v1.PodSpec{
 					Volumes: []v1.Volume{
+						{
+							Name: reportVolumeName,
+							VolumeSource: v1.VolumeSource{
+								EmptyDir: &v1.EmptyDirVolumeSource{
+									SizeLimit: &volQuant,
+								},
+							},
+						},
 						{
 							Name: openApiVolumeName,
 							VolumeSource: v1.VolumeSource{
@@ -73,17 +86,44 @@ func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *
 							Name:    cnf.JobName,
 							Image:   cnf.Image,
 							Command: []string{"/bin/sh", "-c"},
-							Args:    []string{fullCommand},
+							Args:    []string{restlerCommand},
 							VolumeMounts: []v1.VolumeMount{
 								{
 									Name:      openApiVolumeName,
 									MountPath: "/openapi",
 								},
 								{
+									Name:      reportVolumeName,
+									MountPath: reportDir,
+								},
+								{
 									Name:      "auth-script-map",
 									MountPath: "/scripts",
 								},
 							},
+						},
+						{
+							Name:    cnf.ProcessResultConf.ContainerName,
+							Image:   cnf.ProcessResultConf.Image,
+							Command: []string{"/bin/sh", "-c"},
+							Args:    []string{awsCliCommand},
+							Env: []v1.EnvVar{
+								{
+									Name:  "AWS_ACCESS_KEY_ID",
+									Value: cnf.ProcessResultConf.AccessKey,
+								},
+								{
+									Name:  "AWS_SECRET_ACCESS_KEY",
+									Value: cnf.ProcessResultConf.SecretKey,
+								},
+							},
+							VolumeMounts: []v1.VolumeMount{
+								{
+									Name:      reportVolumeName,
+									MountPath: reportDir, // this doesn't have to be the same dir as restler
+								},
+							},
+							ImagePullPolicy: v1.PullIfNotPresent,
 						},
 					},
 					RestartPolicy: v1.RestartPolicyNever,
@@ -97,7 +137,7 @@ func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *
 // createRestlerCommand creates command string that can be run inside the RESTler container
 // the command string consists of a compile command that analyzes the OpenAPI spec and generates a fuzzing grammar
 // and the fuzz command itself
-func createRestlerCommand(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) string {
+func createRestlerCommand(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource, reportVol string) string {
 	targetIp := cnf.Target.IP
 	targetPort := cnf.Target.Port
 	timeBudget := cnf.TimeBudget
@@ -129,8 +169,26 @@ func createRestlerCommand(cnf *config.FuzzerConfig, tokenSource auth.ITokenSourc
 			fuzzCommand += " " + tokenCommand
 		}
 	}
+	// FIXME I think the fuzz directory might be called fuzlean when fuzzing in lean mode but haven't checked yet
+	// FIXME move this towards PreStop lifecycle hook of pod
+	copyCommand := fmt.Sprintf("mv /Fuzz/* %s", reportVol)
 
-	fullCommand := fmt.Sprintf("%s && %s", compileCommand, fuzzCommand)
+	fullCommand := fmt.Sprintf("%s && %s && %s", compileCommand, fuzzCommand, copyCommand)
+
+	return fullCommand
+}
+
+func createAwsCliCommand(cnf config.ResultProcessConfig, reportMountDir string) string {
+	baseAwsCmd := "aws s3"
+	if len(cnf.EndpointUrl) > 0 {
+		baseAwsCmd = fmt.Sprintf("aws --endpoint-url %s s3", cnf.EndpointUrl)
+	}
+
+	waitCommand := fmt.Sprintf("until (( $(ls -1q %s | wc -l) > 1 )); do sleep 5; done;", reportMountDir)
+	createBucketCommand := fmt.Sprintf("%s mb %s", baseAwsCmd, cnf.ReportBucket)
+	copyCommand := fmt.Sprintf("%s cp --recursive %s %s", baseAwsCmd, reportMountDir, cnf.ReportBucket)
+
+	fullCommand := fmt.Sprintf("%s %s; %s", waitCommand, createBucketCommand, copyCommand)
 
 	return fullCommand
 }

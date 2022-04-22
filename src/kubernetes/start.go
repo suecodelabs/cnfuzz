@@ -21,17 +21,6 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-// FuzzPod fuzz a pod from a Pod object
-func FuzzPod(pod *v1.Pod) error {
-	insideCluster := viper.GetBool(cmd.InsideClusterFlag)
-	clientset, err := CreateClientSet(insideCluster)
-	if err != nil {
-		return fmt.Errorf("error while getting kubernetes clientset: %w", err)
-	}
-
-	return fuzzPod(clientset, pod)
-}
-
 // FuzzPodWithName fuzz a pod from just its name and namespace
 func FuzzPodWithName(namespace string, podName string) (err error) {
 	insideCluster := viper.GetBool(cmd.InsideClusterFlag)
@@ -49,7 +38,7 @@ func FuzzPodWithName(namespace string, podName string) (err error) {
 		return fmt.Errorf("failed to find target pod %s inside namespace %s: %w", podName, namespace, err)
 	}
 
-	return fuzzPod(clientset, pod)
+	return FuzzPodWithClientset(clientset, pod)
 }
 
 // StartInformers start informers that listen for Kubernetes events and let the EventHandler react on the events
@@ -78,8 +67,19 @@ func StartInformers(repos *repository.Repositories) (err error) {
 	select {}
 }
 
-// fuzzPod start the fuzzing process for a pod
-func fuzzPod(clientSet kubernetes.Interface, pod *v1.Pod) error {
+// FuzzPod fuzz a pod from a Pod object
+func FuzzPod(pod *v1.Pod) error {
+	insideCluster := viper.GetBool(cmd.InsideClusterFlag)
+	clientset, err := CreateClientSet(insideCluster)
+	if err != nil {
+		return fmt.Errorf("error while getting kubernetes clientset: %w", err)
+	}
+
+	return FuzzPodWithClientset(clientset, pod)
+}
+
+// FuzzPodWithClientset start the fuzzing process for a pod
+func FuzzPodWithClientset(clientSet kubernetes.Interface, pod *v1.Pod) error {
 	annos := GetAnnotations(&pod.ObjectMeta)
 	annos.SetConfigRegister()
 
@@ -124,7 +124,8 @@ func fuzzPod(clientSet kubernetes.Interface, pod *v1.Pod) error {
 	// Long timeout because restler jobs can take a long time
 	waitErr := util.WaitForJobReady(clientSet, restlerJob.Name, restlerJob.Namespace, time.Hour*2)
 	if waitErr != nil {
-		// We dont want to leave the config map hanging around, so remove it
+		// TODO kill the job?
+		// TODO We dont want to leave the config map hanging around, so remove it
 		return fmt.Errorf("error while waiting for job to finish: %v", waitErr)
 	}
 	// TODO tell monitor to stop and get results

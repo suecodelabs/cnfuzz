@@ -54,6 +54,14 @@ spec:
             - "{{ $.Values.scheduler.redisConfig.hostname | default (printf "%s-redis-master" .Release.Name ) }}"
             - "--redis-port"
             - "{{ $.Values.scheduler.redisConfig.port }}"
+            - "--s3-endpoint"
+            - "{{ $.Values.s3.endpoint }}"
+            - "--s3-bucket"
+            - "{{ $.Values.s3.bucket }}"
+            - "--s3-access"
+            - "{{ $.Values.s3.accessKey }}"
+            - "--s3-secret"
+            - "{{ $.Values.s3.secretKey }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http

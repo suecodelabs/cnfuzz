@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/suecodelabs/cnfuzz/src/auth"
-
 	"github.com/suecodelabs/cnfuzz/src/config"
 	"github.com/suecodelabs/cnfuzz/src/log"
 	batchv1 "k8s.io/api/batch/v1"

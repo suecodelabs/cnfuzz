@@ -31,6 +31,12 @@ const (
 	// auth related flags
 	AuthUsername   = "username"
 	AuthSecretFlag = "secret"
+
+	//s3 flags
+	S3EndpointUrlFlag = "s3-endpoint"
+	S3ReportBucket    = "s3-bucket"
+	S3AccessKey       = "s3-access"
+	S3SecretKey       = "s3-secret"
 )
 
 // SetupFlags registers all flags with viper
@@ -55,6 +61,7 @@ func SetupFlags(rootCmd *cobra.Command) {
 	_ = viper.BindPFlag(RestlerTimeBudget, rootCmd.Flags().Lookup(RestlerTimeBudget))
 
 	registerAuthFlags(rootCmd)
+	registerS3Flags(rootCmd)
 }
 
 // registerDirectFuzzingFlags registers flags used when directly fuzzing a target
@@ -101,5 +108,18 @@ func registerCacheFlags(rootCmd *cobra.Command) {
 
 	rootCmd.Flags().StringP(RedisPort, "", "6379", "The Redis port that the scheduler will use for caching purposes.")
 	_ = viper.BindPFlag(RedisPort, rootCmd.Flags().Lookup(RedisPort))
+}
 
+func registerS3Flags(rootCmd *cobra.Command) {
+	rootCmd.Flags().StringP(S3EndpointUrlFlag, "", "", "Optional endpoint url of your S3 bucket, example: 'http://my-minio-fs:9000'")
+	_ = viper.BindPFlag(S3EndpointUrlFlag, rootCmd.Flags().Lookup(S3EndpointUrlFlag))
+
+	rootCmd.Flags().StringP(S3ReportBucket, "s", "s3://restler-reports", "S3 bucket to copy fuzzing results to")
+	_ = viper.BindPFlag(S3ReportBucket, rootCmd.Flags().Lookup(S3ReportBucket))
+
+	rootCmd.Flags().StringP(S3AccessKey, "", "", "Access key of your S3 instance")
+	_ = viper.BindPFlag(S3AccessKey, rootCmd.Flags().Lookup(S3AccessKey))
+
+	rootCmd.Flags().StringP(S3SecretKey, "", "", "Secret key of your S3 instance")
+	_ = viper.BindPFlag(S3SecretKey, rootCmd.Flags().Lookup(S3SecretKey))
 }

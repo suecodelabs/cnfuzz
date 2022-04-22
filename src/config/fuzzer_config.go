@@ -17,6 +17,7 @@ type FuzzerConfig struct {
 	TimeBudget           string
 	DiscoveryDocLocation string
 	Target               FuzzerTarget
+	ProcessResultConf    ResultProcessConfig
 }
 
 // FuzzerTarget configuration for the fuzzing target
@@ -30,11 +31,12 @@ type FuzzerTarget struct {
 
 // NewFuzzerConfig constructor for FuzzerConfig
 func NewFuzzerConfig(apiDesc *discovery.WebApiDescription, targetPod *v1.Pod) *FuzzerConfig {
+	ns := viper.GetString(cmd.HomeNamespaceFlag)
 	return &FuzzerConfig{
 		JobName:              "cnfuzz-restler-" + targetPod.Name,
 		InitJobName:          "cnfuzz-restler-init-" + targetPod.Name,
 		Image:                viper.GetString(cmd.RestlerImageFlag),
-		Namespace:            viper.GetString(cmd.HomeNamespaceFlag),
+		Namespace:            ns,
 		InitImage:            viper.GetString(cmd.RestlerInitImageFlag),
 		TimeBudget:           viper.GetString(cmd.RestlerTimeBudget),
 		DiscoveryDocLocation: apiDesc.DiscoveryDoc.String(),
@@ -45,5 +47,6 @@ func NewFuzzerConfig(apiDesc *discovery.WebApiDescription, targetPod *v1.Pod) *F
 			Port:      apiDesc.BaseUrl.Port(),
 			Scheme:    apiDesc.BaseUrl.Scheme,
 		},
+		ProcessResultConf: *CreateResultProcessConfig("cnfuzz-aws-cli-"+targetPod.Name, ns),
 	}
 }

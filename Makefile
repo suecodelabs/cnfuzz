@@ -14,7 +14,8 @@ GIT_BRANCH := $(subst heads/,,$(shell git rev-parse --abbrev-ref HEAD 2>/dev/nul
 GIT_COMMIT := $(subst heads/,,$(shell git rev-parse --short HEAD 2>/dev/null))
 DEV_IMAGE := cnfuzz-debug$(if $(GIT_BRANCH),:$(subst /,-,$(GIT_BRANCH)))
 KIND_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),:$(subst /,-,$(GIT_COMMIT)))
-DEFAULT_HELM_ARGS := --set controller.restlerConfig.timeBudget='0.02'
+DEFAULT_HELM_ARGS_LOCAL := --set scheduler.restlerConfig.timeBudget='0.01' -f .dev.local.values.yaml
+DEFAULT_HELM_ARGS_CLOUD := --set scheduler.restlerConfig.timeBudget='0.02' -f .dev.cloud.values.yaml
 KIND_EXAMPLE_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),-todo-api:$(subst /,-,$(GIT_COMMIT)))
 IMAGE ?= "cnfuzz"
 
@@ -50,11 +51,19 @@ image.local: build
 image-debug:
 	docker build -t $(DEV_IMAGE) -f Dockerfile .
 
+kind-load-image: build
+	docker build -t $(KIND_IMAGE) -f local.Dockerfile .
+	kind load docker-image $(KIND_IMAGE)
+#	docker build -t cnfuzz-debug:$(GIT_COMMIT) -f local.Dockerfile .
+#	ID=$(shell docker image ls | awk '{if ($$1 == "cnfuzz-debug" && $$2 == "$(GIT_COMMIT)") print $$3}')
+#	docker tag cnfuzz-debug cnfuzz-debug-"${ID}"
+#	kind load docker-image cnfuzz-debug-"${ID}"
+
 kind-init: build
 	cd example && docker build -t $(KIND_EXAMPLE_IMAGE) -f Dockerfile . && cd ..
 	docker build -t $(KIND_IMAGE) -f local.Dockerfile .
 	kind load docker-image $(KIND_IMAGE) && kind load docker-image $(KIND_EXAMPLE_IMAGE)
-	helm install --wait --timeout 10m0s dev charts/cnfuzz $(DEFAULT_HELM_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+	helm install --wait --timeout 10m0s dev charts/cnfuzz $(DEFAULT_HELM_ARGS_LOCAL) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 	kubectl apply -f example/deployment.yaml
 	kubectl set image deployment/todo-api todoapi=$(KIND_EXAMPLE_IMAGE)
 	kubectl scale deployment --replicas=1 todo-api
@@ -67,6 +76,7 @@ kind-build: build
 kind-clean:
 	helm delete dev
 	kubectl delete deployment todo-api
+	helm delete dev
 
 kill-jobs:
 	# Kill running jobs

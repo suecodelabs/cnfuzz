@@ -9,6 +9,14 @@ redis:
     enabled: false
   replica:
     replicaCount: 1
+#minio:
+#  enabled: true
+#  replicas: 1
+#  persistence:
+#    size: 1Gi
+#  resources:
+#    requests:
+#      memory: 1Gi
 
 replicaCount: 1
 
@@ -28,6 +36,12 @@ scheduler:
     timeBudget: "1" # hour(s)
     userName: fuzz-client
     secret: ""
+
+s3:
+  endpoint: http://minio-fs:9000
+  bucket: s3://restler-reports
+  accessKey: minio
+  secretKey: minio123
 
 image:
   repository: ghcr.io/suecodelabs/cnfuzz

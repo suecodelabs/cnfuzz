@@ -22,7 +22,7 @@ spec:
   selector:
     matchLabels:
       app: todo-api
-  replicas: 0
+  replicas: 1
   template:
     metadata:
       labels:
@@ -34,8 +34,8 @@ spec:
     spec:
       containers:
         - name: todoapi
-          image: ghcr.io/suecodelabs/cnfuzz-todo-api:latest
-          imagePullPolicy: Never
+          image: todo-api:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
 ---
