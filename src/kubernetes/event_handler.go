@@ -3,7 +3,6 @@ package kubernetes
 import (
 	"context"
 	"fmt"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"time"
 
 	"github.com/spf13/viper"
@@ -40,12 +39,7 @@ func (handler EventHandler) OnAdd(obj any) {
 	// Object types
 	switch object := obj.(type) {
 	case *apiv1.Pod:
-		time.Sleep(time.Second * 3)
-		thePod, err := handler.clientSet.CoreV1().Pods(object.Namespace).Get(context.TODO(), object.Name, v1.GetOptions{})
-		if err != nil {
-			return
-		}
-		handler.handleFunc(handler.clientSet, handler.repositories, thePod)
+		handler.handleFunc(handler.clientSet, handler.repositories, object)
 	default:
 		return
 	}
