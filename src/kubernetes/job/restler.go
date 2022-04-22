@@ -178,7 +178,7 @@ func createRestlerCommand(cnf *config.FuzzerConfig, tokenSource auth.ITokenSourc
 	return fullCommand
 }
 
-func createAwsCliCommand(cnf config.ResultProcessConfig, reportMountDir string) string {
+func createAwsCliCommand(cnf config.S3Config, reportMountDir string) string {
 	baseAwsCmd := "aws s3"
 	if len(cnf.EndpointUrl) > 0 {
 		baseAwsCmd = fmt.Sprintf("aws --endpoint-url %s s3", cnf.EndpointUrl)
