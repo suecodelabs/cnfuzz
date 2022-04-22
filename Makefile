@@ -51,14 +51,6 @@ image.local: build
 image-debug:
 	docker build -t $(DEV_IMAGE) -f Dockerfile .
 
-kind-load-image: build
-	docker build -t $(KIND_IMAGE) -f local.Dockerfile .
-	kind load docker-image $(KIND_IMAGE)
-#	docker build -t cnfuzz-debug:$(GIT_COMMIT) -f local.Dockerfile .
-#	ID=$(shell docker image ls | awk '{if ($$1 == "cnfuzz-debug" && $$2 == "$(GIT_COMMIT)") print $$3}')
-#	docker tag cnfuzz-debug cnfuzz-debug-"${ID}"
-#	kind load docker-image cnfuzz-debug-"${ID}"
-
 kind-init: build
 	cd example && docker build -t $(KIND_EXAMPLE_IMAGE) -f Dockerfile . && cd ..
 	docker build -t $(KIND_IMAGE) -f local.Dockerfile .
