@@ -2,7 +2,6 @@ package job
 
 import (
 	"fmt"
-
 	"github.com/suecodelabs/cnfuzz/src/auth"
 	"github.com/suecodelabs/cnfuzz/src/config"
 	"github.com/suecodelabs/cnfuzz/src/log"
@@ -10,6 +9,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"time"
 )
 
 // createRestlerJob creates a Kubernetes Job for the RESTler fuzzer
@@ -17,10 +17,12 @@ import (
 // it uses values from the FuzzConfig to configure the fuzz command that runs inside the RESTler container
 func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *batchv1.Job {
 	reportDir := "/reportdir"
-	// FIXME don't hardcode the endpoint url
 
 	restlerCommand := createRestlerCommand(cnf, tokenSource, reportDir)
-	awsCliCommand := createAwsCliCommand(cnf.ProcessResultConf, reportDir)
+
+	timeStamp := time.Now().Format("20060102150405")
+	targetReportDir := fmt.Sprintf("%s/%s/%s", cnf.ProcessResultConf.ReportBucket, cnf.Target.PodName, timeStamp)
+	awsCliCommand := createAwsCliCommand(cnf.ProcessResultConf, reportDir, targetReportDir)
 
 	reportVolumeName := "result-volume-" + cnf.JobName
 	openApiVolumeName := "openapi-volume-" + cnf.JobName
@@ -178,7 +180,7 @@ func createRestlerCommand(cnf *config.FuzzerConfig, tokenSource auth.ITokenSourc
 	return fullCommand
 }
 
-func createAwsCliCommand(cnf config.S3Config, reportMountDir string) string {
+func createAwsCliCommand(cnf config.S3Config, reportMountDir string, targetReportDir string) string {
 	baseAwsCmd := "aws s3"
 	if len(cnf.EndpointUrl) > 0 {
 		baseAwsCmd = fmt.Sprintf("aws --endpoint-url %s s3", cnf.EndpointUrl)
@@ -186,7 +188,7 @@ func createAwsCliCommand(cnf config.S3Config, reportMountDir string) string {
 
 	waitCommand := fmt.Sprintf("until (( $(ls -1q %s | wc -l) > 1 )); do sleep 5; done;", reportMountDir)
 	createBucketCommand := fmt.Sprintf("%s mb %s", baseAwsCmd, cnf.ReportBucket)
-	copyCommand := fmt.Sprintf("%s cp --recursive %s %s", baseAwsCmd, reportMountDir, cnf.ReportBucket)
+	copyCommand := fmt.Sprintf("%s cp --recursive %s %s", baseAwsCmd, reportMountDir, targetReportDir)
 
 	fullCommand := fmt.Sprintf("%s %s; %s", waitCommand, createBucketCommand, copyCommand)
 
