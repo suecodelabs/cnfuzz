@@ -2,6 +2,8 @@ package job
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/suecodelabs/cnfuzz/src/auth"
 	"github.com/suecodelabs/cnfuzz/src/config"
 	"github.com/suecodelabs/cnfuzz/src/log"
@@ -9,7 +11,6 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"time"
 )
 
 // createRestlerJob creates a Kubernetes Job for the RESTler fuzzer
@@ -18,7 +19,7 @@ import (
 func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *batchv1.Job {
 	reportDir := "/reportdir"
 
-	restlerCommand := createRestlerCommand(cnf, tokenSource, reportDir)
+	fullCommand := createRestlerCommand(cnf, tokenSource, reportDir)
 
 	timeStamp := time.Now().Format("20060102150405")
 	targetReportDir := fmt.Sprintf("%s/%s/%s", cnf.ProcessResultConf.ReportBucket, cnf.Target.PodName, timeStamp)
@@ -88,7 +89,15 @@ func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *
 							Name:    cnf.JobName,
 							Image:   cnf.Image,
 							Command: []string{"/bin/sh", "-c"},
-							Args:    []string{restlerCommand},
+							Args:    []string{fullCommand},
+							Resources: v1.ResourceRequirements{
+								Limits: v1.ResourceList{
+									// CPU, in cores. (500m = .5 cores)
+									v1.ResourceCPU: *resource.NewMilliQuantity(cnf.CpuLimit, resource.DecimalSI),
+									// Memory, in bytes. (500Mi = 500MiB = 500 * 1024 * 1024)
+									v1.ResourceMemory: *resource.NewQuantity(cnf.MemoryLimit*(1024*1024), resource.DecimalSI),
+								},
+							},
 							VolumeMounts: []v1.VolumeMount{
 								{
 									Name:      openApiVolumeName,

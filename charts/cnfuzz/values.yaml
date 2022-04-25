@@ -4,19 +4,8 @@
 
 redis:
   enabled: true
-  architecture: standalone
   auth:
     enabled: false
-  replica:
-    replicaCount: 1
-#minio:
-#  enabled: true
-#  replicas: 1
-#  persistence:
-#    size: 1Gi
-#  resources:
-#    requests:
-#      memory: 1Gi
 
 replicaCount: 1
 
@@ -32,6 +21,8 @@ scheduler:
     repository: mcr.microsoft.com/restlerfuzzer/restler
     tag: v7.4.0
   restlerConfig:
+    memoryLimit: 1024 #Mi
+    cpuLimit: 1024 #m
     onlyMarked: True
     timeBudget: "1" # hour(s)
     userName: fuzz-client

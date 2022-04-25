@@ -1,6 +1,10 @@
 redis:
-  enabled: true
   architecture: standalone
-  #minio:
-  #enabled: true
+  replica:
+    replicaCount: 1
 
+scheduler:
+  restlerConfig:
+    memoryLimit: 100 #Mi
+    cpuLimit: 100 #m  
+    timeBudget: "0.001"

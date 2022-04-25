@@ -22,6 +22,8 @@ const (
 	RestlerInitImageFlag = "restler-init-img"
 	RestlerImageFlag     = "restler-img"
 	RestlerTimeBudget    = "restler-time-budget"
+	RestlerCpuLimit      = "restler-cpu-limit"
+	RestlerMemoryLimit   = "restler-memory-limit"
 
 	// caching related flags
 	CacheSolution = "cache"
@@ -57,9 +59,6 @@ func SetupFlags(rootCmd *cobra.Command) {
 	rootCmd.Flags().StringP(RestlerImageFlag, "", "mcr.microsoft.com/restlerfuzzer/restler:v7.4.0", "RESTler image to use (https://hub.docker.com/_/microsoft-restlerfuzzer-restler)")
 	_ = viper.BindPFlag(RestlerImageFlag, rootCmd.Flags().Lookup(RestlerImageFlag))
 
-	rootCmd.Flags().StringP(RestlerTimeBudget, "", "1", "Maximum hours a Fuzzing Job may take.")
-	_ = viper.BindPFlag(RestlerTimeBudget, rootCmd.Flags().Lookup(RestlerTimeBudget))
-
 	registerAuthFlags(rootCmd)
 	registerS3Flags(rootCmd)
 }
@@ -71,6 +70,10 @@ func registerDirectFuzzingFlags(rootCmd *cobra.Command) {
 
 	rootCmd.Flags().StringP(TargetPodNamespace, "n", "default", "Namespace for the target pod")
 	_ = viper.BindPFlag(TargetPodNamespace, rootCmd.Flags().Lookup(TargetPodNamespace))
+
+	rootCmd.Flags().StringP(RestlerTimeBudget, "", "1", "Maximum hours a Fuzzing Job may take.")
+	_ = viper.BindPFlag(RestlerTimeBudget, rootCmd.Flags().Lookup(RestlerTimeBudget))
+
 }
 
 // registerKubernetesFlags registers flags for Kubernetes configuration
@@ -88,6 +91,12 @@ func registerKubernetesFlags(rootCmd *cobra.Command) {
 
 	rootCmd.Flags().StringP(HomeNamespaceFlag, "", "default", "Namespace to start fuzzing containers in")
 	_ = viper.BindPFlag(HomeNamespaceFlag, rootCmd.Flags().Lookup(HomeNamespaceFlag))
+
+	rootCmd.Flags().Int64P(RestlerCpuLimit, "", 500, "Maximum amount of (milli) CPU a Fuzzing Job may use.")
+	_ = viper.BindPFlag(RestlerCpuLimit, rootCmd.Flags().Lookup(RestlerCpuLimit))
+
+	rootCmd.Flags().Int64P(RestlerMemoryLimit, "", 500, "Maximum memory (Mi) a Fuzzing Job may use.")
+	_ = viper.BindPFlag(RestlerMemoryLimit, rootCmd.Flags().Lookup(RestlerMemoryLimit))
 }
 
 // registerAuthFlags registers flags for auth

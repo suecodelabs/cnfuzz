@@ -14,8 +14,7 @@ GIT_BRANCH := $(subst heads/,,$(shell git rev-parse --abbrev-ref HEAD 2>/dev/nul
 GIT_COMMIT := $(subst heads/,,$(shell git rev-parse --short HEAD 2>/dev/null))
 DEV_IMAGE := cnfuzz-debug$(if $(GIT_BRANCH),:$(subst /,-,$(GIT_BRANCH)))
 KIND_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),:$(subst /,-,$(GIT_COMMIT)))
-DEFAULT_HELM_ARGS_LOCAL := --set scheduler.restlerConfig.timeBudget='0.01' -f .dev.local.values.yaml
-DEFAULT_HELM_ARGS_CLOUD := --set scheduler.restlerConfig.timeBudget='0.02' -f .dev.cloud.values.yaml
+DEFAULT_HELM_ARGS := --set redis.architecture=standalone --set redis.replica.replicaCount=1 --set scheduler.restlerConfig.memoryLimit=100 --set scheduler.restlerConfig.cpuLimit=100 --set scheduler.restlerConfig.timeBudget=0.001
 KIND_EXAMPLE_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),-todo-api:$(subst /,-,$(GIT_COMMIT)))
 IMAGE ?= "cnfuzz"
 
@@ -67,6 +66,7 @@ kind-build: build
 
 kind-clean:
 	helm delete dev
+	kubectl delete pvc redis-data-dev-redis-master-0
 	kubectl delete deployment todo-api
 	helm delete dev
 
