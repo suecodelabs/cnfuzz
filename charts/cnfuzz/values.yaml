@@ -7,6 +7,16 @@ redis:
   auth:
     enabled: false
 
+minio:
+  enabled: false
+  users:
+    - accessKey: AKIAIOSFODNN7EXAMPLE
+      secretKey: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+  buckets:
+    - name: restler-reports
+      policy: upload
+      purse: false
+
 replicaCount: 1
 
 imagePullSecrets: []
@@ -29,10 +39,10 @@ scheduler:
     secret: ""
 
 s3:
-  endpoint: http://minio-fs:9000
-  bucket: s3://restler-reports
-  accessKey: minio
-  secretKey: minio123
+  endpoint: "s3-accesspoint.eu-west-1.amazonaws.com" # or http://minio-fs:9000
+  bucket: "" # s3://restler-reports
+  accessKey: "" # AKIAIOSFODNN7EXAMPLE
+  secretKey: "" # wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 
 image:
   repository: ghcr.io/suecodelabs/cnfuzz
