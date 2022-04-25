@@ -123,7 +123,7 @@ func registerS3Flags(rootCmd *cobra.Command) {
 	rootCmd.Flags().StringP(S3EndpointUrlFlag, "", "", "Optional endpoint url of your S3 bucket, example: 'http://my-minio-fs:9000'")
 	_ = viper.BindPFlag(S3EndpointUrlFlag, rootCmd.Flags().Lookup(S3EndpointUrlFlag))
 
-	rootCmd.Flags().StringP(S3ReportBucket, "s", "s3://restler-reports", "S3 bucket to copy fuzzing results to")
+	rootCmd.Flags().StringP(S3ReportBucket, "s", "", "S3 bucket to copy fuzzing results to")
 	_ = viper.BindPFlag(S3ReportBucket, rootCmd.Flags().Lookup(S3ReportBucket))
 
 	rootCmd.Flags().StringP(S3AccessKey, "", "", "Access key of your S3 instance")
