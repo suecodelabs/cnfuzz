@@ -70,15 +70,15 @@ k8s-clean:
 	helm delete dev
 
 rancher-init: build
-	cd example && nerdctl build -t $(KIND_EXAMPLE_IMAGE) -f Dockerfile . && cd ..
-	nerdctl build -t $(KIND_IMAGE) -f local.Dockerfile .
+	cd example && nerdctl -n k8s.io build -t $(KIND_EXAMPLE_IMAGE) -f Dockerfile . && cd ..
+	nerdctl -n k8s.io build -t $(KIND_IMAGE) -f local.Dockerfile .
 	helm install --wait --timeout 10m0s dev charts/cnfuzz $(DEFAULT_HELM_ARGS_LOCAL) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 	kubectl apply -f example/deployment.yaml
 	kubectl set image deployment/todo-api todoapi=$(KIND_EXAMPLE_IMAGE)
 	kubectl scale deployment --replicas=1 todo-api
 
 rancher-build: build
-	nerdctl build -t $(KIND_IMAGE) -f local.Dockerfile .
+	nerdctl -n k8s.io build -t $(KIND_IMAGE) -f local.Dockerfile .
 	helm upgrade --install dev charts/cnfuzz $(DEFAULT_HELM_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 
 kill-jobs:
