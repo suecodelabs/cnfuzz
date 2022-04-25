@@ -13,7 +13,7 @@ GIT_BRANCH := $(subst heads/,,$(shell git rev-parse --abbrev-ref HEAD 2>/dev/nul
 GIT_COMMIT := $(subst heads/,,$(shell git rev-parse --short HEAD 2>/dev/null))
 DEV_IMAGE := cnfuzz-debug$(if $(GIT_BRANCH),:$(subst /,-,$(GIT_BRANCH)))
 KIND_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),:$(subst /,-,$(GIT_COMMIT)))
-DEFAULT_HELM_ARGS := --set redis.architecture=standalone --set redis.replica.replicaCount=1 --set scheduler.restlerConfig.memoryLimit=100 --set scheduler.restlerConfig.cpuLimit=100 --set scheduler.restlerConfig.timeBudget=0.001
+DEFAULT_HELM_ARGS := --set minio.persistence.enabled=false --set minio.replicas=1 --set minio.mode=standalone --set redis.architecture=standalone --set redis.replica.replicaCount=1 --set scheduler.restlerConfig.memoryLimit=100 --set scheduler.restlerConfig.cpuLimit=100 --set scheduler.restlerConfig.timeBudget=0.001
 KIND_EXAMPLE_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),-todo-api:$(subst /,-,$(GIT_COMMIT)))
 IMAGE ?= "cnfuzz"
 
@@ -63,11 +63,23 @@ kind-build: build
 	kind load docker-image $(KIND_IMAGE)
 	helm upgrade --install dev charts/cnfuzz $(DEFAULT_HELM_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 
-kind-clean:
+k8s-clean:
 	helm delete dev
 	kubectl delete pvc redis-data-dev-redis-master-0
 	kubectl delete deployment todo-api
 	helm delete dev
+
+rancher-init: build
+	cd example && nerdctl build -t $(KIND_EXAMPLE_IMAGE) -f Dockerfile . && cd ..
+	nerdctl build -t $(KIND_IMAGE) -f local.Dockerfile .
+	helm install --wait --timeout 10m0s dev charts/cnfuzz $(DEFAULT_HELM_ARGS_LOCAL) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+	kubectl apply -f example/deployment.yaml
+	kubectl set image deployment/todo-api todoapi=$(KIND_EXAMPLE_IMAGE)
+	kubectl scale deployment --replicas=1 todo-api
+
+rancher-build: build
+	nerdctl build -t $(KIND_IMAGE) -f local.Dockerfile .
+	helm upgrade --install dev charts/cnfuzz $(DEFAULT_HELM_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 
 kill-jobs:
 	# Kill running jobs
