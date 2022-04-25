@@ -66,8 +66,6 @@ func buildSchedulerArgs(config *config.SchedulerConfig) []string {
 	stringFlagsToPassDown := []string{
 		cmd.AuthUsername,
 		cmd.AuthSecretFlag,
-		cmd.InsideClusterFlag,
-		cmd.OnlyFuzzMarkedFlag,
 		cmd.HomeNamespaceFlag,
 		cmd.SchedulerImageFlag,
 		cmd.RestlerInitImageFlag,
@@ -75,9 +73,8 @@ func buildSchedulerArgs(config *config.SchedulerConfig) []string {
 		cmd.RestlerTimeBudget,
 		cmd.RestlerCpuLimit,
 		cmd.CacheSolution,
-		cmd.RedisHostName,
-		cmd.RedisPort,
-		cmd.RestlerMemoryLimit}
+		cmd.RestlerMemoryLimit,
+	}
 	for _, arg := range stringFlagsToPassDown {
 		setValue := viper.GetString(arg)
 		if len(setValue) == 0 {

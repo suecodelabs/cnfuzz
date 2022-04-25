@@ -67,11 +67,6 @@ func registerDirectFuzzingFlags(rootCmd *cobra.Command) {
 	rootCmd.Flags().StringP(RestlerTimeBudget, "", "1", "Maximum hours a Fuzzing Job may take.")
 	_ = viper.BindPFlag(RestlerTimeBudget, rootCmd.Flags().Lookup(RestlerTimeBudget))
 
-	rootCmd.Flags().Int64P(RestlerCpuLimit, "", 500, "Maximum amount of (milli) CPU a Fuzzing Job may use.")
-	_ = viper.BindPFlag(RestlerCpuLimit, rootCmd.Flags().Lookup(RestlerCpuLimit))
-
-	rootCmd.Flags().Int64P(RestlerMemoryLimit, "", 500, "Maximum memory (Mi) a Fuzzing Job may use.")
-	_ = viper.BindPFlag(RestlerMemoryLimit, rootCmd.Flags().Lookup(RestlerMemoryLimit))
 }
 
 // registerKubernetesFlags registers flags for Kubernetes configuration
@@ -89,6 +84,12 @@ func registerKubernetesFlags(rootCmd *cobra.Command) {
 
 	rootCmd.Flags().StringP(HomeNamespaceFlag, "", "default", "Namespace to start fuzzing containers in")
 	_ = viper.BindPFlag(HomeNamespaceFlag, rootCmd.Flags().Lookup(HomeNamespaceFlag))
+
+	rootCmd.Flags().Int64P(RestlerCpuLimit, "", 500, "Maximum amount of (milli) CPU a Fuzzing Job may use.")
+	_ = viper.BindPFlag(RestlerCpuLimit, rootCmd.Flags().Lookup(RestlerCpuLimit))
+
+	rootCmd.Flags().Int64P(RestlerMemoryLimit, "", 500, "Maximum memory (Mi) a Fuzzing Job may use.")
+	_ = viper.BindPFlag(RestlerMemoryLimit, rootCmd.Flags().Lookup(RestlerMemoryLimit))
 }
 
 // registerAuthFlags registers flags for auth
