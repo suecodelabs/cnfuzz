@@ -1,8 +1,0 @@
-redis:
-  enabled: true
-  architecture: standalone
-minio:
-  enabled: false
-
-imagePullSecrets:
-  - name: regcred
