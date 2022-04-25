@@ -15,7 +15,7 @@ minio:
   buckets:
     - name: restler-reports
       policy: upload
-      purse: false
+      purge: false
 
 replicaCount: 1
 
