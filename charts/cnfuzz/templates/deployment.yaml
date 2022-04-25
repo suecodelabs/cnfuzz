@@ -31,7 +31,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           args:
-            # this will be deprecated over time.
+            # In the future we will also support ConfigMaps if debugging locally becomes more convenient.
             - "--inside-cluster"
             - "--restler-img"
             - "{{ $.Values.scheduler.restlerImage.repository }}:{{ $.Values.scheduler.restlerImage.tag }}"
@@ -48,6 +48,10 @@ spec:
             - "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
             - "--restler-time-budget"
             - "{{ $.Values.scheduler.restlerConfig.timeBudget }}"
+            - "--restler-cpu-limit"
+            - "{{ $.Values.scheduler.restlerConfig.cpuLimit }}"
+            - "--restler-memory-limit"
+            - "{{ $.Values.scheduler.restlerConfig.memoryLimit }}"
             - "--cache"
             - "redis"
             - "--redis-hostname"
