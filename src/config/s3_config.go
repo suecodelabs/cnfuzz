@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/spf13/viper"
 	"github.com/suecodelabs/cnfuzz/src/cmd"
+	"github.com/suecodelabs/cnfuzz/src/log"
 )
 
 type S3Config struct {
@@ -16,7 +17,7 @@ type S3Config struct {
 }
 
 func CreateS3Config(jobName string, namespace string) *S3Config {
-	return &S3Config{
+	s3Config := &S3Config{
 		ContainerName: jobName,
 		Namespace:     namespace,
 		EndpointUrl:   viper.GetString(cmd.S3EndpointUrlFlag),
@@ -26,4 +27,8 @@ func CreateS3Config(jobName string, namespace string) *S3Config {
 		AccessKey: viper.GetString(cmd.S3AccessKey),
 		SecretKey: viper.GetString(cmd.S3SecretKey),
 	}
+	if len(s3Config.ReportBucket) == 0 {
+		log.L().Fatal("no S3 bucket given to store reports in!")
+	}
+	return s3Config
 }
