@@ -18,12 +18,14 @@ import (
 // it uses values from the FuzzConfig to configure the fuzz command that runs inside the RESTler container
 func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *batchv1.Job {
 	reportDir := "/reportdir"
+	// File that when created triggers the S3 CLI container to copy the reports to the S3 bucket
+	moveTriggerFile := reportDir + "/move_alert"
 
-	fullCommand := createRestlerCommand(cnf, tokenSource, reportDir)
+	fullCommand := createRestlerCommand(cnf, tokenSource, reportDir, moveTriggerFile)
 
 	timeStamp := time.Now().Format("20060102150405")
 	targetReportDir := fmt.Sprintf("%s/%s/%s", cnf.S3Config.ReportBucket, cnf.Target.PodName, timeStamp)
-	awsCliCommand := createAwsCliCommand(cnf.S3Config, reportDir, targetReportDir)
+	awsCliCommand := createAwsCliCommand(cnf.S3Config, reportDir, targetReportDir, moveTriggerFile)
 
 	reportVolumeName := "result-volume-" + cnf.JobName
 	openApiVolumeName := "openapi-volume-" + cnf.JobName
@@ -148,7 +150,7 @@ func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *
 // createRestlerCommand creates command string that can be run inside the RESTler container
 // the command string consists of a compile command that analyzes the OpenAPI spec and generates a fuzzing grammar
 // and the fuzz command itself
-func createRestlerCommand(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource, reportVol string) string {
+func createRestlerCommand(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource, reportVol string, moveTriggerFile string) string {
 	targetIp := cnf.Target.IP
 	targetPort := cnf.Target.Port
 	timeBudget := cnf.TimeBudget
@@ -180,26 +182,26 @@ func createRestlerCommand(cnf *config.FuzzerConfig, tokenSource auth.ITokenSourc
 			fuzzCommand += " " + tokenCommand
 		}
 	}
-	// FIXME I think the fuzz directory might be called fuzlean when fuzzing in lean mode but haven't checked yet
+	// FIXME I think the fuzz directory might be called fuzzlean when fuzzing in lean mode but haven't checked yet
 	// FIXME move this towards PreStop lifecycle hook of pod
 	copyCommand := fmt.Sprintf("mv /Fuzz/* %s", reportVol)
+	triggerCommand := fmt.Sprintf("touch %s", moveTriggerFile)
 
-	fullCommand := fmt.Sprintf("%s && %s && %s", compileCommand, fuzzCommand, copyCommand)
+	fullCommand := fmt.Sprintf("%s && %s && %s && %s", compileCommand, fuzzCommand, copyCommand, triggerCommand)
 
 	return fullCommand
 }
 
-func createAwsCliCommand(cnf config.S3Config, reportMountDir string, targetReportDir string) string {
+func createAwsCliCommand(cnf config.S3Config, reportMountDir string, targetReportDir string, triggerFile string) string {
 	baseAwsCmd := "aws s3"
 	if len(cnf.EndpointUrl) > 0 {
 		baseAwsCmd = fmt.Sprintf("aws --endpoint-url %s s3", cnf.EndpointUrl)
 	}
 
-	waitCommand := fmt.Sprintf("until (( $(ls -1q %s | wc -l) > 1 )); do sleep 5; done;", reportMountDir)
-	createBucketCommand := fmt.Sprintf("%s mb %s", baseAwsCmd, cnf.ReportBucket)
+	waitCommand := fmt.Sprintf("until [ -f %s ]; do sleep 5; done;", triggerFile)
 	copyCommand := fmt.Sprintf("%s cp --recursive %s %s", baseAwsCmd, reportMountDir, targetReportDir)
 
-	fullCommand := fmt.Sprintf("%s %s; %s", waitCommand, createBucketCommand, copyCommand)
+	fullCommand := fmt.Sprintf("%s %s", waitCommand, copyCommand)
 
 	return fullCommand
 }

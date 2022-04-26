@@ -103,6 +103,8 @@ func FuzzPodWithClientset(clientSet kubernetes.Interface, pod *v1.Pod) error {
 		return fmt.Errorf("error while retrieving OpenAPI document from target %s: %w", pod.Name, err)
 	}
 
+	fuzzConf := config.NewFuzzerConfig(apiDesc, pod)
+
 	clientId := viper.GetString(cmd.AuthUsername)
 	secret := viper.GetString(cmd.AuthSecretFlag)
 
@@ -111,9 +113,7 @@ func FuzzPodWithClientset(clientSet kubernetes.Interface, pod *v1.Pod) error {
 		log.L().Errorf("error while building auth token provider: ", authErr)
 	}
 
-	restlerConf := config.NewFuzzerConfig(apiDesc, pod)
-
-	restlerJob, restlerErr := job.LaunchRestlerJob(clientSet, restlerConf, tokenSource)
+	restlerJob, restlerErr := job.LaunchRestlerJob(clientSet, fuzzConf, tokenSource)
 	if restlerErr != nil {
 		return fmt.Errorf("error while starting restler pod: %v", restlerErr)
 	}

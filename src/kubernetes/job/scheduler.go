@@ -74,6 +74,10 @@ func buildSchedulerArgs(config *config.SchedulerConfig) []string {
 		cmd.RestlerCpuLimit,
 		cmd.CacheSolution,
 		cmd.RestlerMemoryLimit,
+		cmd.S3ReportBucket,
+		cmd.S3EndpointUrlFlag,
+		cmd.S3AccessKey,
+		cmd.S3SecretKey,
 	}
 	for _, arg := range stringFlagsToPassDown {
 		setValue := viper.GetString(arg)
