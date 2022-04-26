@@ -19,7 +19,7 @@ type FuzzerConfig struct {
 	MemoryLimit          int64
 	DiscoveryDocLocation string
 	Target               FuzzerTarget
-	ProcessResultConf    S3Config
+	S3Config             S3Config
 }
 
 // FuzzerTarget configuration for the fuzzing target
@@ -51,6 +51,6 @@ func NewFuzzerConfig(apiDesc *discovery.WebApiDescription, targetPod *v1.Pod) *F
 			Port:      apiDesc.BaseUrl.Port(),
 			Scheme:    apiDesc.BaseUrl.Scheme,
 		},
-		ProcessResultConf: *CreateS3Config("cnfuzz-aws-cli-"+targetPod.Name, ns),
+		S3Config: *CreateS3Config("cnfuzz-aws-cli-"+targetPod.Name, ns),
 	}
 }

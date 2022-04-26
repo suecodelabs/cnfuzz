@@ -22,8 +22,8 @@ func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *
 	fullCommand := createRestlerCommand(cnf, tokenSource, reportDir)
 
 	timeStamp := time.Now().Format("20060102150405")
-	targetReportDir := fmt.Sprintf("%s/%s/%s", cnf.ProcessResultConf.ReportBucket, cnf.Target.PodName, timeStamp)
-	awsCliCommand := createAwsCliCommand(cnf.ProcessResultConf, reportDir, targetReportDir)
+	targetReportDir := fmt.Sprintf("%s/%s/%s", cnf.S3Config.ReportBucket, cnf.Target.PodName, timeStamp)
+	awsCliCommand := createAwsCliCommand(cnf.S3Config, reportDir, targetReportDir)
 
 	reportVolumeName := "result-volume-" + cnf.JobName
 	openApiVolumeName := "openapi-volume-" + cnf.JobName
@@ -114,18 +114,18 @@ func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *
 							},
 						},
 						{
-							Name:    cnf.ProcessResultConf.ContainerName,
-							Image:   cnf.ProcessResultConf.Image,
+							Name:    cnf.S3Config.ContainerName,
+							Image:   cnf.S3Config.Image,
 							Command: []string{"/bin/sh", "-c"},
 							Args:    []string{awsCliCommand},
 							Env: []v1.EnvVar{
 								{
 									Name:  "AWS_ACCESS_KEY_ID",
-									Value: cnf.ProcessResultConf.AccessKey,
+									Value: cnf.S3Config.AccessKey,
 								},
 								{
 									Name:  "AWS_SECRET_ACCESS_KEY",
-									Value: cnf.ProcessResultConf.SecretKey,
+									Value: cnf.S3Config.SecretKey,
 								},
 							},
 							VolumeMounts: []v1.VolumeMount{
