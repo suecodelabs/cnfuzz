@@ -28,3 +28,6 @@ jobs:
 
       - name: Vet
         run: go vet $(go list ./... | grep -v /vendor/)
+
+      - name: License check
+        run: go install github.com/google/addlicense@latest && ~/go/bin/addlicense -v -c "Sue B.V." -y "2022" -check -l "apache" **/*.go
