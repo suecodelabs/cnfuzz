@@ -23,19 +23,20 @@ import (
 
 // FuzzerConfig config that is used to configure the RESTler fuzzer
 type FuzzerConfig struct {
-	JobName              string
-	InitJobName          string
-	Namespace            string
-	Image                string
-	InitImage            string
-	TimeBudget           string
-	CpuLimit             int64
-	MemoryLimit          int64
-	CpuRequest           int64
-	MemoryRequest        int64
-	DiscoveryDocLocation string
-	Target               FuzzerTarget
-	S3Config             S3Config
+	JobName                string
+	InitJobName            string
+	Namespace              string
+	Image                  string
+	InitImage              string
+	TimeBudget             string
+	RestlerTelemetryOptOut string
+	CpuLimit               int64
+	MemoryLimit            int64
+	CpuRequest             int64
+	MemoryRequest          int64
+	DiscoveryDocLocation   string
+	Target                 FuzzerTarget
+	S3Config               S3Config
 }
 
 // FuzzerTarget configuration for the fuzzing target

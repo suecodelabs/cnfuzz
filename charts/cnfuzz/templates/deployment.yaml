@@ -62,6 +62,8 @@ spec:
             - "{{ $.Values.scheduler.redisConfig.hostname | default (printf "%s-redis-master" .Release.Name ) }}"
             - "--redis-port"
             - "{{ $.Values.scheduler.redisConfig.port }}"
+            - "--restler-telemetry-opt-out"
+            - "{{ $.Values.scheduler.restlerConfig.restlerTelemetryOptOut }}"
             {{- if $.Values.minio.enabled }}
             - "--s3-endpoint"
             - "http://{{ $.Release.Name }}-minio:9000"

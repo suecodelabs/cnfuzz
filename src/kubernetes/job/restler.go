@@ -106,6 +106,12 @@ func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *
 							Image:   cnf.Image,
 							Command: []string{"/bin/sh", "-c"},
 							Args:    []string{fullCommand},
+							Env: []v1.EnvVar{
+								{
+									Name:  "RESTLER_TELEMETRY_OPTOUT",
+									Value: cnf.RestlerTelemetryOptOut,
+								},
+							},
 							Resources: v1.ResourceRequirements{
 								Limits: v1.ResourceList{
 									// CPU, in cores. (500m = .5 cores)
