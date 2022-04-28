@@ -9,14 +9,14 @@ _"Breaking Cloud Native Web APIs in their natural habitat."_
 
 Fuzzing web APIs in their fully converged Cloud Native state renders more representative results, just like it would have been deployed in production.
 
-`cnfuzz` is a project written in Golang that automates fuzzing web APIs deployed in Kubernetes clusters. By tracking hashes of all container images, _(re)deployed_ web API versions will be fuzzed - to detect potential security and stability issues.
+`cnfuzz` is a project written in Golang that automates fuzzing web APIs deployed in Kubernetes clusters. By tracking hashes of all container images, _(re)deployed_ web API versions will be fuzzed - to detect potential security and stability issues and stores it results in a [data lake](https://aws.amazon.com/big-data/datalakes-and-analytics/what-is-a-data-lake/).
 
 [OpenAPI](https://www.openapis.org/) and [RESTler](https://github.com/microsoft/restler-fuzzer) by Microsoft are being used to further automate the process.
 
 ## Why?
 
-- [x] You want to fuzz web API logic where they actually operate, especially when fuzzing complete *Service Meshes*
-- [x] You want to integrate and/or build *data lakes* with fuzzing data on top of *AWS S3* based storage
+- [x] You want to fuzz web API logic where they actually operate, especially when fuzzing complete **Service Meshes**
+- [x] You want to integrate and/or build **data lakes** with fuzzing data on top of **AWS S3** based storage
 - [x] You want to save expensive Cloud CI/CD pipeline credits by using *idle* Kubernetes cluster resources
 - [x] You want fuzzing te be done outside of your CI/CD pipeline
 - [x] You have heavy performance requirements for your fuzzing and Cloud based CI/CD pipelines do not suffice
@@ -24,6 +24,11 @@ Fuzzing web APIs in their fully converged Cloud Native state renders more repres
 - [x] You want to automatically fuzz existing opensource software for instability issues
 - [x] You get excited over fuzzing farms
 
+## Architecture
+
+<img align="center" src="images/cnfuzz-arch.png">
+
+## Usage
 ### Installation
 
 `helm install cnfuzz ./charts/cnfuzz`
@@ -66,14 +71,14 @@ spec:
 
 - Install [Helm](https://helm.sh/docs/intro/install/)
 
-#### Build and run
-### Kind
+### Build and run
+#### Kind
 
 ```sh
 # don't forget to commit your changes locally before deploying to Kind.
 make kind-init
 ```
-### Rancher Desktop
+#### Rancher Desktop
 
 ```sh
 # don't forget to commit your changes locally before deploying to Kind.
@@ -86,13 +91,13 @@ These commands do the following:
 - Install `cnfuzz` via helm with the local built image
 - Create example webapi deployment to fuzz
 
-### Kind
+#### Kind
 
 ```sh
 # don't forget to commit your changes locally before deploying to Kind.
 make kind-build
 ```
-### Rancher Desktop
+#### Rancher Desktop
 
 ```sh
 # don't forget to commit your changes locally before deploying to Kind.
