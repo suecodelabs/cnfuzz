@@ -99,6 +99,12 @@ func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *
 									// Memory, in bytes. (500Mi = 500MiB = 500 * 1024 * 1024)
 									v1.ResourceMemory: *resource.NewQuantity(cnf.MemoryLimit*(1024*1024), resource.DecimalSI),
 								},
+								Requests: v1.ResourceList{
+									// CPU, in cores. (500m = .5 cores)
+									v1.ResourceCPU: *resource.NewMilliQuantity(cnf.CpuRequest, resource.DecimalSI),
+									// Memory, in bytes. (500Mi = 500MiB = 500 * 1024 * 1024)
+									v1.ResourceMemory: *resource.NewQuantity(cnf.MemoryRequest*(1024*1024), resource.DecimalSI),
+								},
 							},
 							VolumeMounts: []v1.VolumeMount{
 								{

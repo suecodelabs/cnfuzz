@@ -24,6 +24,8 @@ const (
 	RestlerTimeBudget    = "restler-time-budget"
 	RestlerCpuLimit      = "restler-cpu-limit"
 	RestlerMemoryLimit   = "restler-memory-limit"
+	RestlerCpuRequest    = "restler-cpu-request"
+	RestlerMemoryRequest = "restler-memory-request"
 
 	// caching related flags
 	CacheSolution = "cache"
@@ -97,6 +99,12 @@ func registerKubernetesFlags(rootCmd *cobra.Command) {
 
 	rootCmd.Flags().Int64P(RestlerMemoryLimit, "", 500, "Maximum memory (Mi) a Fuzzing Job may use.")
 	_ = viper.BindPFlag(RestlerMemoryLimit, rootCmd.Flags().Lookup(RestlerMemoryLimit))
+
+	rootCmd.Flags().Int64P(RestlerCpuRequest, "", 500, "Maximum amount of (milli) CPU a Fuzzing Job may request.")
+	_ = viper.BindPFlag(RestlerCpuRequest, rootCmd.Flags().Lookup(RestlerCpuRequest))
+
+	rootCmd.Flags().Int64P(RestlerMemoryRequest, "", 500, "Maximum memory (Mi) a Fuzzing Job may request.")
+	_ = viper.BindPFlag(RestlerMemoryRequest, rootCmd.Flags().Lookup(RestlerMemoryRequest))
 }
 
 // registerAuthFlags registers flags for auth

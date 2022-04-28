@@ -8,7 +8,7 @@ redis:
     enabled: false
 
 minio:
-  enabled: false
+  enabled: true
   #rootUser: rootminio
   #rootPassword: changeme123
   buckets:
@@ -44,7 +44,9 @@ scheduler:
     tag: v7.4.0
   restlerConfig:
     memoryLimit: 1024 #Mi
-    cpuLimit: 1024 #m
+    cpuLimit: 1000 #m
+    memoryRequest: 1024 #Mi
+    cpuRequest: 1000 #m
     onlyMarked: True
     timeBudget: "1" # hour(s)
     userName: fuzz-client
@@ -53,9 +55,9 @@ scheduler:
 s3:
   # TODO use the AWS_DEFAULT_REGION env variable instead and leave 'endpoint' arg empty
   # https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
-  endpoint: "s3-accesspoint.eu-west-1.amazonaws.com" # or http://minio-fs:9000
-  bucket: "" # s3://restler-reports
-  accessKey: "" # reportwriter
+  endpoint: "" # https://s3-accesspoint.eu-west-1.amazonaws.com
+  bucket: "" # s3://your-s3-bucket
+  accessKey: "" # AKIAIOSFODNN7EXAMPLE
   secretKey: "" # wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 
 image:
