@@ -1,3 +1,17 @@
+// Copyright 2022 Sue B.V.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package cmd
 
 import (
@@ -24,6 +38,8 @@ const (
 	RestlerTimeBudget    = "restler-time-budget"
 	RestlerCpuLimit      = "restler-cpu-limit"
 	RestlerMemoryLimit   = "restler-memory-limit"
+	RestlerCpuRequest    = "restler-cpu-request"
+	RestlerMemoryRequest = "restler-memory-request"
 
 	// caching related flags
 	CacheSolution = "cache"
@@ -33,6 +49,12 @@ const (
 	// auth related flags
 	AuthUsername   = "username"
 	AuthSecretFlag = "secret"
+
+	//s3 flags
+	S3EndpointUrlFlag = "s3-endpoint"
+	S3ReportBucket    = "s3-bucket"
+	S3AccessKey       = "s3-access"
+	S3SecretKey       = "s3-secret"
 )
 
 // SetupFlags registers all flags with viper
@@ -54,6 +76,7 @@ func SetupFlags(rootCmd *cobra.Command) {
 	_ = viper.BindPFlag(RestlerImageFlag, rootCmd.Flags().Lookup(RestlerImageFlag))
 
 	registerAuthFlags(rootCmd)
+	registerS3Flags(rootCmd)
 }
 
 // registerDirectFuzzingFlags registers flags used when directly fuzzing a target
@@ -90,6 +113,12 @@ func registerKubernetesFlags(rootCmd *cobra.Command) {
 
 	rootCmd.Flags().Int64P(RestlerMemoryLimit, "", 500, "Maximum memory (Mi) a Fuzzing Job may use.")
 	_ = viper.BindPFlag(RestlerMemoryLimit, rootCmd.Flags().Lookup(RestlerMemoryLimit))
+
+	rootCmd.Flags().Int64P(RestlerCpuRequest, "", 500, "Maximum amount of (milli) CPU a Fuzzing Job may request.")
+	_ = viper.BindPFlag(RestlerCpuRequest, rootCmd.Flags().Lookup(RestlerCpuRequest))
+
+	rootCmd.Flags().Int64P(RestlerMemoryRequest, "", 500, "Maximum memory (Mi) a Fuzzing Job may request.")
+	_ = viper.BindPFlag(RestlerMemoryRequest, rootCmd.Flags().Lookup(RestlerMemoryRequest))
 }
 
 // registerAuthFlags registers flags for auth
@@ -110,5 +139,18 @@ func registerCacheFlags(rootCmd *cobra.Command) {
 
 	rootCmd.Flags().StringP(RedisPort, "", "6379", "The Redis port that the scheduler will use for caching purposes.")
 	_ = viper.BindPFlag(RedisPort, rootCmd.Flags().Lookup(RedisPort))
+}
 
+func registerS3Flags(rootCmd *cobra.Command) {
+	rootCmd.Flags().StringP(S3EndpointUrlFlag, "", "", "Optional endpoint url of your S3 bucket, example: 'http://my-minio-fs:9000'")
+	_ = viper.BindPFlag(S3EndpointUrlFlag, rootCmd.Flags().Lookup(S3EndpointUrlFlag))
+
+	rootCmd.Flags().StringP(S3ReportBucket, "s", "", "S3 bucket to copy fuzzing results to")
+	_ = viper.BindPFlag(S3ReportBucket, rootCmd.Flags().Lookup(S3ReportBucket))
+
+	rootCmd.Flags().StringP(S3AccessKey, "", "", "Access key of your S3 instance")
+	_ = viper.BindPFlag(S3AccessKey, rootCmd.Flags().Lookup(S3AccessKey))
+
+	rootCmd.Flags().StringP(S3SecretKey, "", "", "Secret key of your S3 instance")
+	_ = viper.BindPFlag(S3SecretKey, rootCmd.Flags().Lookup(S3SecretKey))
 }

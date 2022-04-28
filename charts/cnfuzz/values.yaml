@@ -7,6 +7,28 @@ redis:
   auth:
     enabled: false
 
+minio:
+  enabled: true
+  #rootUser: rootminio
+  #rootPassword: changeme123
+  buckets:
+    - name: restler-reports
+      policy: upload
+      purge: false
+  policies:
+    - name: report-getwrite
+      statements:
+        - actions:
+           - 's3:GetObject'
+           - 's3:PutObject'
+          resources:
+           # FIXME: This should be possible with just 'arn:aws:s3:::mybucket', but caused Access Denied errors when I tried it
+           - 'arn:aws:s3:::*'
+  users:
+    - accessKey: reportwriter
+      secretKey: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+      policy: report-getwrite
+
 replicaCount: 1
 
 imagePullSecrets: []
@@ -22,11 +44,21 @@ scheduler:
     tag: v7.4.0
   restlerConfig:
     memoryLimit: 1024 #Mi
-    cpuLimit: 1024 #m
+    cpuLimit: 1000 #m
+    memoryRequest: 1024 #Mi
+    cpuRequest: 1000 #m
     onlyMarked: True
     timeBudget: "1" # hour(s)
     userName: fuzz-client
     secret: ""
+
+s3:
+  # TODO use the AWS_DEFAULT_REGION env variable instead and leave 'endpoint' arg empty
+  # https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
+  endpoint: "" # https://s3-accesspoint.eu-west-1.amazonaws.com
+  bucket: "" # s3://your-s3-bucket
+  accessKey: "" # AKIAIOSFODNN7EXAMPLE
+  secretKey: "" # wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 
 image:
   repository: ghcr.io/suecodelabs/cnfuzz

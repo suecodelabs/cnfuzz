@@ -16,6 +16,7 @@ Fuzzing web APIs in their fully converged Cloud Native state renders more repres
 ## Why?
 
 - [x] You want to fuzz web API logic where they actually operate, especially when fuzzing complete *Service Meshes*
+- [x] You want to integrate and/or build *data lakes* with fuzzing data on top of *AWS S3* based storage
 - [x] You want to save expensive Cloud CI/CD pipeline credits by using *idle* Kubernetes cluster resources
 - [x] You want fuzzing te be done outside of your CI/CD pipeline
 - [x] You have heavy performance requirements for your fuzzing and Cloud based CI/CD pipelines do not suffice
@@ -61,41 +62,56 @@ spec:
 
 ### Setup Kubernetes development environment
 
-- Install [Kind](https://kind.sigs.k8s.io/)
+- Install [Kind](https://kind.sigs.k8s.io/) and/or [Rancher Desktop](https://rancherdesktop.io/)
 
 - Install [Helm](https://helm.sh/docs/intro/install/)
 
 #### Build and run
+### Kind
 
 ```sh
 # don't forget to commit your changes locally before deploying to Kind.
 make kind-init
 ```
+### Rancher Desktop
 
-This command does the following:
-- Setup initial deployment of `cnfuzz` in `KinD`
-- Docker build a local built image and load it into `KinD`
+```sh
+# don't forget to commit your changes locally before deploying to Kind.
+make rancher-init
+```
+
+These commands do the following:
+- Setup initial deployment of `cnfuzz`
+- Build a container image and load it into `Kubernetes`
 - Install `cnfuzz` via helm with the local built image
 - Create example webapi deployment to fuzz
+
+### Kind
 
 ```sh
 # don't forget to commit your changes locally before deploying to Kind.
 make kind-build
 ```
+### Rancher Desktop
 
-This command does the following:
+```sh
+# don't forget to commit your changes locally before deploying to Kind.
+make rancher-build
+```
+
+These commands do the following:
 - (re)-build `cnfuzz` and upgrade deployment with latest image
 
 #### Cleanup the build
 
 This command does the following:
-- delete the `cnfuzz` installation from `KinD`
+- delete the `cnfuzz` installation from `Kubernetes`
 
 ```sh
-make kind-clean
-# If you did a git pull between the above build and the below kind-clean
+make k8s-clean
+# If you did a git pull between the above build and the below k8s-clean
 # you will see an error. Specify the release as follows:
-make kind-clean GIT_COMMIT=f4fd3d2
+make k8s-clean GIT_COMMIT=f4fd3d2
 ```
 
 ### Build project
@@ -131,6 +147,7 @@ make build
 - Pim Merks, Developer
 - Robert Scholts, Developer
 - Sylvia van Os, Developer
+- Ofer Chen, Developer
 - Serge van Namen, Developer / Community Lead
 - Hans Strijker, Maintainer
 - Sam Crauwels, Maintainer

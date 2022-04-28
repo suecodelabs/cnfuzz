@@ -52,12 +52,41 @@ spec:
             - "{{ $.Values.scheduler.restlerConfig.cpuLimit }}"
             - "--restler-memory-limit"
             - "{{ $.Values.scheduler.restlerConfig.memoryLimit }}"
+            - "--restler-cpu-request"
+            - "{{ $.Values.scheduler.restlerConfig.cpuRequest }}"
+            - "--restler-memory-request"
+            - "{{ $.Values.scheduler.restlerConfig.memoryRequest }}"
             - "--cache"
             - "redis"
             - "--redis-hostname"
             - "{{ $.Values.scheduler.redisConfig.hostname | default (printf "%s-redis-master" .Release.Name ) }}"
             - "--redis-port"
             - "{{ $.Values.scheduler.redisConfig.port }}"
+            {{- if $.Values.minio.enabled }}
+            - "--s3-endpoint"
+            - "http://{{ $.Release.Name }}-minio:9000"
+            - "--s3-bucket"
+            {{- with (index .Values.minio.buckets 0) }}
+            - "s3://{{ .name }}"
+            {{- end }}
+            - "--s3-access"
+            {{- with (index .Values.minio.users 0) }}
+            - "{{ .accessKey }}"
+            {{- end }}
+            - "--s3-secret"
+            {{- with (index .Values.minio.users 0) }}
+            - "{{ .secretKey }}"
+            {{- end }}
+            {{ else }}
+            - "--s3-endpoint"
+            - "{{ $.Values.s3.endpoint }}"
+            - "--s3-bucket"
+            - "{{ $.Values.s3.bucket }}"
+            - "--s3-access"
+            - "{{ $.Values.s3.accessKey }}"
+            - "--s3-secret"
+            - "{{ $.Values.s3.secretKey }}"
+            {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http

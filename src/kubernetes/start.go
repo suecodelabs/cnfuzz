@@ -1,3 +1,17 @@
+// Copyright 2022 Sue B.V.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package kubernetes
 
 import (
@@ -21,17 +35,6 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-// FuzzPod fuzz a pod from a Pod object
-func FuzzPod(pod *v1.Pod) error {
-	insideCluster := viper.GetBool(cmd.InsideClusterFlag)
-	clientset, err := CreateClientSet(insideCluster)
-	if err != nil {
-		return fmt.Errorf("error while getting kubernetes clientset: %w", err)
-	}
-
-	return fuzzPod(clientset, pod)
-}
-
 // FuzzPodWithName fuzz a pod from just its name and namespace
 func FuzzPodWithName(namespace string, podName string) (err error) {
 	insideCluster := viper.GetBool(cmd.InsideClusterFlag)
@@ -49,7 +52,7 @@ func FuzzPodWithName(namespace string, podName string) (err error) {
 		return fmt.Errorf("failed to find target pod %s inside namespace %s: %w", podName, namespace, err)
 	}
 
-	return fuzzPod(clientset, pod)
+	return FuzzPodWithClientset(clientset, pod)
 }
 
 // StartInformers start informers that listen for Kubernetes events and let the EventHandler react on the events
@@ -78,8 +81,19 @@ func StartInformers(repos *repository.Repositories) (err error) {
 	select {}
 }
 
-// fuzzPod start the fuzzing process for a pod
-func fuzzPod(clientSet kubernetes.Interface, pod *v1.Pod) error {
+// FuzzPod fuzz a pod from a Pod object
+func FuzzPod(pod *v1.Pod) error {
+	insideCluster := viper.GetBool(cmd.InsideClusterFlag)
+	clientset, err := CreateClientSet(insideCluster)
+	if err != nil {
+		return fmt.Errorf("error while getting kubernetes clientset: %w", err)
+	}
+
+	return FuzzPodWithClientset(clientset, pod)
+}
+
+// FuzzPodWithClientset start the fuzzing process for a pod
+func FuzzPodWithClientset(clientSet kubernetes.Interface, pod *v1.Pod) error {
 	annos := GetAnnotations(&pod.ObjectMeta)
 	annos.SetConfigRegister()
 
@@ -103,6 +117,8 @@ func fuzzPod(clientSet kubernetes.Interface, pod *v1.Pod) error {
 		return fmt.Errorf("error while retrieving OpenAPI document from target %s: %w", pod.Name, err)
 	}
 
+	fuzzConf := config.NewFuzzerConfig(apiDesc, pod)
+
 	clientId := viper.GetString(cmd.AuthUsername)
 	secret := viper.GetString(cmd.AuthSecretFlag)
 
@@ -111,9 +127,7 @@ func fuzzPod(clientSet kubernetes.Interface, pod *v1.Pod) error {
 		log.L().Errorf("error while building auth token provider: ", authErr)
 	}
 
-	restlerConf := config.NewFuzzerConfig(apiDesc, pod)
-
-	restlerJob, restlerErr := job.LaunchRestlerJob(clientSet, restlerConf, tokenSource)
+	restlerJob, restlerErr := job.LaunchRestlerJob(clientSet, fuzzConf, tokenSource)
 	if restlerErr != nil {
 		return fmt.Errorf("error while starting restler pod: %v", restlerErr)
 	}
@@ -124,7 +138,8 @@ func fuzzPod(clientSet kubernetes.Interface, pod *v1.Pod) error {
 	// Long timeout because restler jobs can take a long time
 	waitErr := util.WaitForJobReady(clientSet, restlerJob.Name, restlerJob.Namespace, time.Hour*2)
 	if waitErr != nil {
-		// We dont want to leave the config map hanging around, so remove it
+		// TODO kill the job?
+		// TODO We dont want to leave the config map hanging around, so remove it
 		return fmt.Errorf("error while waiting for job to finish: %v", waitErr)
 	}
 	// TODO tell monitor to stop and get results
