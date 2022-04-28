@@ -26,7 +26,7 @@ Fuzzing web APIs in their fully converged Cloud Native state renders more repres
 
 ## Architecture
 
-<img align="center" width="250px" src="images/cnfuzz-arch.png">
+<img align="center" src="images/cnfuzz-arch.png">
 
 
 ### Installation
