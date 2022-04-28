@@ -13,7 +13,7 @@ GIT_BRANCH := $(subst heads/,,$(shell git rev-parse --abbrev-ref HEAD 2>/dev/nul
 GIT_COMMIT := $(subst heads/,,$(shell git rev-parse --short HEAD 2>/dev/null))
 DEV_IMAGE := cnfuzz-debug$(if $(GIT_BRANCH),:$(subst /,-,$(GIT_BRANCH)))
 CNFUZZ_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),:$(subst /,-,$(GIT_COMMIT)))
-DEFAULT_HELM_DEV_ARGS := --set minio.persistence.size=1Gi,minio.resources.requests.memory=1Gi,minio.replicas=1,minio.mode=standalone --set redis.architecture=standalone,redis.replica.replicaCount=1 --set scheduler.restlerConfig.memoryLimit=100,--set scheduler.restlerConfig.memoryRequest=100,scheduler.restlerConfig.cpuLimit=100,scheduler.restlerConfig.cpuRequest=100,scheduler.restlerConfig.timeBudget=0.001
+DEFAULT_HELM_DEV_ARGS := --set minio.persistence.size=1Gi,minio.resources.requests.memory=1Gi,minio.replicas=1,minio.mode=standalone --set redis.architecture=standalone,redis.replica.replicaCount=1 --set scheduler.restlerConfig.memoryLimit=100,scheduler.restlerConfig.memoryRequest=100,scheduler.restlerConfig.cpuLimit=100,scheduler.restlerConfig.cpuRequest=100,scheduler.restlerConfig.timeBudget=0.001
 KIND_EXAMPLE_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),-todo-api:$(subst /,-,$(GIT_COMMIT)))
 IMAGE ?= "cnfuzz"
 
