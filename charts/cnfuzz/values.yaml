@@ -53,6 +53,7 @@ scheduler:
     cpuLimit: 1000 #m
     memoryRequest: 1024 #Mi
     cpuRequest: 1000 #m
+    restlerTelemetryOptOut: false
     onlyMarked: True
     timeBudget: "1" # hour(s)
     userName: fuzz-client

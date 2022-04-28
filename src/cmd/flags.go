@@ -33,13 +33,14 @@ const (
 	HomeNamespaceFlag  = "home-ns" // Namespace to start containers in (jobs etc.)
 
 	// fuzzing related flags
-	RestlerInitImageFlag = "restler-init-img"
-	RestlerImageFlag     = "restler-img"
-	RestlerTimeBudget    = "restler-time-budget"
-	RestlerCpuLimit      = "restler-cpu-limit"
-	RestlerMemoryLimit   = "restler-memory-limit"
-	RestlerCpuRequest    = "restler-cpu-request"
-	RestlerMemoryRequest = "restler-memory-request"
+	RestlerInitImageFlag   = "restler-init-img"
+	RestlerImageFlag       = "restler-img"
+	RestlerTelemetryOptOut = "restler-telemetry-opt-out"
+	RestlerTimeBudget      = "restler-time-budget"
+	RestlerCpuLimit        = "restler-cpu-limit"
+	RestlerMemoryLimit     = "restler-memory-limit"
+	RestlerCpuRequest      = "restler-cpu-request"
+	RestlerMemoryRequest   = "restler-memory-request"
 
 	// caching related flags
 	CacheSolution = "cache"
@@ -71,6 +72,9 @@ func SetupFlags(rootCmd *cobra.Command) {
 
 	rootCmd.Flags().StringP(RestlerInitImageFlag, "", "curlimages/curl:7.81.0", "Init Image for preparing RESTler runtime")
 	_ = viper.BindPFlag(RestlerInitImageFlag, rootCmd.Flags().Lookup(RestlerInitImageFlag))
+
+	rootCmd.Flags().StringP(RestlerTelemetryOptOut, "", "", "Opt out for RESTler telemetry collection.")
+	_ = viper.BindPFlag(RestlerTelemetryOptOut, rootCmd.Flags().Lookup(RestlerTelemetryOptOut))
 
 	rootCmd.Flags().StringP(RestlerImageFlag, "", "mcr.microsoft.com/restlerfuzzer/restler:v7.4.0", "RESTler image to use (https://hub.docker.com/_/microsoft-restlerfuzzer-restler)")
 	_ = viper.BindPFlag(RestlerImageFlag, rootCmd.Flags().Lookup(RestlerImageFlag))
