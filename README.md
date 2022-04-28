@@ -81,7 +81,7 @@ make kind-init
 #### Rancher Desktop
 
 ```sh
-# don't forget to commit your changes locally before deploying to Kind.
+# don't forget to commit your changes locally before deploying to Rancher Desktop.
 make rancher-init
 ```
 
