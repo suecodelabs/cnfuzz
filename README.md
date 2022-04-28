@@ -147,6 +147,7 @@ make build
 - Pim Merks, Developer
 - Robert Scholts, Developer
 - Sylvia van Os, Developer
+- Ofer Chen, Developer
 - Serge van Namen, Developer / Community Lead
 - Hans Strijker, Maintainer
 - Sam Crauwels, Maintainer
