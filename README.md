@@ -24,6 +24,11 @@ Fuzzing web APIs in their fully converged Cloud Native state renders more repres
 - [x] You want to automatically fuzz existing opensource software for instability issues
 - [x] You get excited over fuzzing farms
 
+## Architecture
+
+<img align="center" width="250px" src="images/cnfuzz-arch.png">
+
+
 ### Installation
 
 `helm install cnfuzz ./charts/cnfuzz`
