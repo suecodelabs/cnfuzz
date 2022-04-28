@@ -28,7 +28,7 @@ Fuzzing web APIs in their fully converged Cloud Native state renders more repres
 
 <img align="center" src="images/cnfuzz-arch.png">
 
-
+## Usage
 ### Installation
 
 `helm install cnfuzz ./charts/cnfuzz`
@@ -71,14 +71,14 @@ spec:
 
 - Install [Helm](https://helm.sh/docs/intro/install/)
 
-#### Build and run
-### Kind
+### Build and run
+#### Kind
 
 ```sh
 # don't forget to commit your changes locally before deploying to Kind.
 make kind-init
 ```
-### Rancher Desktop
+#### Rancher Desktop
 
 ```sh
 # don't forget to commit your changes locally before deploying to Kind.
@@ -91,13 +91,13 @@ These commands do the following:
 - Install `cnfuzz` via helm with the local built image
 - Create example webapi deployment to fuzz
 
-### Kind
+#### Kind
 
 ```sh
 # don't forget to commit your changes locally before deploying to Kind.
 make kind-build
 ```
-### Rancher Desktop
+#### Rancher Desktop
 
 ```sh
 # don't forget to commit your changes locally before deploying to Kind.
