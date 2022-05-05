@@ -23,6 +23,16 @@ init:
 run:
 	go run src/main.go $(RUN_ARGS)
 
+debug:
+	go run -debug --only-marked --restler-time-budget 0.001 --cache in_memory
+
+.PHONY : example
+example:
+	cd example && docker build -t todo-api -f Dockerfile . && cd ..
+	kind load docker-image todo-api
+	kubectl set image deployment/todo-api todoapi=todo-api
+	kubectl scale deployment --replicas=1 todo-api
+
 build: init
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BIN_DIR)/$(BIN_NAME) src/main.go
 
