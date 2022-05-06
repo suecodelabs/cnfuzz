@@ -1,0 +1,23 @@
+apiVersion: v1
+entries:
+  cnfuzz:
+  - apiVersion: v2
+    appVersion: v0.0.3-alpha
+    created: "2022-05-06T11:53:47.687859+02:00"
+    dependencies:
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: ^16.0.0
+    - condition: minio.enabled
+      name: minio
+      repository: https://charts.min.io/
+      version: ^3.6.2
+    description: A Helm chart for cnfuzz
+    digest: 6e278dabd39299c78328524bdc616f480373342f92b0eb08f28dc0408bd0f8b9
+    name: cnfuzz
+    type: application
+    urls:
+    - https://suecodelabs.github.io/cnfuzz/cnfuzz-0.0.3-alpha.tgz
+    version: 0.0.3-alpha
+generated: "2022-05-06T11:53:47.680571+02:00"
