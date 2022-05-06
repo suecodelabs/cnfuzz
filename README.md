@@ -181,4 +181,4 @@ Come to our community meetup on prem or contact marketing@sue.nl to receive your
 
 ## Support
 
-Do you need support that cannot be handled via issue tracking? Please contact us at <engineering@sue.nl>
+Do you need support that cannot be handled via issue tracking? Please contact us at <engineering@sue.nl> or via the contact form on [this](https://sue.nl/cnfuzz/) page.
