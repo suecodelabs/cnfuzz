@@ -135,6 +135,13 @@ IMAGE=myrepo/cnfuzz make image
 make build
 ```
 
+### Prepare for release
+
+```sh
+helm package ../charts/cnfuzz
+helm repo index --url https://suecodelabs.github.io/cnfuzz/ .
+```
+
 ## Roadmap
 
 - [x] Opensource graduation research project ❤️
