@@ -142,6 +142,7 @@ make build
 ### Prepare for release
 
 ```sh
+cd docs
 helm package ../charts/cnfuzz
 helm repo index --url https://suecodelabs.github.io/cnfuzz/ .
 ```
