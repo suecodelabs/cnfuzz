@@ -33,7 +33,8 @@ Fuzzing web APIs in their fully converged Cloud Native state renders more repres
 
 ```sh
 helm repo add cnfuzz https://suecodelabs.github.io/cnfuzz
-helm install cnfuzz/cnfuzz --name cnfuzz
+helm repo update
+helm install cnfuzz cnfuzz/cnfuzz
 ```
 
 ### Getting started
