@@ -9,14 +9,14 @@ redis:
 
 minio:
   enabled: true
-  # Uncomment (and change) any of the following if you want to deploy minio on smaller environments
-  #mode: standalone # only use for development/testing
-  #replicas: 1
-  #persistence:
-  #  size: 1Gi
-  #resources:
-  #  requests:
-  #    memory: 1Gi
+  # Comment (and/or change) any of the following if you want to deploy minio to a production scenario.
+  mode: standalone # only use for development/testing
+  replicas: 1
+  persistence:
+    size: 1Gi
+  resources:
+    requests:
+      memory: 1Gi
   buckets:
     - name: restler-reports
       policy: upload
