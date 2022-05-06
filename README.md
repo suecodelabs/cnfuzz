@@ -31,7 +31,10 @@ Fuzzing web APIs in their fully converged Cloud Native state renders more repres
 ## Usage
 ### Installation
 
-`helm install cnfuzz ./charts/cnfuzz`
+```sh
+helm repo add cnfuzz https://suecodelabs.github.io/cnfuzz
+helm install cnfuzz/cnfuzz --name cnfuzz
+```
 
 ### Getting started
 
@@ -133,6 +136,13 @@ IMAGE=myrepo/cnfuzz make image
 ```sh
 # Compile project to binary dist/cnfuzz
 make build
+```
+
+### Prepare for release
+
+```sh
+helm package ../charts/cnfuzz
+helm repo index --url https://suecodelabs.github.io/cnfuzz/ .
 ```
 
 ## Roadmap
