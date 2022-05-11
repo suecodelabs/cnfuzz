@@ -20,7 +20,7 @@ import (
 )
 
 func IsKubernetesEvent(object *metav1.ObjectMeta) bool {
-	return object.Name == "kubernetes" || object.Namespace == "kube-system" || object.Namespace == "kube-node-lease" || object.Namespace == "kube-pulbic"
+	return object.Name == "kubernetes" || object.Namespace == "kube-system" || object.Namespace == "kube-node-lease" || object.Namespace == "kube-public"
 }
 
 func IsFuzzerEvent(object *metav1.ObjectMeta) bool {
