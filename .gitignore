@@ -4,3 +4,5 @@ dist
 /reports/
 .run
 *.swp
+.devspace
+
