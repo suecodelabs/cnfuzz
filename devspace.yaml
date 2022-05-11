@@ -88,3 +88,4 @@ profiles:
       app:
         image: ${IMAGE} # Use the value of our `${IMAGE}` variable here (see vars above)
         dockerfile: ./Dockerfile
+
