@@ -5,6 +5,7 @@ dist
 .run
 *.swp
 
-
 # Ignore DevSpace cache and log folder
 .devspace/
+.devspace
+

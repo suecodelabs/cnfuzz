@@ -1,0 +1,61 @@
+apiVersion: v1
+entries:
+  cnfuzz:
+  - apiVersion: v2
+    appVersion: v0.1.1
+    created: "2022-05-06T14:26:49.935194+02:00"
+    dependencies:
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: ^16.0.0
+    - condition: minio.enabled
+      name: minio
+      repository: https://charts.min.io/
+      version: ^3.6.2
+    description: A Helm chart for cnfuzz
+    digest: 301059e2327fd87597b23c3359d829783fcf785920fa356fc9da1424126262a8
+    name: cnfuzz
+    type: application
+    urls:
+    - https://suecodelabs.github.io/cnfuzz/cnfuzz-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: v0.1.0
+    created: "2022-05-06T14:26:49.927594+02:00"
+    dependencies:
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: ^16.0.0
+    - condition: minio.enabled
+      name: minio
+      repository: https://charts.min.io/
+      version: ^3.6.2
+    description: A Helm chart for cnfuzz
+    digest: d899c7ff347eddb940ba9ba22f4c0c6d94505e0440ef7dba9820307030d06860
+    name: cnfuzz
+    type: application
+    urls:
+    - https://suecodelabs.github.io/cnfuzz/cnfuzz-0.1.0.tgz
+    version: 0.1.0
+  - apiVersion: v2
+    appVersion: v0.0.3-alpha
+    created: "2022-05-06T14:26:49.919714+02:00"
+    dependencies:
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: ^16.0.0
+    - condition: minio.enabled
+      name: minio
+      repository: https://charts.min.io/
+      version: ^3.6.2
+    description: A Helm chart for cnfuzz
+    digest: 6e278dabd39299c78328524bdc616f480373342f92b0eb08f28dc0408bd0f8b9
+    name: cnfuzz
+    type: application
+    urls:
+    - https://suecodelabs.github.io/cnfuzz/cnfuzz-0.0.3-alpha.tgz
+    version: 0.0.3-alpha
+generated: "2022-05-06T14:26:49.910274+02:00"
