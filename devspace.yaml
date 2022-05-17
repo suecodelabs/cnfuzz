@@ -1,0 +1,96 @@
+version: v1beta11
+
+vars:
+- name: IMAGE
+  value: ghcr.io/suecodelabs/cnfuzz
+
+deployments:
+- name: cnfuzz
+  helm:
+    chart:
+      name: ./charts/cnfuzz
+    values:
+      scheduler:
+        restlerConfig:
+          timeBudget: 0.001
+      minio:
+        persistence:
+          size: 1Gi 
+        resources:
+          requests:
+            memory: 1Gi
+        replicas: 1
+        mode: standalone 
+      redis:
+        architecture: standalone
+        replica:
+          replicaCount: 1 
+
+dev:
+  sync:
+  - name: devcnfuzz
+    imageSelector: ${IMAGE}
+    localSubPath: ./
+    containerPath: /go
+    excludePaths:
+    - .git/
+    - .bash_history
+    downloadExcludeFile:
+    - air.toml
+    uploadExcludePaths:
+    - .vscode/
+    - .idea/
+    - example/
+    - dist/
+    - images/
+  
+  ports:
+  - imageSelector: ${IMAGE}
+    forward:
+    - port: 2345
+      remotePort: 2345
+
+  terminal:
+    imageSelector: ${IMAGE}
+    command:
+      - ./devspace_start.sh
+
+  replacePods:
+  - imageSelector: ${IMAGE} 
+    replaceImage: golang:1.18
+    patches:
+    - op: replace
+      path: spec.containers[0].command
+      value: ["sleep"]
+    - op: replace
+      path: spec.containers[0].args
+      value: ["9999999"]
+    - op: remove
+      path: spec.containers[0].securityContext
+    - op: remove
+      path: spec.containers[0].readinessProbe
+    - op: remove
+      path: spec.containers[0].livenessProbe 
+
+hooks:
+- events: ["after:initialSync:devcnfuzz"]
+  command: |
+    unset GOPATH
+    go mod download
+    go install github.com/go-delve/delve/cmd/dlv@latest
+    go install github.com/cosmtrek/air@latest
+  container:
+    imageSelector: ${IMAGE}
+
+# `profiles` lets you modify the config above for different environments (e.g. dev vs production)
+#profiles:
+  # This profile is called `production` and you can use it for example using: devspace deploy -p production
+  # We generally recommend using the base config without any profiles as optimized for development (e.g. image build+push is disabled)
+#- name: production
+# This profile adds our image to the config so that DevSpace will build, tag and push our image before the deployment
+#  merge:
+#    images:
+#      app:
+#        image: ${IMAGE} # Use the value of our `${IMAGE}` variable here (see vars above)
+#        dockerfile: ./Dockerfile
+
