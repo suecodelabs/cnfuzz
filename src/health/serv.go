@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package serv
+package health
 
 import (
 	"fmt"
@@ -31,10 +31,12 @@ func readyz(w http.ResponseWriter, req *http.Request) {
 
 // Serv start http server that contains ready and live endpoints
 // warning: this function is blocking
-func Serv() {
-
-	http.HandleFunc("/livez", livez)
-	http.HandleFunc("/readyz", readyz)
+func Serv(healthChecker Checker) {
+	// Using this as a guideline
+	// https://testfully.io/blog/api-health-check-monitoring/
+	http.HandleFunc("/health", healthChecker.Health)
+	http.HandleFunc("/health/live", livez)
+	http.HandleFunc("/health/ready", readyz)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.L().Fatal(err)
