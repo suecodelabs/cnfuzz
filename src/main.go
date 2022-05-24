@@ -21,10 +21,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/suecodelabs/cnfuzz/src/cmd"
+	"github.com/suecodelabs/cnfuzz/src/health"
 	"github.com/suecodelabs/cnfuzz/src/kubernetes"
 	"github.com/suecodelabs/cnfuzz/src/log"
 	"github.com/suecodelabs/cnfuzz/src/persistence/repository"
-	"github.com/suecodelabs/cnfuzz/src/serv"
 )
 
 func main() {
@@ -45,7 +45,7 @@ func Run(command *cobra.Command, args []string) {
 	}
 
 	// Start the internal webserver
-	go serv.Serv()
+	go health.Serv()
 
 	//var targetUrl = args[0]
 	//viper.Set(cmd.UrlArg, targetUrl)
