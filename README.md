@@ -67,7 +67,7 @@ spec:
           ports:
             - containerPort: 80
 ```
-
+## Development
 
 ### Setup Kubernetes development environment
 
@@ -75,7 +75,8 @@ spec:
 
 - Install [Helm](https://helm.sh/docs/intro/install/)
 
-### Build and run
+<details markdown="1"><summary><h3>Build and run</h3></summary>
+
 #### Kind
 
 ```sh
@@ -122,8 +123,8 @@ make k8s-clean
 # you will see an error. Specify the release as follows:
 make k8s-clean GIT_COMMIT=f4fd3d2
 ```
-
-### Build project
+</details>
+<details markdown="1"><summary><h3>Build project</h3></summary>
 
 For building the project you can use the [`Makefile`](./Makefile).
 
@@ -138,14 +139,35 @@ IMAGE=myrepo/cnfuzz make image
 # Compile project to binary dist/cnfuzz
 make build
 ```
+</details>
+<details markdown="1"><summary><h3>Debugging</h3></summary>
 
-### Prepare for release
+Useful flags for debugging:
+```yaml
+--debug # cnfuzz outputs extra logging
+--inside-cluster=false # cnfuzz will use your local config in $HOME/.kube/config (by default)
+--restler-time-budget 0.001 # RESTler jobs complete almost instantly
+--cache in_memory # use in memory cache for fuzzed images, cache gets deleted when cnfuzz exits
+```
+
+The code can be debugged in your IDE (outside the cluster) with the `--inside-cluster=false` flag.
+But you can also attach a debugger to a running pod inside a cluster using [DevSpace](https://github.com/loft-sh/devspace).
+
+1. Start by [installing DevSpace](https://github.com/loft-sh/devspace#1-install-devspace)
+2. Run `devspace dev` in the root directory of this repository
+3. Run `air -c air.toml` inside the container
+4. Edit the code and set breakpoints
+5. [Attach your IDE](https://golangdocs.com/remote-debugging-in-golang-java) to the debugger inside the container
+
+</details>
+<details markdown="1"><summary><h3>Prepare for release</h3></summary>
 
 ```sh
 cd docs
 helm package ../charts/cnfuzz
 helm repo index --url https://suecodelabs.github.io/cnfuzz/ .
 ```
+</details>
 
 ## Roadmap
 
