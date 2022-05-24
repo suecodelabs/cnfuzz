@@ -16,6 +16,7 @@ package redis
 
 import (
 	"context"
+	"github.com/suecodelabs/cnfuzz/src/health"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -61,6 +62,15 @@ func (repo containerImageRedisRepository) FindByHash(ctx context.Context, hashKe
 	}
 
 	return &imgRepo, true, nil
+}
+
+func (repo containerImageRedisRepository) CheckHealth() health.Health {
+	status := repo.client.Ping(context.TODO())
+	err := status.Err()
+	if err != nil {
+		return health.NewHealth(false)
+	}
+	return health.NewHealth(true)
 }
 
 func CreateContainerImageRepository(addr string, password string, db int) *containerImageRedisRepository {
