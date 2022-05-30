@@ -64,11 +64,14 @@ func (repo containerImageRedisRepository) FindByHash(ctx context.Context, hashKe
 	return &imgRepo, true, nil
 }
 
-func (repo containerImageRedisRepository) CheckHealth() health.Health {
-	status := repo.client.Ping(context.TODO())
+func (repo containerImageRedisRepository) CheckHealth(ctx context.Context) health.Health {
+	status := repo.client.Ping(ctx)
 	err := status.Err()
 	if err != nil {
-		return health.NewHealth(false)
+		h := health.NewHealth(false)
+		h.Info["status"] = health.UnHealthyStatus
+		h.Info["reason"] = err.Error()
+		return h
 	}
 	return health.NewHealth(true)
 }

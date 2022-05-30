@@ -1,12 +1,20 @@
 package health
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
+	"time"
+)
+
+const (
+	StatusKey       = "status"
+	UnHealthyStatus = "fail"
+	HealthyStatus   = "pass"
 )
 
 type ICheck interface {
-	CheckHealth() Health
+	CheckHealth(context context.Context) Health
 }
 
 type Check struct {
@@ -18,28 +26,42 @@ type Checker struct {
 	checkers []Check
 }
 
-func (c Checker) IsHealthy() Health {
+func NewChecker() Checker {
+	return Checker{
+		checkers: make([]Check, 0),
+	}
+}
+
+func (c *Checker) RegisterCheck(name string, check ICheck) {
+	newCheck := Check{name: name, check: check}
+	c.checkers = append(c.checkers, newCheck)
+}
+
+func (c *Checker) IsHealthy() Health {
 	h := NewHealth(true)
 
+	ctx, _ := context.WithTimeout(context.TODO(), time.Second*3)
 	for _, checker := range c.checkers {
-		health := checker.check.CheckHealth()
+		health := checker.check.CheckHealth(ctx)
 		if !health.IsHealthy {
 			h.IsHealthy = false
+			h.Info[StatusKey] = UnHealthyStatus
+		} else {
+			h.Info[StatusKey] = HealthyStatus
 		}
-		h.info[checker.name] = h.info
+		h.Info[checker.name] = health.Info
 	}
 
 	if h.IsHealthy {
-		h.info["status"] = "pass"
-
+		h.Info[StatusKey] = HealthyStatus
 	} else {
-		h.info["status"] = "fail"
+		h.Info[StatusKey] = UnHealthyStatus
 	}
 
 	return h
 }
 
-func (c Checker) Health(w http.ResponseWriter, req *http.Request) {
+func (c *Checker) Health(w http.ResponseWriter, req *http.Request) {
 	health := c.IsHealthy()
 
 	if !health.IsHealthy {
@@ -49,5 +71,5 @@ func (c Checker) Health(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Header().Add("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(health.info)
+	_ = json.NewEncoder(w).Encode(health.Info)
 }

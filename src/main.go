@@ -45,7 +45,7 @@ func Run(command *cobra.Command, args []string) {
 	}
 
 	// Start the internal webserver
-	go health.Serv()
+	healthChecker := health.NewChecker()
 
 	//var targetUrl = args[0]
 	//viper.Set(cmd.UrlArg, targetUrl)
@@ -60,6 +60,7 @@ func Run(command *cobra.Command, args []string) {
 		// Also IP information, so this probably won't work from outside the cluster
 		logger.Infof("start fuzzing pod %s inside namespace %s\n", podName, namespace)
 
+		go health.Serv(healthChecker)
 		err := kubernetes.FuzzPodWithName(namespace, podName)
 		if err != nil {
 			// TODO handle error
@@ -76,7 +77,8 @@ func Run(command *cobra.Command, args []string) {
 			log.L().Fatalf("%s is not a valid repo type: %+v", strCacheSolution, repoErr)
 		}
 
-		repos := repository.InitRepositories(repoType)
+		repos := repository.InitRepositories(repoType, &healthChecker)
+		go health.Serv(healthChecker)
 
 		err := kubernetes.StartInformers(repos)
 		if err != nil {
