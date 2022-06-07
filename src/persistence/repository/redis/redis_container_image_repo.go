@@ -69,11 +69,14 @@ func (repo containerImageRedisRepository) CheckHealth(ctx context.Context) healt
 	err := status.Err()
 	if err != nil {
 		h := health.NewHealth(false)
-		h.Info["status"] = health.UnHealthyStatus
+		h.Info[health.StatusKey] = health.UnHealthyStatus
 		h.Info["reason"] = err.Error()
 		return h
+	} else {
+		h := health.NewHealth(true)
+		h.Info[health.StatusKey] = health.HealthyStatus
+		return h
 	}
-	return health.NewHealth(true)
 }
 
 func CreateContainerImageRepository(addr string, password string, db int) *containerImageRedisRepository {
