@@ -83,22 +83,7 @@ type ILogger interface {
 
 var singleInstance ILogger
 
-/* func CreateLogger(isDebug bool) ILogger {
-	var zapErr error
-	var log *zap.Logger
-	if isDebug {
-		log, zapErr = zap.NewDevelopment()
-	} else {
-		log, zapErr = zap.NewProduction()
-	}
-
-	if zapErr != nil {
-		log.Fatalln(fmt.Errorf("error while trying to create a log instance: %w", zapErr).Error())
-	}
-	defer log.Sync()
-	return log.Sugar()
-} */
-
+// SetupLogsCapture set up log capture that can be used in tests, returns observable logs object
 func SetupLogsCapture() *observer.ObservedLogs {
 	core, logs := observer.New(zap.InfoLevel)
 	logger := zap.New(core)
