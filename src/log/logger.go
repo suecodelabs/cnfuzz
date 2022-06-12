@@ -16,6 +16,7 @@ package log
 
 import (
 	"fmt"
+	"go.uber.org/zap/zaptest/observer"
 	"log"
 
 	"github.com/spf13/viper"
@@ -97,6 +98,14 @@ var singleInstance ILogger
 	defer log.Sync()
 	return log.Sugar()
 } */
+
+func SetupLogsCapture() *observer.ObservedLogs {
+	core, logs := observer.New(zap.InfoLevel)
+	logger := zap.New(core)
+	defer logger.Sync()
+	singleInstance = logger.Sugar()
+	return logs
+}
 
 // InitLogger initialize zap logger
 func InitLogger(isDebug bool) {
