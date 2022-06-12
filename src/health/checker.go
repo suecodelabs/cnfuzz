@@ -61,7 +61,9 @@ func (c *Checker) RegisterCheck(name string, check ICheck) {
 func (c *Checker) IsHealthy() Health {
 	h := NewHealth(true)
 
-	ctx, _ := context.WithTimeout(context.TODO(), time.Second*3)
+	ctx, cancel := context.WithTimeout(context.TODO(), time.Second*3)
+	defer cancel()
+
 	for _, checker := range c.checkers {
 		health := checker.check.CheckHealth(ctx)
 		if !health.IsHealthy {
