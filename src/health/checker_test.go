@@ -17,35 +17,12 @@
 package health
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/suecodelabs/cnfuzz/src/log"
 	"go.uber.org/zap"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
 	"testing"
 )
-
-type fakeHealthyCheck struct {
-}
-
-func (fakeHealthyCheck) CheckHealth(context context.Context) Health {
-	h := NewHealth(true)
-	h.Info[StatusKey] = HealthyStatus
-	return h
-}
-
-type fakeUnhealthyCheck struct {
-}
-
-func (fakeUnhealthyCheck) CheckHealth(context context.Context) Health {
-	h := NewHealth(false)
-	h.Info[StatusKey] = UnHealthyStatus
-	return h
-}
 
 func TestNewChecker(t *testing.T) {
 	c := NewChecker()
@@ -59,8 +36,8 @@ func TestRegisterCheck(t *testing.T) {
 		isHealthy      bool
 		expectedStatus string
 	}{
-		{fakeUnhealthyCheck{}, "unhealthy-test-check", false, UnHealthyStatus},
-		{fakeHealthyCheck{}, "healthy-test-check", true, HealthyStatus},
+		{FakeUnhealthyCheck{}, "unhealthy-test-check", false, UnHealthyStatus},
+		{FakeHealthyCheck{}, "healthy-test-check", true, HealthyStatus},
 		{nil, "nil-test-check", true, HealthyStatus},
 	}
 
@@ -92,45 +69,6 @@ func TestRegisterCheck(t *testing.T) {
 			testCheckMap = status.Info[c.checkName].(map[string]any)
 			assert.Equal(t, c.expectedStatus, testCheckMap[StatusKey])
 		}
-	}
-
-}
-
-func TestHttpHealthCheck(t *testing.T) {
-	cases := []struct {
-		check              ICheck
-		checkName          string
-		expectedStatus     string
-		expectedStatusCode int
-	}{
-		{fakeUnhealthyCheck{}, "unhealthy-test-check", UnHealthyStatus, http.StatusServiceUnavailable},
-		{fakeHealthyCheck{}, "healthy-test-check", HealthyStatus, http.StatusOK},
-		{nil, "nil-test-check", HealthyStatus, http.StatusOK},
-	}
-
-	for _, c := range cases {
-		// TODO create more test cases
-		checker := NewChecker()
-
-		checker.RegisterCheck(c.checkName, c.check)
-
-		req := httptest.NewRequest(http.MethodGet, "/health", nil)
-		w := httptest.NewRecorder()
-		checker.Health(w, req)
-		res := w.Result()
-		defer res.Body.Close()
-
-		assert.Equal(t, c.expectedStatusCode, res.StatusCode, "http request didn't return the expected status code")
-
-		data, err := ioutil.ReadAll(res.Body)
-		if assert.NoError(t, err, "http health request shouldn't error out") {
-			var respObj map[string]interface{}
-			err = json.Unmarshal(data, &respObj)
-			if assert.NoError(t, err, "returned json is invalid") {
-				assert.Equal(t, c.expectedStatus, respObj[StatusKey])
-			}
-		}
-
 	}
 
 }

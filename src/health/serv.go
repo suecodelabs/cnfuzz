@@ -15,28 +15,50 @@
 package health
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/suecodelabs/cnfuzz/src/log"
 )
 
-func livez(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "Alive.\n")
+func (c *Checker) health(w http.ResponseWriter, _ *http.Request) {
+	health := c.IsHealthy()
+
+	if !health.IsHealthy {
+		w.WriteHeader(http.StatusServiceUnavailable)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(health.Info)
 }
 
-func readyz(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "Ready.\n")
+func live(w http.ResponseWriter, _ *http.Request) {
+	_, _ = fmt.Fprint(w, "ALIVE\n")
 }
 
-// Serv start http server that contains ready and live endpoints
+func (c *Checker) ready(w http.ResponseWriter, _ *http.Request) {
+	health := c.IsHealthy()
+
+	if !health.IsHealthy {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		_, _ = w.Write([]byte("NOT_READY\n"))
+	} else {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("READY\n"))
+	}
+}
+
+// Serv start http server that contains ready, live and health endpoints
 // warning: this function is blocking
 func Serv(healthChecker Checker) {
 	// Using this as a guideline
 	// https://testfully.io/blog/api-health-check-monitoring/
-	http.HandleFunc("/health", healthChecker.Health)
-	http.HandleFunc("/health/live", livez)
-	http.HandleFunc("/health/ready", readyz)
+	http.HandleFunc("/health", healthChecker.health)
+	http.HandleFunc("/health/live", live)
+	http.HandleFunc("/health/ready", healthChecker.ready)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.L().Fatal(err)

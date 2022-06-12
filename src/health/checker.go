@@ -18,9 +18,7 @@ package health
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/suecodelabs/cnfuzz/src/log"
-	"net/http"
 	"time"
 )
 
@@ -82,17 +80,4 @@ func (c *Checker) IsHealthy() Health {
 	}
 
 	return h
-}
-
-func (c *Checker) Health(w http.ResponseWriter, req *http.Request) {
-	health := c.IsHealthy()
-
-	if !health.IsHealthy {
-		w.WriteHeader(http.StatusServiceUnavailable)
-	} else {
-		w.WriteHeader(http.StatusOK)
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(health.Info)
 }
