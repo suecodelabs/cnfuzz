@@ -3,6 +3,7 @@ package health
 import (
 	"context"
 	"encoding/json"
+	"github.com/suecodelabs/cnfuzz/src/log"
 	"net/http"
 	"time"
 )
@@ -33,6 +34,10 @@ func NewChecker() Checker {
 }
 
 func (c *Checker) RegisterCheck(name string, check ICheck) {
+	if check == nil {
+		log.L().Warnf("failed to register %s health check, because it doesn't contain a check function", name)
+		return
+	}
 	newCheck := Check{name: name, check: check}
 	c.checkers = append(c.checkers, newCheck)
 }
