@@ -46,6 +46,8 @@ func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *
 	initContainerUser := int64(0)
 	volQuant := resource.MustParse("1Mi")
 
+	allowPrivilegeEscalation := false
+
 	restlerSpec := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			// Maybe make this name unique?
@@ -161,6 +163,9 @@ func createRestlerJob(cnf *config.FuzzerConfig, tokenSource auth.ITokenSource) *
 									Name:      reportVolumeName,
 									MountPath: reportDir, // this doesn't have to be the same dir as restler
 								},
+							},
+							SecurityContext: &v1.SecurityContext{
+								AllowPrivilegeEscalation: &allowPrivilegeEscalation,
 							},
 							ImagePullPolicy: v1.PullIfNotPresent,
 						},
