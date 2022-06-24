@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redismock/v8"
 	"github.com/stretchr/testify/assert"
+	"github.com/suecodelabs/cnfuzz/src/health"
 	"github.com/suecodelabs/cnfuzz/src/model"
 	"strconv"
 	"testing"
@@ -82,4 +83,24 @@ func TestFindByHash(t *testing.T) {
 	assert.Equal(t, testContainerImage.Hash, foundImage.Hash)
 	assert.Equal(t, testContainerImage.HashType, foundImage.HashType)
 	assert.Equal(t, testContainerImage.Status, foundImage.Status)
+}
+
+func TestCheckHealth(t *testing.T) {
+	repo, mock := createMockRepo()
+
+	mock.ExpectPing().SetVal("")
+	pingResult := repo.CheckHealth(context.TODO())
+	assert.True(t, pingResult.IsHealthy)
+	assert.Equal(t, pingResult.Info[health.StatusKey], health.HealthyStatus, "status should be healthy and set to '"+health.HealthyStatus+"'")
+}
+
+func TestCheckHealthError(t *testing.T) {
+	repo, mock := createMockRepo()
+
+	errMsg := "some ping error"
+	mock.ExpectPing().SetErr(fmt.Errorf(errMsg))
+	pingResult := repo.CheckHealth(context.TODO())
+	assert.False(t, pingResult.IsHealthy)
+	assert.Equal(t, pingResult.Info[health.StatusKey], health.UnHealthyStatus, "status should be unhealthy and set to '"+health.UnHealthyStatus+"'")
+	assert.Equal(t, pingResult.Info["reason"], errMsg, "reason should be set to error message '"+errMsg+"'")
 }

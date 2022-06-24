@@ -41,8 +41,11 @@ func CreateClientSet(insideCluster bool) (clientset kubernetes.Interface, err er
 	} else {
 		// Outside cluster:
 		logger.Debugf("using local config to build Kubernetes client set")
-		var err error
-		clientset, err = kubernetes.NewForConfig(ctrl.GetConfigOrDie())
+		cfg, cfgErr := ctrl.GetConfig()
+		if cfgErr != nil {
+			return nil, cfgErr
+		}
+		clientset, err := kubernetes.NewForConfig(cfg)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get Kubernetes config from local machine: %w", err)
 		}
