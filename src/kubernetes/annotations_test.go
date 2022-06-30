@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
-	"github.com/suecodelabs/cnfuzz/src/cmd"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"strconv"
 	"testing"
@@ -34,8 +33,8 @@ func TestSetConfigRegister(t *testing.T) {
 
 	testAnnos.SetConfigRegister()
 
-	assert.Equal(t, uname, viper.GetString(cmd.AuthUsername))
-	assert.Equal(t, secret, viper.GetString(cmd.AuthSecretFlag))
+	assert.Equal(t, uname, viper.GetString(command.AuthUsername))
+	assert.Equal(t, secret, viper.GetString(command.AuthSecretFlag))
 }
 
 func TestGetAnnotations(t *testing.T) {

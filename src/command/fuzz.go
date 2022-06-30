@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-package commands
+package command
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/suecodelabs/cnfuzz/src/health"
+	"github.com/suecodelabs/cnfuzz/src/kubernetes"
+	"github.com/suecodelabs/cnfuzz/src/log"
 )
 
 type fuzzCmd struct {
 	cmd *cobra.Command
 
-	fuzzBuilderCommon
+	fuzzArgs
+	BaseArgs
 }
 
-type fuzzBuilderCommon struct {
+type fuzzArgs struct {
 	pod          string
 	podNamespace string
 }
@@ -43,6 +47,10 @@ func createFuzz() *fuzzCmd {
 		return s.Run()
 	}
 
+	s.cmd.PreRun = func(cmd *cobra.Command, args []string) {
+		BasePreRun(s.BaseArgs)
+	}
+
 	s.cmd.PersistentFlags().StringVarP(&s.pod, "pod", "", "", "Kubernetes pod to target for fuzzing")
 	s.cmd.PersistentFlags().StringVarP(&s.podNamespace, "namespace", "", "", "Namespace of the target pod")
 
@@ -50,5 +58,17 @@ func createFuzz() *fuzzCmd {
 }
 
 func (cmd fuzzCmd) Run() error {
+	healthChecker := health.NewChecker()
+	go health.Serv(healthChecker)
+	err := kubernetes.FuzzPodWithName(cmd.podNamespace, cmd.pod)
+	if err != nil {
+		// TODO handle error
+		log.L().Fatal(err)
+	}
 	return nil
+}
+
+func init() {
+	fuzzCmd := createFuzz()
+	RootCmd.AddCommand(fuzzCmd.cmd)
 }

@@ -16,7 +16,7 @@ package config
 
 import (
 	"github.com/spf13/viper"
-	"github.com/suecodelabs/cnfuzz/src/cmd"
+	"github.com/suecodelabs/cnfuzz/src/command"
 	"github.com/suecodelabs/cnfuzz/src/discovery"
 	v1 "k8s.io/api/core/v1"
 )
@@ -50,18 +50,18 @@ type FuzzerTarget struct {
 
 // NewFuzzerConfig constructor for FuzzerConfig
 func NewFuzzerConfig(apiDesc *discovery.WebApiDescription, targetPod *v1.Pod) *FuzzerConfig {
-	ns := viper.GetString(cmd.HomeNamespaceFlag)
+	ns := viper.GetString(command.HomeNamespaceFlag)
 	return &FuzzerConfig{
 		JobName:              "cnfuzz-restler-" + targetPod.Name,
 		InitJobName:          "cnfuzz-restler-init-" + targetPod.Name,
-		Image:                viper.GetString(cmd.RestlerImageFlag),
+		Image:                viper.GetString(command.RestlerImageFlag),
 		Namespace:            ns,
-		InitImage:            viper.GetString(cmd.RestlerInitImageFlag),
-		TimeBudget:           viper.GetString(cmd.RestlerTimeBudget),
-		CpuLimit:             viper.GetInt64(cmd.RestlerCpuLimit),
-		MemoryLimit:          viper.GetInt64(cmd.RestlerMemoryLimit),
-		CpuRequest:           viper.GetInt64(cmd.RestlerCpuRequest),
-		MemoryRequest:        viper.GetInt64(cmd.RestlerMemoryRequest),
+		InitImage:            viper.GetString(command.RestlerInitImageFlag),
+		TimeBudget:           viper.GetString(command.RestlerTimeBudget),
+		CpuLimit:             viper.GetInt64(command.RestlerCpuLimit),
+		MemoryLimit:          viper.GetInt64(command.RestlerMemoryLimit),
+		CpuRequest:           viper.GetInt64(command.RestlerCpuRequest),
+		MemoryRequest:        viper.GetInt64(command.RestlerMemoryRequest),
 		DiscoveryDocLocation: apiDesc.DiscoveryDoc.String(),
 		Target: FuzzerTarget{
 			PodName:   targetPod.Name,

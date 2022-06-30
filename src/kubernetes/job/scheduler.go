@@ -18,7 +18,6 @@ import (
 	"fmt"
 
 	"github.com/spf13/viper"
-	"github.com/suecodelabs/cnfuzz/src/cmd"
 	"github.com/suecodelabs/cnfuzz/src/config"
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
@@ -66,34 +65,34 @@ func createSchedulerJob(config *config.SchedulerConfig) *batchv1.Job {
 // buildSchedulerArgs creates a string array with flags/arguments for the cnfuzz job
 func buildSchedulerArgs(config *config.SchedulerConfig) []string {
 	// Args for the job
-	podNameArg := fmt.Sprintf("--%s", cmd.TargetPodName)
+	podNameArg := fmt.Sprintf("--%s", command.TargetPodName)
 	podNameVal := config.TargetPodName
-	podNamespaceArg := fmt.Sprintf("--%s", cmd.TargetPodNamespace)
+	podNamespaceArg := fmt.Sprintf("--%s", command.TargetPodNamespace)
 	podNamespaceVal := config.TargetPodNamespace
 
 	args := []string{podNameArg, podNameVal, podNamespaceArg, podNamespaceVal}
 
-	if viper.GetBool(cmd.IsDebug) {
+	if viper.GetBool(command.IsDebug) {
 		args = append(args, "--debug")
 	}
 
 	stringFlagsToPassDown := []string{
-		cmd.AuthUsername,
-		cmd.AuthSecretFlag,
-		cmd.HomeNamespaceFlag,
-		cmd.SchedulerImageFlag,
-		cmd.RestlerInitImageFlag,
-		cmd.RestlerImageFlag,
-		cmd.RestlerTimeBudget,
-		cmd.RestlerCpuLimit,
-		cmd.RestlerMemoryLimit,
-		cmd.RestlerCpuRequest,
-		cmd.RestlerMemoryRequest,
-		cmd.CacheSolution,
-		cmd.S3ReportBucket,
-		cmd.S3EndpointUrlFlag,
-		cmd.S3AccessKey,
-		cmd.S3SecretKey,
+		command.AuthUsername,
+		command.AuthSecretFlag,
+		command.HomeNamespaceFlag,
+		command.SchedulerImageFlag,
+		command.RestlerInitImageFlag,
+		command.RestlerImageFlag,
+		command.RestlerTimeBudget,
+		command.RestlerCpuLimit,
+		command.RestlerMemoryLimit,
+		command.RestlerCpuRequest,
+		command.RestlerMemoryRequest,
+		command.CacheSolution,
+		command.S3ReportBucket,
+		command.S3EndpointUrlFlag,
+		command.S3AccessKey,
+		command.S3SecretKey,
 	}
 	for _, arg := range stringFlagsToPassDown {
 		setValue := viper.GetString(arg)

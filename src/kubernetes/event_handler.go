@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/spf13/viper"
-	"github.com/suecodelabs/cnfuzz/src/cmd"
 	"github.com/suecodelabs/cnfuzz/src/config"
 	"github.com/suecodelabs/cnfuzz/src/kubernetes/job"
 	"github.com/suecodelabs/cnfuzz/src/kubernetes/util"
@@ -101,7 +100,7 @@ func HandlePodEvent(clientSet kubernetes.Interface, repositories *repository.Rep
 	if util.IsFuzzerEvent(&pod.ObjectMeta) {
 		return
 	}
-	if annos.IgnoreMe || (viper.GetBool(cmd.OnlyFuzzMarkedFlag) && !annos.FuzzMe) {
+	if annos.IgnoreMe || (viper.GetBool(command.OnlyFuzzMarkedFlag) && !annos.FuzzMe) {
 		logger.Debugf("pod %s wants to be ignored, so not fuzzing it", pod.Name)
 		return
 	}

@@ -19,7 +19,6 @@ import (
 	"strconv"
 
 	"github.com/spf13/viper"
-	"github.com/suecodelabs/cnfuzz/src/cmd"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -44,11 +43,11 @@ type Annotations struct {
 // SetConfigRegister looks in the annotations object for empty values and tries to fill them with values from the config register
 func (annos Annotations) SetConfigRegister() {
 	if len(annos.Username) > 0 {
-		viper.Set(cmd.AuthUsername, annos.Username)
+		viper.Set(command.AuthUsername, annos.Username)
 	}
 
 	if len(annos.Secret) > 0 {
-		viper.Set(cmd.AuthSecretFlag, annos.Secret)
+		viper.Set(command.AuthSecretFlag, annos.Secret)
 	}
 }
 

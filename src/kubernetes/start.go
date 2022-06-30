@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/spf13/viper"
-	"github.com/suecodelabs/cnfuzz/src/cmd"
 	"github.com/suecodelabs/cnfuzz/src/discovery/openapi"
 	"github.com/suecodelabs/cnfuzz/src/kubernetes/job"
 	"github.com/suecodelabs/cnfuzz/src/kubernetes/util"
@@ -37,7 +36,7 @@ import (
 
 // FuzzPodWithName fuzz a pod from just its name and namespace
 func FuzzPodWithName(namespace string, podName string) (err error) {
-	insideCluster := viper.GetBool(cmd.InsideClusterFlag)
+	insideCluster := viper.GetBool(command.InsideClusterFlag)
 	clientset, err := CreateClientSet(insideCluster)
 	if err != nil {
 		return fmt.Errorf("error while getting kubernetes clientset: %w", err)
@@ -57,7 +56,7 @@ func FuzzPodWithName(namespace string, podName string) (err error) {
 
 // StartInformers start informers that listen for Kubernetes events and let the EventHandler react on the events
 func StartInformers(repos *repository.Repositories) (err error) {
-	insideCluster := viper.GetBool(cmd.InsideClusterFlag)
+	insideCluster := viper.GetBool(command.InsideClusterFlag)
 	clientset, err := CreateClientSet(insideCluster)
 	if err != nil {
 		return fmt.Errorf("error while getting kubernetes clientset: %w", err)
@@ -83,7 +82,7 @@ func StartInformers(repos *repository.Repositories) (err error) {
 
 // FuzzPod fuzz a pod from a Pod object
 func FuzzPod(pod *v1.Pod) error {
-	insideCluster := viper.GetBool(cmd.InsideClusterFlag)
+	insideCluster := viper.GetBool(command.InsideClusterFlag)
 	clientset, err := CreateClientSet(insideCluster)
 	if err != nil {
 		return fmt.Errorf("error while getting kubernetes clientset: %w", err)
@@ -119,8 +118,8 @@ func FuzzPodWithClientset(clientSet kubernetes.Interface, pod *v1.Pod) error {
 
 	fuzzConf := config.NewFuzzerConfig(apiDesc, pod)
 
-	clientId := viper.GetString(cmd.AuthUsername)
-	secret := viper.GetString(cmd.AuthSecretFlag)
+	clientId := viper.GetString(command.AuthUsername)
+	secret := viper.GetString(command.AuthSecretFlag)
 
 	tokenSource, authErr := auth.CreateTokenSourceFromSchemas(apiDesc.SecuritySchemes, clientId, secret)
 	if authErr != nil {

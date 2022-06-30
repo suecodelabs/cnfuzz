@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
-	"github.com/suecodelabs/cnfuzz/src/cmd"
 	"github.com/suecodelabs/cnfuzz/src/config"
 	"testing"
 )
@@ -46,31 +45,31 @@ func TestBuildJobArgs(t *testing.T) {
 		TargetPodName:      "test-target",
 		TargetPodNamespace: "test-target-namespace",
 	}
-	viper.Set(cmd.IsDebug, true)
+	viper.Set(command.IsDebug, true)
 	username := "user123"
 	secret := "@Welcome123"
 	targetNamespace := "the-test-namespace"
-	viper.Set(cmd.AuthUsername, username)
-	viper.Set(cmd.AuthSecretFlag, secret)
-	viper.Set(cmd.HomeNamespaceFlag, targetNamespace)
+	viper.Set(command.AuthUsername, username)
+	viper.Set(command.AuthSecretFlag, secret)
+	viper.Set(command.HomeNamespaceFlag, targetNamespace)
 
 	resultArgs := buildSchedulerArgs(testConfig)
 
 	for i, arg := range resultArgs {
 		if arg == testConfig.TargetPodName {
-			assert.Equal(t, resultArgs[i-1], fmt.Sprintf("--%s", cmd.TargetPodName), "target pod arg should come after TargetPodName flag")
+			assert.Equal(t, resultArgs[i-1], fmt.Sprintf("--%s", command.TargetPodName), "target pod arg should come after TargetPodName flag")
 		}
 		if arg == testConfig.TargetPodNamespace {
-			assert.Contains(t, resultArgs[i-1], fmt.Sprintf("--%s", cmd.TargetPodNamespace), "target pod namespace arg should come after TargetPodNamespace flag")
+			assert.Contains(t, resultArgs[i-1], fmt.Sprintf("--%s", command.TargetPodNamespace), "target pod namespace arg should come after TargetPodNamespace flag")
 		}
 		if arg == testConfig.Namespace {
-			assert.Contains(t, resultArgs[i-1], fmt.Sprintf("--%s", cmd.HomeNamespaceFlag), "home namespace arg should come after HomeNamespace flag")
+			assert.Contains(t, resultArgs[i-1], fmt.Sprintf("--%s", command.HomeNamespaceFlag), "home namespace arg should come after HomeNamespace flag")
 		}
 		if arg == username {
-			assert.Contains(t, resultArgs[i-1], fmt.Sprintf("--%s", cmd.AuthUsername), "username arg should come after AuthUsername flag")
+			assert.Contains(t, resultArgs[i-1], fmt.Sprintf("--%s", command.AuthUsername), "username arg should come after AuthUsername flag")
 		}
 		if arg == secret {
-			assert.Contains(t, resultArgs[i-1], fmt.Sprintf("--%s", cmd.AuthSecretFlag), "secret arg should come after AuthSecret flag")
+			assert.Contains(t, resultArgs[i-1], fmt.Sprintf("--%s", command.AuthSecretFlag), "secret arg should come after AuthSecret flag")
 		}
 	}
 

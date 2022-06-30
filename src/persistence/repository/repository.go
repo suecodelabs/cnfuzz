@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/spf13/viper"
-	"github.com/suecodelabs/cnfuzz/src/cmd"
 	"github.com/suecodelabs/cnfuzz/src/health"
 	"github.com/suecodelabs/cnfuzz/src/model"
 	"github.com/suecodelabs/cnfuzz/src/persistence/repository/in_memory"
@@ -47,8 +46,8 @@ type Repositories struct {
 func InitRepositories(repoType RepoType, healthChecker *health.Checker) *Repositories {
 	if repoType == Redis {
 		// Would prefer to get the config in some other way
-		addr := viper.GetString(cmd.RedisHostName)
-		port := viper.GetString(cmd.RedisPort)
+		addr := viper.GetString(command.RedisHostName)
+		port := viper.GetString(command.RedisPort)
 		if len(port) > 0 {
 			addr = fmt.Sprintf("%s:%s", addr, port)
 		}
