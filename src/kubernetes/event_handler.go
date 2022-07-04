@@ -17,6 +17,7 @@ package kubernetes
 import (
 	"context"
 	"fmt"
+	"github.com/suecodelabs/cnfuzz/src/flags"
 	"time"
 
 	"github.com/spf13/viper"
@@ -100,7 +101,7 @@ func HandlePodEvent(clientSet kubernetes.Interface, repositories *repository.Rep
 	if util.IsFuzzerEvent(&pod.ObjectMeta) {
 		return
 	}
-	if annos.IgnoreMe || (viper.GetBool(command.OnlyFuzzMarkedFlag) && !annos.FuzzMe) {
+	if annos.IgnoreMe || (viper.GetBool(flags.OnlyFuzzMarkedFlag) && !annos.FuzzMe) {
 		logger.Debugf("pod %s wants to be ignored, so not fuzzing it", pod.Name)
 		return
 	}

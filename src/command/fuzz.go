@@ -54,6 +54,8 @@ func createFuzz() *fuzzCmd {
 	s.cmd.PersistentFlags().StringVarP(&s.pod, "pod", "", "", "Kubernetes pod to target for fuzzing")
 	s.cmd.PersistentFlags().StringVarP(&s.podNamespace, "namespace", "", "", "Namespace of the target pod")
 
+	AddBaseFlags(s.cmd, &s.BaseArgs)
+
 	return s
 }
 

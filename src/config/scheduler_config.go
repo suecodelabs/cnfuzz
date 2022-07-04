@@ -16,7 +16,7 @@ package config
 
 import (
 	"github.com/spf13/viper"
-	"github.com/suecodelabs/cnfuzz/src/command"
+	"github.com/suecodelabs/cnfuzz/src/flags"
 	"github.com/suecodelabs/cnfuzz/src/log"
 	apiv1 "k8s.io/api/core/v1"
 )
@@ -41,16 +41,16 @@ func CreateSchedulerConfigWPod(pod *apiv1.Pod) *SchedulerConfig {
 		TargetPodNamespace: pod.Namespace,
 		ServiceAccountName: "cnfuzz-scheduler",
 		JobName:            "cnfuzz-" + pod.Name,
-		RedisHostName:      viper.GetString(command.RedisHostName),
-		RedisPort:          viper.GetString(command.RedisPort),
+		RedisHostName:      viper.GetString(flags.RedisHostName),
+		RedisPort:          viper.GetString(flags.RedisPort),
 		Namespace:          namespace,
-		Image:              viper.GetString(command.SchedulerImageFlag),
+		Image:              viper.GetString(flags.SchedulerImageFlag),
 	}
 }
 
 // getNamespace function that gets the home namespace from viper and checks if it's valid
 func getNamespace() string {
-	namespace := viper.GetString(command.HomeNamespaceFlag)
+	namespace := viper.GetString(flags.HomeNamespaceFlag)
 	if len(namespace) <= 0 {
 		log.L().Fatalf("\"%s\" is not a valid namespace", namespace)
 	}

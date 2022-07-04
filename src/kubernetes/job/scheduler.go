@@ -16,6 +16,7 @@ package job
 
 import (
 	"fmt"
+	"github.com/suecodelabs/cnfuzz/src/flags"
 
 	"github.com/spf13/viper"
 	"github.com/suecodelabs/cnfuzz/src/config"
@@ -65,34 +66,34 @@ func createSchedulerJob(config *config.SchedulerConfig) *batchv1.Job {
 // buildSchedulerArgs creates a string array with flags/arguments for the cnfuzz job
 func buildSchedulerArgs(config *config.SchedulerConfig) []string {
 	// Args for the job
-	podNameArg := fmt.Sprintf("--%s", command.TargetPodName)
+	podNameArg := fmt.Sprintf("--%s", flags.TargetPodName)
 	podNameVal := config.TargetPodName
-	podNamespaceArg := fmt.Sprintf("--%s", command.TargetPodNamespace)
+	podNamespaceArg := fmt.Sprintf("--%s", flags.TargetPodNamespace)
 	podNamespaceVal := config.TargetPodNamespace
 
 	args := []string{podNameArg, podNameVal, podNamespaceArg, podNamespaceVal}
 
-	if viper.GetBool(command.IsDebug) {
+	if viper.GetBool(flags.IsDebug) {
 		args = append(args, "--debug")
 	}
 
 	stringFlagsToPassDown := []string{
-		command.AuthUsername,
-		command.AuthSecretFlag,
-		command.HomeNamespaceFlag,
-		command.SchedulerImageFlag,
-		command.RestlerInitImageFlag,
-		command.RestlerImageFlag,
-		command.RestlerTimeBudget,
-		command.RestlerCpuLimit,
-		command.RestlerMemoryLimit,
-		command.RestlerCpuRequest,
-		command.RestlerMemoryRequest,
-		command.CacheSolution,
-		command.S3ReportBucket,
-		command.S3EndpointUrlFlag,
-		command.S3AccessKey,
-		command.S3SecretKey,
+		flags.AuthUsername,
+		flags.AuthSecretFlag,
+		flags.HomeNamespaceFlag,
+		flags.SchedulerImageFlag,
+		flags.RestlerInitImageFlag,
+		flags.RestlerImageFlag,
+		flags.RestlerTimeBudget,
+		flags.RestlerCpuLimit,
+		flags.RestlerMemoryLimit,
+		flags.RestlerCpuRequest,
+		flags.RestlerMemoryRequest,
+		flags.CacheSolution,
+		flags.S3ReportBucket,
+		flags.S3EndpointUrlFlag,
+		flags.S3AccessKey,
+		flags.S3SecretKey,
 	}
 	for _, arg := range stringFlagsToPassDown {
 		setValue := viper.GetString(arg)

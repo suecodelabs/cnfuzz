@@ -16,6 +16,7 @@ package kubernetes
 
 import (
 	"fmt"
+	"github.com/suecodelabs/cnfuzz/src/flags"
 	"strconv"
 
 	"github.com/spf13/viper"
@@ -43,11 +44,11 @@ type Annotations struct {
 // SetConfigRegister looks in the annotations object for empty values and tries to fill them with values from the config register
 func (annos Annotations) SetConfigRegister() {
 	if len(annos.Username) > 0 {
-		viper.Set(command.AuthUsername, annos.Username)
+		viper.Set(flags.AuthUsername, annos.Username)
 	}
 
 	if len(annos.Secret) > 0 {
-		viper.Set(command.AuthSecretFlag, annos.Secret)
+		viper.Set(flags.AuthSecretFlag, annos.Secret)
 	}
 }
 
