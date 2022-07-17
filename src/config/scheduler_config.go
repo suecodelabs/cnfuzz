@@ -14,29 +14,47 @@
 
 package config
 
-import (
-	"github.com/spf13/viper"
-	"github.com/suecodelabs/cnfuzz/src/flags"
-	"github.com/suecodelabs/cnfuzz/src/log"
-	apiv1 "k8s.io/api/core/v1"
-)
+const ConfigMapName = "cnfuzz_config"
 
 // SchedulerConfig object that holds configuration for Kubernetes
 type SchedulerConfig struct {
-	TargetPodName      string
-	TargetPodNamespace string
-	ServiceAccountName string
-	RedisHostName      string
-	RedisPort          string
-	JobName            string
-	Namespace          string
-	Image              string
+	ServiceAccountName string `yaml:"service_account_name"`
+	RedisHostName      string `yaml:"redis_host_name"`
+	RedisPort          string `yaml:"redis_port"`
+	Namespace          string `yaml:"namespace"`
+	OnlyFuzzMarked     bool   `yaml:"only_fuzz_marked"`
 }
 
-// CreateSchedulerConfigWPod creates a SchedulerConfig from a pod object
-func CreateSchedulerConfigWPod(pod *apiv1.Pod) *SchedulerConfig {
-	namespace := getNamespace()
-	return &SchedulerConfig{
+type RestlerConfig struct {
+	InitImage     string `yaml:"init_image"`
+	Image         string `yaml:"image"`
+	TimeBudget    string `yaml:"time_budget"`
+	CpuLimit      string `yaml:"cpu_limit"`
+	MemoryLimit   string `yaml:"memory_limit"`
+	CpuRequest    string `yaml:"cpu_request"`
+	MemoryRequest string `yaml:"memory_request"`
+	CacheSolution string `yaml:"cache_solution"`
+}
+
+type AuthConfig struct {
+	Username string `yaml:"username"`
+	Secret   string `yaml:"secret"`
+}
+
+type S3Config struct {
+	ContainerName string `yaml:"container_name"`
+	Namespace     string `yaml:"namespace"`
+	EndpointUrl   string `yaml:"endpoint_url"`
+	ReportBucket  string `yaml:"report_bucket"`
+	Image         string `yaml:"image"`
+	AccessKey     string `yaml:"access_key"`
+	SecretKey     string `yaml:"secret_key"`
+}
+
+// CRestlerCpuLimit,     reateSchedulerConfigWPod creates a SchedulerConfig from a pod object
+/* fRestlerMemoryLimit,  unc CreateSchedulerConfigWPod(pod *apiv1.Pod) *SchedulerConfig {
+	RestlerCpuRequest,   namespace := getNamespace()
+	RestlerMemoryRequest,return &SchedulerConfig{
 		TargetPodName:      pod.Name,
 		TargetPodNamespace: pod.Namespace,
 		ServiceAccountName: "cnfuzz-scheduler",
@@ -46,13 +64,13 @@ func CreateSchedulerConfigWPod(pod *apiv1.Pod) *SchedulerConfig {
 		Namespace:          namespace,
 		Image:              viper.GetString(flags.SchedulerImageFlag),
 	}
-}
+} */
 
 // getNamespace function that gets the home namespace from viper and checks if it's valid
-func getNamespace() string {
+/* func getNamespace() string {
 	namespace := viper.GetString(flags.HomeNamespaceFlag)
 	if len(namespace) <= 0 {
 		log.L().Fatalf("\"%s\" is not a valid namespace", namespace)
 	}
 	return namespace
-}
+} */

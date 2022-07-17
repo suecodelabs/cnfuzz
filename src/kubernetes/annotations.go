@@ -16,10 +16,8 @@ package kubernetes
 
 import (
 	"fmt"
-	"github.com/suecodelabs/cnfuzz/src/flags"
 	"strconv"
 
-	"github.com/spf13/viper"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -39,17 +37,6 @@ type Annotations struct {
 	OpenApiDocLocation string
 	Secret             string
 	Username           string
-}
-
-// SetConfigRegister looks in the annotations object for empty values and tries to fill them with values from the config register
-func (annos Annotations) SetConfigRegister() {
-	if len(annos.Username) > 0 {
-		viper.Set(flags.AuthUsername, annos.Username)
-	}
-
-	if len(annos.Secret) > 0 {
-		viper.Set(flags.AuthSecretFlag, annos.Secret)
-	}
 }
 
 // GetAnnotations gather annotations inside the metadata of a Kubernetes object

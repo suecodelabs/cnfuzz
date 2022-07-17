@@ -14,23 +14,7 @@
 
 package config
 
-import (
-	"github.com/spf13/viper"
-	"github.com/suecodelabs/cnfuzz/src/flags"
-	"github.com/suecodelabs/cnfuzz/src/log"
-)
-
-type S3Config struct {
-	ContainerName string
-	Namespace     string
-	EndpointUrl   string
-	ReportBucket  string
-	Image         string
-	AccessKey     string
-	SecretKey     string
-}
-
-func CreateS3Config(jobName string, namespace string) *S3Config {
+/* func CreateS3Config(jobName string, namespace string) *S3Config {
 	s3Config := &S3Config{
 		ContainerName: jobName,
 		Namespace:     namespace,
@@ -46,3 +30,4 @@ func CreateS3Config(jobName string, namespace string) *S3Config {
 	}
 	return s3Config
 }
+*/

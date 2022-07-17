@@ -25,13 +25,29 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+type FuzzJob struct {
+	JobName            string
+	Image              string
+	TargetPodName      string
+	TargetPodNamespace string
+	Namespace          string
+	config.RestlerConfig
+	config.AuthConfig
+	config.S3Config
+}
+
+func CreateFuzzJob() FuzzJob {
+
+	return FuzzJob{}
+}
+
 // LaunchFuzzJob launches a job that retrieves the OpenAPI doc and kicks of a RESTler job
-func LaunchFuzzJob(clientset kubernetes.Interface, kubeConfig *config.SchedulerConfig) (createdJob *batchv1.Job, err error) {
-	jobs := clientset.BatchV1().Jobs(kubeConfig.Namespace)
+func (job FuzzJob) LaunchFuzzJob(clientset kubernetes.Interface) (createdJob *batchv1.Job, err error) {
+	jobClient := clientset.BatchV1().Jobs(job.Namespace)
 
-	jobSpec := createSchedulerJob(kubeConfig)
-
-	result, err := jobs.Create(context.TODO(), jobSpec, metav1.CreateOptions{})
+	spec := job.createSchedulerJob()
+	result, err := jobClient.Create(context.TODO(), spec, metav1.CreateOptions{})
+	
 	return result, err
 }
 

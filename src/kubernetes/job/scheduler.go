@@ -15,40 +15,50 @@
 package job
 
 import (
-	"fmt"
-	"github.com/suecodelabs/cnfuzz/src/flags"
-
-	"github.com/spf13/viper"
-	"github.com/suecodelabs/cnfuzz/src/config"
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // createSchedulerJob creates a Kubernetes Job for the cnfuzz instance that gets the OpenAPI spec and starts the RESTler fuzzer job
-func createSchedulerJob(config *config.SchedulerConfig) *batchv1.Job {
+func (job FuzzJob) createSchedulerJob() *batchv1.Job {
 	var backOffLimit int32 = 1
 	var terminateAfter int64 = 240
 	var TTLAfterFinish int32 = 120
 
-	// Args for the job
-	args := buildSchedulerArgs(config)
+	configMapVolumeName := "cnfuzz_config_map"
 
 	jobSpec := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        config.JobName,
-			Namespace:   config.Namespace,
+			Name:        job.JobName,
+			Namespace:   job.Namespace,
 			Annotations: map[string]string{"cnfuzz/ignore": "true"},
 		},
 		Spec: batchv1.JobSpec{
 			Template: v1.PodTemplateSpec{
 				Spec: v1.PodSpec{
+					Volumes: []v1.Volume{
+						{
+							Name: configMapVolumeName,
+							VolumeSource: v1.VolumeSource{
+								ConfigMap: &v1.ConfigMapVolumeSource{
+									LocalObjectReference: v1.LocalObjectReference{
+										Name: "cnfuzz_config",
+									},
+								},
+							},
+						},
+					},
 					Containers: []v1.Container{
 						{
-							Name:  config.JobName,
-							Image: config.Image,
-							Args:  args,
-							// Command: strings.Split(*cmd, " "),
+							Name:  job.JobName,
+							Image: job.Image,
+							VolumeMounts: []v1.VolumeMount{
+								{
+									Name:      configMapVolumeName,
+									MountPath: "/cnfuzz/config",
+								},
+							},
 						},
 					},
 					ServiceAccountName: "cnfuzz-job",
@@ -61,48 +71,4 @@ func createSchedulerJob(config *config.SchedulerConfig) *batchv1.Job {
 		},
 	}
 	return jobSpec
-}
-
-// buildSchedulerArgs creates a string array with flags/arguments for the cnfuzz job
-func buildSchedulerArgs(config *config.SchedulerConfig) []string {
-	// Args for the job
-	podNameArg := fmt.Sprintf("--%s", flags.TargetPodName)
-	podNameVal := config.TargetPodName
-	podNamespaceArg := fmt.Sprintf("--%s", flags.TargetPodNamespace)
-	podNamespaceVal := config.TargetPodNamespace
-
-	args := []string{podNameArg, podNameVal, podNamespaceArg, podNamespaceVal}
-
-	if viper.GetBool(flags.IsDebug) {
-		args = append(args, "--debug")
-	}
-
-	stringFlagsToPassDown := []string{
-		flags.AuthUsername,
-		flags.AuthSecretFlag,
-		flags.HomeNamespaceFlag,
-		flags.SchedulerImageFlag,
-		flags.RestlerInitImageFlag,
-		flags.RestlerImageFlag,
-		flags.RestlerTimeBudget,
-		flags.RestlerCpuLimit,
-		flags.RestlerMemoryLimit,
-		flags.RestlerCpuRequest,
-		flags.RestlerMemoryRequest,
-		flags.CacheSolution,
-		flags.S3ReportBucket,
-		flags.S3EndpointUrlFlag,
-		flags.S3AccessKey,
-		flags.S3SecretKey,
-	}
-	for _, arg := range stringFlagsToPassDown {
-		setValue := viper.GetString(arg)
-		if len(setValue) == 0 {
-			continue
-		}
-		args = append(args, fmt.Sprintf("--%s", arg))
-		args = append(args, setValue)
-	}
-
-	return args
 }

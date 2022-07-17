@@ -14,13 +14,6 @@
 
 package config
 
-import (
-	"github.com/spf13/viper"
-	"github.com/suecodelabs/cnfuzz/src/discovery"
-	"github.com/suecodelabs/cnfuzz/src/flags"
-	v1 "k8s.io/api/core/v1"
-)
-
 // FuzzerConfig config that is used to configure the RESTler fuzzer
 type FuzzerConfig struct {
 	JobName                string
@@ -49,7 +42,7 @@ type FuzzerTarget struct {
 }
 
 // NewFuzzerConfig constructor for FuzzerConfig
-func NewFuzzerConfig(apiDesc *discovery.WebApiDescription, targetPod *v1.Pod) *FuzzerConfig {
+/* func NewFuzzerConfig(apiDesc *discovery.WebApiDescription, targetPod *v1.Pod) *FuzzerConfig {
 	ns := viper.GetString(flags.HomeNamespaceFlag)
 	return &FuzzerConfig{
 		JobName:              "cnfuzz-restler-" + targetPod.Name,
@@ -72,4 +65,4 @@ func NewFuzzerConfig(apiDesc *discovery.WebApiDescription, targetPod *v1.Pod) *F
 		},
 		S3Config: *CreateS3Config("cnfuzz-aws-cli-"+targetPod.Name, ns),
 	}
-}
+} */
