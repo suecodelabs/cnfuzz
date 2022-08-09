@@ -50,7 +50,7 @@ scheduler:
     port: 6379
   restlerImage:
     repository: mcr.microsoft.com/restlerfuzzer/restler
-    tag: v7.4.0
+    tag: v8.6.0
   restlerConfig:
     memoryLimit: 1024 #Mi
     cpuLimit: 1000 #m
