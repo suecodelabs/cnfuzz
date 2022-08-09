@@ -192,6 +192,10 @@ helm repo index --url https://suecodelabs.github.io/cnfuzz/ .
 - Sam Crauwels, Maintainer
 - Michiel Westerink, Maintainer
 
+## Contribution
+
+Create an issue, open up a PR or contact us via <engineering@sue.nl>
+
 ## Community
 
 Every first Thursday of the month at 18:30 CET there will be a hybrid community meetup for users, developers and maintainers of the project hosted at Sue B.V. in the Netherlands.
