@@ -4,6 +4,8 @@ dist
 /reports/
 .run
 *.swp
+chart/cnfuzz/charts
+charts/cnfuzz/charts
 
 # Ignore DevSpace cache and log folder
 .devspace/
