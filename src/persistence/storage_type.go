@@ -14,12 +14,28 @@
  * limitations under the License.
  */
 
-package main
+package persistence
 
-import (
-	"github.com/suecodelabs/cnfuzz/src/cmd"
+import "fmt"
+
+type StorageType int
+
+const (
+	Redis StorageType = iota
+	InMemory
 )
 
-func main() {
-	cmd.Execute()
+var StorageTypes = [2]string{"redis", "in_memory"}
+
+func (s StorageType) String() string {
+	return StorageTypes[s]
+}
+
+func StorageTypeFromString(value string) (StorageType, error) {
+	for i := 0; i < len(StorageTypes); i++ {
+		if StorageTypes[i] == value {
+			return StorageType(i), nil
+		}
+	}
+	return StorageType(0), fmt.Errorf("unkown storage type")
 }

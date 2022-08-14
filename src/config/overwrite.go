@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package main
+package config
 
-import (
-	"github.com/suecodelabs/cnfuzz/src/cmd"
-)
-
-func main() {
-	cmd.Execute()
+type Overwrites struct {
+	DiscoveryDocIP   string
+	DiscoveryDocPort int32
 }

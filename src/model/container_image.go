@@ -1,24 +1,27 @@
-// Copyright 2022 Sue B.V.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * Copyright 2022 Sue B.V.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package model
 
 import (
 	"errors"
 	"fmt"
-	kutil "github.com/suecodelabs/cnfuzz/src/kubernetes/util"
-	"github.com/suecodelabs/cnfuzz/src/log"
+	"github.com/go-logr/logr"
+	kutil "github.com/suecodelabs/cnfuzz/src/k8s/util"
+	"github.com/suecodelabs/cnfuzz/src/logger"
 	apiv1 "k8s.io/api/core/v1"
 	"strconv"
 	"strings"
@@ -81,19 +84,18 @@ func CreateContainerImage(hash string, hashType string, status ImageFuzzStatus) 
 }
 
 // CreateContainerImagesFromPod extracts container info from a pod and converts their images to ContainerImages
-func CreateContainerImagesFromPod(pod *apiv1.Pod) ([]ContainerImage, error) {
-	logger := log.L()
+func CreateContainerImagesFromPod(l logr.Logger, pod *apiv1.Pod) ([]ContainerImage, error) {
 	var images []ContainerImage
 mainloop:
 	for _, status := range pod.Status.ContainerStatuses {
 		if len(status.ImageID) == 0 || len(status.Image) == 0 {
 			// TODO are there other image names or ID's that we can't parse/check?
-			logger.Warnf("image ID \"%s\" or image name \"%s\" are invalid and can't be checked", status.ImageID, status.Image)
-			logger.Warnf("if this is the only container in the pod, the fuzzer won't fuzz this pod")
+			l.V(logger.ImportantLevel).Info("imageID or image name are invalid and can't be checked, "+
+				"if this is the only container in the pod, the fuzzer won't fuzz this pod", "imageID", status.ImageID, "image name", status.Image)
 			continue
 		}
 
-		hash, hashType := kutil.SplitImageId(status.ImageID)
+		hash, hashType := kutil.SplitImageId(l, status.ImageID)
 
 		// Look for duplicate image hashes/versions
 		for _, image := range images {
@@ -108,7 +110,7 @@ mainloop:
 			// This means either the hash or hash type is empty
 			// Returning the error instead of ignoring it because it shouldn't happen
 			// every image/container should have this information
-			log.L().Debug("this means either the hash or hash type is empty, returning an error because every image/container should have this information")
+			l.V(logger.DebugLevel).Info("this means either the hash or hash type is empty, returning an error because every image/container should have this information")
 			return nil, createErr
 		}
 

@@ -1,16 +1,18 @@
-// Copyright 2022 Sue B.V.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * Copyright 2022 Sue B.V.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package auth
 
@@ -18,15 +20,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/go-logr/logr"
+	"github.com/suecodelabs/cnfuzz/src/logger"
 
 	"github.com/suecodelabs/cnfuzz/src/discovery"
-	"github.com/suecodelabs/cnfuzz/src/log"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 )
 
 // CreateTokenFromOAuthFlow creates a ITokenSource for a OAuthFlow
-func CreateTokenFromOAuthFlow(grantType string, clientId string, secret string, flow discovery.OAuthFlow) (ITokenSource, error) {
+func CreateTokenFromOAuthFlow(l logr.Logger, grantType string, clientId string, secret string, flow discovery.OAuthFlow) (ITokenSource, error) {
 	ctx := context.TODO()
 
 	// Just getting all the possible scopes
@@ -43,7 +46,7 @@ func CreateTokenFromOAuthFlow(grantType string, clientId string, secret string, 
 		oauthTokenSource, err = createClientCredentialsTokenSource(ctx, clientId, secret, scopes, flow.TokenURL), nil
 		break
 	case discovery.Implicit:
-		log.L().Info("Target is using OAuth implicit flow, this flow is deprecated, consider using the authorization code flow instead, https://oauth.net/2/grant-types/implicit/")
+		l.V(logger.ImportantLevel).Info("target is using OAuth implicit flow, this flow is deprecated, consider using the authorization code flow instead, https://oauth.net/2/grant-types/implicit/")
 		return nil, errors.New("implicit OAuth2 flow is unsupported")
 	case discovery.Password:
 		oauthTokenSource, err = createPasswordTokenSource(ctx, clientId, secret, scopes, flow.AuthorizationURL, flow.TokenURL)

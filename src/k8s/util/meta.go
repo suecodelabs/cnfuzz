@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package main
+package util
 
 import (
-	"github.com/suecodelabs/cnfuzz/src/cmd"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"strings"
 )
 
-func main() {
-	cmd.Execute()
+func IsControlPlaneObject(object *metav1.ObjectMeta) bool {
+	// TODO improve this function by adding more checks
+	return object.Name == "kubernetes" || object.Namespace == "kube-system" || object.Namespace == "kube-node-lease" || object.Namespace == "kube-public"
+}
+
+func IsFuzzerObject(object *metav1.ObjectMeta) bool {
+	return strings.HasPrefix(object.Name, "cnfuzz")
 }
