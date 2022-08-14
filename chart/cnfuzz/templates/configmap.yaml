@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cnfuzz-config
+data:
+  "auth.py": |
+    #!/usr/bin/env python3
+    import sys
+    print("{'" + sys.argv[1] + "': {  }}")
+    print(sys.argv[2])
+  "config.yaml": |
+    namespace: {{ $.Values.namespace }}
+    only_fuzz_marked: {{ $.Values.onlyMarked }}
+    {{- if $.Values.redis.enabled }}
+    cache_solution: redis
+    redis:
+      host_name: "{{ $.Values.redisCnf.hostName | default (printf "%s-redis-master" .Release.Name ) }}"
+      port: {{ $.Values.redisCnf.port }}
+    {{ else }}
+    cache_solution: in_memory
+    {{- end }}
+    restler:
+      image: "{{ $.Values.restler.image.repository }}:{{ $.Values.restler.image.tag }}"
+      init_image: "{{ $.Values.restler.initImage.repository }}:{{ $.Values.restler.initImage.tag }}"
+      time_budget: {{ $.Values.restler.timeBudget }}
+      cpu_limit: {{ $.Values.restler.resources.limits.cpu }} 
+      memory_limit: {{ $.Values.restler.resources.limits.memory }}
+      cpu_request: {{ $.Values.restler.resources.requests.cpu }}
+      memory_request:  {{ $.Values.restler.resources.requests.memory }}
+      telemetry_opt_out: "{{ $.Values.restler.telemetryOptOut }}"
+    auth:
+      username: "{{ $.Values.auth.userName }}"
+      secret: "{{ $.Values.auth.secret }}"
+    s3:
+      {{- if $.Values.minio.enabled }}
+      endpoint_url: "{{ (printf "http://%s-minio:9000" .Release.Name ) }}"
+      {{- with (index .Values.minio.buckets 0) }}
+      report_bucket: "s3://{{ .name }}"
+      {{- end }}
+      {{- with (index .Values.minio.users 0) }}
+      access_key: "{{ .accessKey }}"
+      {{- end }}
+      {{- with (index .Values.minio.users 0) }}
+      secret_key: "{{ .secretKey }}"
+      {{- end }}
+      {{ else }}
+      endpoint_url: "{{ $.Values.s3.endpoint }}"
+      report_bucket: "{{ $.Values.s3.bucket }}"
+      access_key: "{{ $.Values.s3.accessKey }}"
+      secret_key: "{{ $.Values.s3.secretKey }}"
+      {{- end }}
+      sidecar: 
+        image: "{{ $.Values.s3.sidecar.image.repository }}:{{ $.Values.s3.sidecar.image.tag }}"
+        container_name: "{{ $.Values.s3.sidecar.name }}"

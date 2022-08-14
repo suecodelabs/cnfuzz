@@ -1,0 +1,68 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "cnfuzz.serviceAccountName" . }}-job
+  namespace: {{ .Release.Namespace }}
+rules:
+  - apiGroups:
+      - ""
+      - batch
+    resources:
+      - pods
+      - jobs
+      - namespaces
+    verbs:
+      - create
+      - get
+      - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "cnfuzz.serviceAccountName" . }}-job
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "cnfuzz.serviceAccountName" . }}-job
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "cnfuzz.serviceAccountName" . }}-job
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "cnfuzz.serviceAccountName" . }}-job
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "cnfuzz.serviceAccountName" . }}
+rules:
+  - apiGroups:
+      - ""
+      - "batch"
+    resources:
+      - pods
+      - services
+      - events
+      - jobs
+    verbs:
+      - view
+      - get
+      - list
+      - watch
+      - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "cnfuzz.serviceAccountName" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "cnfuzz.serviceAccountName" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "cnfuzz.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
