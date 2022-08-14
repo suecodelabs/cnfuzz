@@ -33,7 +33,6 @@ spec:
           args:
             - "--config"
             - {{ $.Values.configFile | default "/config/config.yaml" }}
-            - "-d"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
