@@ -1,22 +1,26 @@
-// Copyright 2022 Sue B.V.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * Copyright 2022 Sue B.V.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package openapi
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-logr/logr"
+	"github.com/suecodelabs/cnfuzz/src/logger"
 	"net/url"
 	"strconv"
 
@@ -24,17 +28,16 @@ import (
 	conv "github.com/getkin/kin-openapi/openapi2conv"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/suecodelabs/cnfuzz/src/discovery"
-	"github.com/suecodelabs/cnfuzz/src/log"
 )
 
 // UnMarshalOpenApiDoc unmarshal OpenAPI doc represented as a byte array
 // returns a WebApiDescription object that represents the OpenAPI document
-func UnMarshalOpenApiDoc(docFile []byte, uri *url.URL) (*discovery.WebApiDescription, error) {
+func UnMarshalOpenApiDoc(l logr.Logger, docFile []byte, uri *url.URL) (*discovery.WebApiDescription, error) {
 	var doc *openapi3.T
 
 	docIsVersion2 := false
 	var err error
-	version, err := getMajorDocVersion(docFile)
+	version, err := getMajorDocVersion(l, docFile)
 	if err != nil {
 		return nil, fmt.Errorf("error while trying to read the used OpenAPI version in the retrieved doc: %w", err)
 	} else {
@@ -62,21 +65,17 @@ func UnMarshalOpenApiDoc(docFile []byte, uri *url.URL) (*discovery.WebApiDescrip
 			return nil, fmt.Errorf("error while loading OpenAPI doc from %s: %w", uri.String(), err)
 		}
 	}
-	return parseOpenApiDoc(doc, uri, docIsVersion2)
+	return parseOpenApiDoc(l, doc, uri, docIsVersion2)
 }
 
 // parseOpenApiDoc accepts a kin-openapi3 document and tries to convert it to a cnfuzz WebApiDescription object
-func parseOpenApiDoc(doc *openapi3.T, uri *url.URL, docIsVersion2 bool) (*discovery.WebApiDescription, error) {
-	logger := log.L()
+func parseOpenApiDoc(l logr.Logger, doc *openapi3.T, uri *url.URL, docIsVersion2 bool) (*discovery.WebApiDescription, error) {
 	// General info
 	var desc discovery.WebApiDescription
 	desc.Title = doc.Info.Title
 	desc.Description = doc.Info.Description
 	desc.Version = doc.Info.Version
-	if uri != nil {
-		desc.Host = uri.Host
-		desc.BaseUrl = url.URL{Scheme: uri.Scheme, Host: uri.Host}
-	} else {
+	if uri == nil {
 		return nil, fmt.Errorf("URL cant be empty or nil")
 	}
 
@@ -98,12 +97,12 @@ func parseOpenApiDoc(doc *openapi3.T, uri *url.URL, docIsVersion2 bool) (*discov
 			}
 
 			if operation.RequestBody != nil && operation.RequestBody.Value != nil {
-				endpoint.Body = transformBody(operation.RequestBody.Value)
+				endpoint.Body = transformBody(l, operation.RequestBody.Value)
 			}
 
 			for _, paramObj := range operation.Parameters {
 				if paramObj.Value == nil {
-					logger.Warn("%s parameter in the OpenAPI doc is empty, this might be an invalid doc", paramObj.Ref)
+					l.V(logger.ImportantLevel).Info("a parameter in the OpenAPI doc is empty, this might be an invalid doc", "emptyParameter", paramObj.Ref)
 				} else {
 					resp := discovery.Parameter{
 						Name:        paramObj.Value.Name,
@@ -113,9 +112,9 @@ func parseOpenApiDoc(doc *openapi3.T, uri *url.URL, docIsVersion2 bool) (*discov
 						ParamType:   paramObj.Ref,
 					}
 					if paramObj.Value.Schema == nil || paramObj.Value.Schema.Value == nil {
-						logger.Infof("no schema for parameter %s in OpenAPI doc", paramObj.Ref)
+						l.V(logger.DebugLevel).Info("no schema for parameter in OpenAPI doc", "parameter", paramObj.Ref)
 					} else {
-						resp.Schema = transformSchema(paramObj.Value.Schema.Ref, paramObj.Value.Schema.Value)
+						resp.Schema = transformSchema(l, paramObj.Value.Schema.Ref, paramObj.Value.Schema.Value)
 					}
 					endpoint.Parameters = append(endpoint.Parameters, resp)
 				}
@@ -125,7 +124,7 @@ func parseOpenApiDoc(doc *openapi3.T, uri *url.URL, docIsVersion2 bool) (*discov
 			for code, responseObj := range operation.Responses {
 				codeInt, err := strconv.Atoi(code)
 				if err != nil {
-					logger.Warn("Http status code %s in the OpenAPI doc is not a number", code)
+					l.V(logger.ImportantLevel).Info("Http status code in the OpenAPI doc is not a number", "statusCode", code)
 					// Response object without a status code isn't very useful, so ignore it
 					continue
 				}
@@ -135,7 +134,7 @@ func parseOpenApiDoc(doc *openapi3.T, uri *url.URL, docIsVersion2 bool) (*discov
 				if responseObj.Value != nil {
 					resp.Description = *responseObj.Value.Description
 				}
-				resp.Content = transformContent(responseObj.Value.Content)
+				resp.Content = transformContent(l, responseObj.Value.Content)
 				endpoint.Responses = append(endpoint.Responses, resp)
 			}
 
@@ -191,7 +190,7 @@ func parseOpenApiDoc(doc *openapi3.T, uri *url.URL, docIsVersion2 bool) (*discov
 }
 
 // getMajorDocVersion tries to get the version of an OpenAPI doc
-func getMajorDocVersion(doc []byte) (version int, err error) {
+func getMajorDocVersion(l logr.Logger, doc []byte) (version int, err error) {
 	var result map[string]any
 
 	err = json.Unmarshal(doc, &result)
@@ -234,19 +233,19 @@ func transformOAuthFlow(grantType string, flow *openapi3.OAuthFlow) discovery.OA
 }
 
 // transformBody converts kin-openapi3 RequestBody to a cnfuzz Body object
-func transformBody(rBody *openapi3.RequestBody) discovery.Body {
+func transformBody(l logr.Logger, rBody *openapi3.RequestBody) discovery.Body {
 	body := discovery.Body{
 		Description: rBody.Description,
 		Required:    rBody.Required,
 	}
 	if rBody.Content != nil {
-		body.Content = transformContent(rBody.Content)
+		body.Content = transformContent(l, rBody.Content)
 	}
 	return body
 }
 
 // transformSchema converts kin-openapi3 Schema to a cnfuzz Schema object
-func transformSchema(id string, schema *openapi3.Schema) discovery.Schema {
+func transformSchema(l logr.Logger, id string, schema *openapi3.Schema) discovery.Schema {
 	schemaModel := discovery.Schema{
 		Key:        id,
 		Type:       schema.Type,
@@ -255,21 +254,20 @@ func transformSchema(id string, schema *openapi3.Schema) discovery.Schema {
 		AllowEmpty: schema.AllowEmptyValue,
 		Example:    schema.Example,
 	}
-	logger := log.L()
 
 	for propId, schemaProp := range schema.Properties {
 		if schemaProp == nil || schemaProp.Value == nil {
-			logger.Warnf("schema property %s, %+v is nil or its value is nil, the OpenAPI doc might be invalid", propId, schemaProp)
+			l.V(logger.ImportantLevel).Info("schema property is nil or it's value is nil, the OpenAPI doc might be invalid", "schemaPropertyId", propId, "schemaProperty", schemaProp)
 			continue
 		}
-		schemaModel.Properties = append(schemaModel.Properties, transformSchema(propId, schemaProp.Value))
+		schemaModel.Properties = append(schemaModel.Properties, transformSchema(l, propId, schemaProp.Value))
 	}
 
 	return schemaModel
 }
 
 // transformContent converts kin-openapi3 Content to a cnfuzz Content object
-func transformContent(contents openapi3.Content) []discovery.Content {
+func transformContent(l logr.Logger, contents openapi3.Content) []discovery.Content {
 	if contents == nil {
 		return nil
 	}
@@ -280,7 +278,7 @@ func transformContent(contents openapi3.Content) []discovery.Content {
 			ContentType: contentType,
 		}
 
-		content.Schema = transformSchema(schemaRef.Schema.Ref, schemaRef.Schema.Value)
+		content.Schema = transformSchema(l, schemaRef.Schema.Ref, schemaRef.Schema.Value)
 
 		responses = append(responses, content)
 	}

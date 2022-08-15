@@ -17,15 +17,15 @@
 package health
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
-	"github.com/suecodelabs/cnfuzz/src/log"
-	"go.uber.org/zap"
+	"github.com/suecodelabs/cnfuzz/src/logger"
+	"go.uber.org/zap/zapcore"
 	"testing"
 )
 
 func TestNewChecker(t *testing.T) {
-	c := NewChecker()
+	l := logger.CreateDebugLogger()
+	c := NewChecker(l)
 	assert.NotNil(t, c.checkers)
 }
 
@@ -42,20 +42,20 @@ func TestRegisterCheck(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		checker := NewChecker()
+		l := logger.CreateDebugLogger()
+		checker := NewChecker(l)
 
 		var status Health
 		if c.check == nil {
 			// test if the logger logs the failed health check registration
 
-			logs := log.SetupLogsCapture()
-
 			checker.RegisterCheck(c.checkName, c.check)
 			status = checker.IsHealthy()
 
-			entry := logs.All()[0]
-			assert.Equal(t, zap.WarnLevel, entry.Level, "expected a message with the 'warn' log level got %s", entry.Level)
-			assert.Equal(t, fmt.Sprintf("failed to register %s health check, because it doesn't contain a check function", c.checkName), entry.Message, "got an unexpected log message while registering a nil health check")
+			logs := logger.GetObservedLogs().All()
+			entry := logs[0]
+			assert.Equal(t, zapcore.Level(-logger.ImportantLevel), entry.Level, "expected a message with the 'important' log level got %s", entry.Level)
+			assert.Equal(t, "failed to register health check, because it doesn't contain a check function", entry.Message, "got an unexpected log message while registering a nil health check")
 		} else {
 			// in this scenario we don't expect any log messages, so just register the health check as usual
 			checker.RegisterCheck(c.checkName, c.check)

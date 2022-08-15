@@ -19,7 +19,8 @@ package health
 import (
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
+	"github.com/suecodelabs/cnfuzz/src/logger"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -38,7 +39,8 @@ func TestHttpHealth(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		checker := NewChecker()
+		l := logger.CreateDebugLogger()
+		checker := NewChecker(l)
 
 		checker.RegisterCheck(c.checkName, c.check)
 
@@ -50,7 +52,7 @@ func TestHttpHealth(t *testing.T) {
 
 		assert.Equal(t, c.expectedStatusCode, res.StatusCode, "http request didn't return the expected status code")
 
-		data, err := ioutil.ReadAll(res.Body)
+		data, err := io.ReadAll(res.Body)
 		if assert.NoError(t, err, "reading http health request body shouldn't error out") {
 			var respObj map[string]interface{}
 			err = json.Unmarshal(data, &respObj)
@@ -67,7 +69,7 @@ func TestHttpLive(t *testing.T) {
 	live(w, req)
 	res := w.Result()
 	defer res.Body.Close()
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := io.ReadAll(res.Body)
 	if assert.NoError(t, err, "reading http live request body shouldn't error out") {
 		content := string(data[:])
 		assert.Equal(t, "ALIVE\n", content)
@@ -86,8 +88,9 @@ func TestHttpReady(t *testing.T) {
 		{nil, "nil-test-check", "READY\n", http.StatusOK},
 	}
 
+	l := logger.CreateDebugLogger()
 	for _, c := range cases {
-		checker := NewChecker()
+		checker := NewChecker(l)
 		checker.RegisterCheck(c.checkName, c.check)
 
 		req := httptest.NewRequest(http.MethodGet, "/health/ready", nil)
@@ -98,7 +101,7 @@ func TestHttpReady(t *testing.T) {
 
 		assert.Equal(t, c.expectedStatusCode, res.StatusCode, "http request didn't return the expected status code")
 
-		data, err := ioutil.ReadAll(res.Body)
+		data, err := io.ReadAll(res.Body)
 		if assert.NoError(t, err, "reading http ready request body shouldn't error out") {
 			content := string(data[:])
 			assert.Equal(t, c.expectedStatus, content)

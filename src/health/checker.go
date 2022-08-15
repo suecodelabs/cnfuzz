@@ -18,7 +18,8 @@ package health
 
 import (
 	"context"
-	"github.com/suecodelabs/cnfuzz/src/log"
+	"github.com/go-logr/logr"
+	"github.com/suecodelabs/cnfuzz/src/logger"
 	"time"
 )
 
@@ -38,18 +39,20 @@ type Check struct {
 }
 
 type Checker struct {
+	l        logr.Logger
 	checkers []Check
 }
 
-func NewChecker() Checker {
+func NewChecker(l logr.Logger) Checker {
 	return Checker{
+		l:        l,
 		checkers: make([]Check, 0),
 	}
 }
 
 func (c *Checker) RegisterCheck(name string, check ICheck) {
 	if check == nil {
-		log.L().Warnf("failed to register %s health check, because it doesn't contain a check function", name)
+		c.l.V(logger.ImportantLevel).Info("failed to register health check, because it doesn't contain a check function", "checkName", name)
 		return
 	}
 	newCheck := Check{name: name, check: check}

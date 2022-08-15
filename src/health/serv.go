@@ -17,9 +17,9 @@ package health
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/suecodelabs/cnfuzz/src/logger"
 	"net/http"
-
-	"github.com/suecodelabs/cnfuzz/src/log"
+	"os"
 )
 
 func (c *Checker) health(w http.ResponseWriter, _ *http.Request) {
@@ -53,14 +53,15 @@ func (c *Checker) ready(w http.ResponseWriter, _ *http.Request) {
 
 // Serv start http server that contains ready, live and health endpoints
 // warning: this function is blocking
-func Serv(healthChecker Checker) {
+func Serv(hc Checker) {
 	// Using this as a guideline
 	// https://testfully.io/blog/api-health-check-monitoring/
-	http.HandleFunc("/health", healthChecker.health)
+	http.HandleFunc("/health", hc.health)
 	http.HandleFunc("/health/live", live)
-	http.HandleFunc("/health/ready", healthChecker.ready)
+	http.HandleFunc("/health/ready", hc.ready)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
-		log.L().Fatal(err)
+		hc.l.V(logger.ImportantLevel).Error(err, "failed to start webserver for health checks")
+		os.Exit(1)
 	}
 }

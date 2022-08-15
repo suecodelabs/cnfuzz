@@ -1,0 +1,27 @@
+namespace: 
+only_fuzz_marked: true
+cache_solution: in_memory
+
+restler:
+  image: mcr.microsoft.com/restlerfuzzer/restler:v8.6.0
+  initImage: curlimages/curl:7.81.0
+  time_budget: 1
+  cpu_limit: 1000 
+  memory_limit: 1024
+  cpu_request: 1000
+  memory_request:  1024
+  telemetry_opt_out: true
+auth:
+  username: 
+  secret: "0d5989ed-d60c-470e-b1b5-576fcf0f5d8c"
+redis:
+  host_name: "localhost"
+  port: 6379
+#s3:
+#  endpoint_url: "http://release-name-minio:9000"
+#  report_bucket: "s3://restler-reports"
+#  access_key: "reportwriter"
+#  secret_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+#  sidecar:
+#    image: "amazon/aws-cli:latest"
+#    container_name: "cnfuzz-s3-sidecar"
