@@ -20,13 +20,19 @@ IMAGE ?= "cnfuzz"
 init:
 	mkdir -p $(BIN_DIR)
 
+helm-init:
+	helm repo add bitnami https://charts.bitnami.com/bitnami
+	helm repo add minio https://charts.min.io/
+	helm dependency build chart/cnfuzz
+
+
 run:
 	go run src/main.go $(RUN_ARGS)
 
 build: init
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BIN_DIR)/$(BIN_NAME) src/main.go
 
-build-debug:
+build-debug: init
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -gcflags "all=-N -l" -o dist/cnfuzz-debug src/main.go
 
 test:
