@@ -20,6 +20,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/spf13/cobra"
 	"github.com/suecodelabs/cnfuzz/src/config"
+	"github.com/suecodelabs/cnfuzz/src/health"
 	"github.com/suecodelabs/cnfuzz/src/k8s"
 	"github.com/suecodelabs/cnfuzz/src/logger"
 	"github.com/suecodelabs/cnfuzz/src/persistence"
@@ -87,15 +88,18 @@ func run(l logr.Logger, args Args) {
 		DiscoveryDocPort: args.dDocPort,
 	}
 
+	hc := health.NewChecker(l)
+
 	var strg *persistence.Storage
-	if cnf.CacheSolution == persistence.Redis.String() || true {
+	if cnf.CacheSolution == persistence.Redis.String() {
 		l.V(logger.InfoLevel).Info("using redis for storage", "configStorageValue", cnf.CacheSolution)
-		strg = persistence.InitRedisCache(l, cnf.RedisConfig.HostName, cnf.RedisConfig.Port)
+		strg = persistence.InitRedisCache(l, cnf.RedisConfig.HostName, cnf.RedisConfig.Port, hc)
 	} else {
 		l.V(logger.DebugLevel).Info("using in_memory for storage", "configStorageValue", cnf.CacheSolution)
 		strg = persistence.InitMemoryCache(l)
 	}
 
+	go health.Serv(hc)
 	client := k8s.CreateClientset(l, !args.localConfig)
 	// Start fuzzing!
 	err := k8s.StartController(l, strg, cnf, overwrites, client)

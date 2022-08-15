@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-logr/logr"
+	"github.com/suecodelabs/cnfuzz/src/health"
 	"github.com/suecodelabs/cnfuzz/src/logger"
 	"github.com/suecodelabs/cnfuzz/src/model"
 	"github.com/suecodelabs/cnfuzz/src/persistence/in_memory"
@@ -36,7 +37,7 @@ type Storage struct {
 	ContainerImageCache Cache[model.ContainerImage]
 }
 
-func InitRedisCache(l logr.Logger, addr string, port string) *Storage {
+func InitRedisCache(l logr.Logger, addr string, port string, hc health.Checker) *Storage {
 	if len(port) > 0 {
 		addr = fmt.Sprintf("%s:%s", addr, port)
 	}
@@ -44,7 +45,8 @@ func InitRedisCache(l logr.Logger, addr string, port string) *Storage {
 	db := 0
 	l.V(logger.DebugLevel).Info(fmt.Sprintf("using redis from %s", addr), "redisAddr", addr, "dbId", db)
 	cICache := redis.CreateContainerImageRedis(l, addr, pass, db)
-	// healthChecker.RegisterCheck("redis", ContainerImageCache)
+
+	hc.RegisterCheck("redis", cICache)
 	return &Storage{ContainerImageCache: cICache}
 }
 

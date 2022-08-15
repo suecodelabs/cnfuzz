@@ -20,6 +20,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/go-logr/zapr"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
 )
 
@@ -36,7 +37,7 @@ func GetObservedLogs() *observer.ObservedLogs {
 }
 
 func createObservedZapLogger() *zap.Logger {
-	core, logs := observer.New(zap.InfoLevel) // TODO implement variable info level
+	core, logs := observer.New(zapcore.Level(PerformanceTestLevel)) // TODO implement variable info level
 	zLogger := zap.New(core)
 	defer zLogger.Sync()
 	observedLogs = logs

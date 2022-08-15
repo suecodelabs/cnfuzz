@@ -25,7 +25,7 @@ import (
 )
 
 const (
-	ImportantLevel       = int(zapcore.FatalLevel)
+	ImportantLevel       = int(zapcore.ErrorLevel)
 	InfoLevel            = int(zapcore.InfoLevel)
 	DebugLevel           = int(zapcore.DebugLevel)
 	PerformanceTestLevel = -128

@@ -19,6 +19,7 @@ package redis
 import (
 	"context"
 	"github.com/go-logr/logr"
+	"github.com/suecodelabs/cnfuzz/src/health"
 	"time"
 
 	"github.com/go-redis/redis/v9"
@@ -62,7 +63,7 @@ func (repo containerImageRedis) GetByKey(ctx context.Context, key string) (obj *
 	return &imgRepo, true, nil
 }
 
-/* func (repo containerImageRedis) CheckHealth(ctx context.Context) health.Health {
+func (repo containerImageRedis) CheckHealth(ctx context.Context) health.Health {
 	status := repo.client.Ping(ctx)
 	err := status.Err()
 	if err != nil {
@@ -75,7 +76,7 @@ func (repo containerImageRedis) GetByKey(ctx context.Context, key string) (obj *
 		h.Info[health.StatusKey] = health.HealthyStatus
 		return h
 	}
-} */
+}
 
 func CreateContainerImageRedis(l logr.Logger, addr string, password string, db int) *containerImageRedis {
 	rdb := redis.NewClient(&redis.Options{
