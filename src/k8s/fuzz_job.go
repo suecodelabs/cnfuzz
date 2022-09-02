@@ -24,11 +24,13 @@ import (
 	"github.com/suecodelabs/cnfuzz/src/config"
 	"github.com/suecodelabs/cnfuzz/src/discovery/openapi"
 	"github.com/suecodelabs/cnfuzz/src/k8s/job"
+	"github.com/suecodelabs/cnfuzz/src/k8s/util"
 	"github.com/suecodelabs/cnfuzz/src/logger"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"os"
+	"time"
 )
 
 func StartFuzzJobWithName(l logr.Logger, client kubernetes.Interface, cnfConfig *config.CnFuzzConfig, overwrites config.Overwrites, podName, podNamespace string) {
@@ -92,8 +94,13 @@ func StartFuzzJob(l logr.Logger, client kubernetes.Interface, cnfConfig *config.
 		l.V(logger.ImportantLevel).Error(err, "error while starting restler job", "restlerJobName", j.Name, "restlerJobNamespace", j.Namespace, "targetName", pod.Name)
 	}
 
-	// TODO wait until the job is finished
-	var _ = createdJob
+	// Long timeout because restler jobs can take a long time
+	waitErr := util.WaitForJobReady(client, createdJob.Name, createdJob.Namespace, time.Hour*2)
+	if waitErr != nil {
+		// TODO kill the job?
+		// TODO We dont want to leave the config map hanging around, so remove it
+		return fmt.Errorf("error while waiting for job to finish: %v", waitErr)
+	}
 
 	l.V(logger.InfoLevel).Info("completed job", "jobName", restlerJob.JobName)
 
