@@ -30,6 +30,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -95,14 +96,19 @@ func StartFuzzJob(l logr.Logger, client kubernetes.Interface, cnfConfig *config.
 	}
 
 	// Long timeout because restler jobs can take a long time
-	waitErr := util.WaitForJobReady(client, createdJob.Name, createdJob.Namespace, time.Hour*2)
-	if waitErr != nil {
-		// TODO kill the job?
-		// TODO We dont want to leave the config map hanging around, so remove it
-		return fmt.Errorf("error while waiting for job to finish: %v", waitErr)
+	timeOut := time.Hour * 2
+	budget, err := strconv.Atoi(restlerJob.TimeBudget)
+	if err == nil {
+		timeOut = (time.Hour * time.Duration(budget)) + (time.Minute * 20)
 	}
 
-	l.V(logger.InfoLevel).Info("completed job", "jobName", restlerJob.JobName)
+	waitErr := util.WaitForJobReady(client, createdJob.Name, createdJob.Namespace, timeOut, (time.Second * 5))
+	if waitErr != nil {
+		// TODO kill the job?
+		return fmt.Errorf("error while waiting for job to finish: %v", waitErr)
+	} else {
+		l.V(logger.InfoLevel).Info("completed job", "jobName", restlerJob.JobName)
+	}
 
 	return nil
 }

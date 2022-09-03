@@ -61,7 +61,6 @@ func IsPodRunning(clientSet kubernetes.Interface, pod *corev1.Pod) wait.Conditio
 }
 
 func WaitForJobReady(clientset kubernetes.Interface, jobName string, namespace string, timeout time.Duration, pollInterval time.Duration) error {
-	// Poll every 5 seconds if job has completed
 	return wait.PollImmediate(pollInterval, timeout, IsJobReady(clientset, jobName, namespace))
 }
 

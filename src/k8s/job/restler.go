@@ -40,21 +40,25 @@ type restlerFuzzJob struct {
 	InitContainerImage   string
 	DiscoveryDocLocation string
 	TelemetryOptOut      string
-	TimeBudget           string
-	CpuLimit             int64
-	MemoryLimit          int64
-	CpuRequest           int64
-	MemoryRequest        int64
-	Target               *restlerFuzzTarget
-	S3Config             *config.S3Config
+	// TimeBudget in hours https://github.com/microsoft/restler-fuzzer/blob/1df2d3b8177408dd04666926867e10d505249281/docs/user-guide/SettingsFile.md#time_budget-float-default-30-days
+	TimeBudget    string
+	CpuLimit      int64
+	MemoryLimit   int64
+	CpuRequest    int64
+	MemoryRequest int64
+	Target        *restlerFuzzTarget
+	S3Config      *config.S3Config
 }
 
 type restlerFuzzTarget struct {
 	podName   string
 	namespace string
-	ip        string
-	port      string
-	scheme    string // http, https
+	// IP of the target https://github.com/microsoft/restler-fuzzer/blob/1df2d3b8177408dd04666926867e10d505249281/docs/user-guide/SettingsFile.md#target_ip-str-default-none
+	ip string
+	// Port of the target https://github.com/microsoft/restler-fuzzer/blob/1df2d3b8177408dd04666926867e10d505249281/docs/user-guide/SettingsFile.md#target_port-int-default-none
+	port string
+	// Http scheme (http, https)
+	scheme string
 }
 
 func CreateRestlerJob(targetPod *v1.Pod, cnf *config.CnFuzzConfig, discoveryDoc *discovery.WebApiDescription) *restlerFuzzJob {

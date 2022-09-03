@@ -72,8 +72,8 @@ func TestWaitForPodReady(t *testing.T) {
 	testNamespace := "test"
 	testPod := createTestPod(clientSet, "test-pod", testNamespace)
 
-	updateAfterDuration := time.Millisecond * 50 // millies
-	timeoutAfter := time.Second * 5
+	updateAfterDuration := time.Millisecond * 25 // millies
+	timeoutAfter := time.Second
 	// Update the pod to ready after a duration
 	go updatePodPhase(clientSet, testPod, updateAfterDuration)
 	start := time.Now()
@@ -82,7 +82,7 @@ func TestWaitForPodReady(t *testing.T) {
 	totalDuration := end.UnixMilli() - start.UnixMilli()
 	if assert.NoError(t, err) {
 		// Function should only return after the pod is set to ready
-		assert.Greater(t, totalDuration, updateAfterDuration.Milliseconds())
+		assert.GreaterOrEqual(t, totalDuration, updateAfterDuration.Milliseconds())
 		// Function should return before timeout
 		assert.Less(t, totalDuration, timeoutAfter.Milliseconds())
 	}
@@ -134,9 +134,8 @@ func TestWaitForJobReady(t *testing.T) {
 	testNamespace := "test-namespace"
 	testJob := createTestJob(clientSet, testJobName, testNamespace)
 
-	updateAfterDuration := time.Millisecond * 50 // millies
-	// Code polls api every 5 seconds, so timeout should be at least 6 seconds to do a proper test
-	timeoutAfter := time.Second * 6
+	updateAfterDuration := time.Millisecond * 25 // millies
+	timeoutAfter := time.Second
 
 	// Update the job to complete after a duration
 	testJob.Status.Conditions = append(testJob.Status.Conditions, v1.JobCondition{Type: v1.JobComplete})
@@ -149,7 +148,7 @@ func TestWaitForJobReady(t *testing.T) {
 	l.Info(fmt.Sprintf("test finished after %v", totalDuration))
 	if assert.NoError(t, err) {
 		// Function should only return after the job is set to complete
-		assert.Greater(t, totalDuration, updateAfterDuration.Milliseconds())
+		assert.GreaterOrEqual(t, totalDuration, updateAfterDuration.Milliseconds())
 		// Function should return before timeout
 		assert.Less(t, totalDuration, timeoutAfter.Milliseconds())
 	}
