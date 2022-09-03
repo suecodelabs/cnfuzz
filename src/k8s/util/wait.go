@@ -23,10 +23,8 @@ import (
 	v1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
-	typev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 )
 
 func IsJobReady(clientset kubernetes.Interface, jobName string, namespace string) wait.ConditionFunc {
@@ -62,18 +60,11 @@ func IsPodRunning(clientSet kubernetes.Interface, pod *corev1.Pod) wait.Conditio
 	}
 }
 
-func WaitForJobReady(clientset kubernetes.Interface, jobName string, namespace string, timeout time.Duration) error {
+func WaitForJobReady(clientset kubernetes.Interface, jobName string, namespace string, timeout time.Duration, pollInterval time.Duration) error {
 	// Poll every 5 seconds if job has completed
-	return wait.PollImmediate(time.Second*5, timeout, IsJobReady(clientset, jobName, namespace))
+	return wait.PollImmediate(pollInterval, timeout, IsJobReady(clientset, jobName, namespace))
 }
 
-func WaitForPodReady(clientSet kubernetes.Interface, pod *corev1.Pod, timeout time.Duration) error {
-	return wait.PollImmediate(time.Second, timeout, IsPodRunning(clientSet, pod))
-}
-
-func GetPodsForSvc(svc *corev1.Service, namespace string, k8sClient typev1.CoreV1Interface) (*corev1.PodList, error) {
-	set := labels.Set(svc.Spec.Selector)
-	listOptions := metav1.ListOptions{LabelSelector: set.AsSelector().String()}
-	pods, err := k8sClient.Pods(namespace).List(context.Background(), listOptions)
-	return pods, err
+func WaitForPodReady(clientSet kubernetes.Interface, pod *corev1.Pod, timeout time.Duration, pollInterval time.Duration) error {
+	return wait.PollImmediate(pollInterval, timeout, IsPodRunning(clientSet, pod))
 }

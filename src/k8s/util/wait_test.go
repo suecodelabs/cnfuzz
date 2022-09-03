@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"github.com/suecodelabs/cnfuzz/src/logger"
 	v1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -76,7 +77,7 @@ func TestWaitForPodReady(t *testing.T) {
 	// Update the pod to ready after a duration
 	go updatePodPhase(clientSet, testPod, updateAfterDuration)
 	start := time.Now()
-	err := WaitForPodReady(clientSet, testPod.DeepCopy(), timeoutAfter)
+	err := WaitForPodReady(clientSet, testPod.DeepCopy(), timeoutAfter, time.Millisecond)
 	end := time.Now()
 	totalDuration := end.UnixMilli() - start.UnixMilli()
 	if assert.NoError(t, err) {
@@ -91,45 +92,8 @@ func TestWaitForPodReadyTimeout(t *testing.T) {
 	clientSet := fake.NewSimpleClientset()
 	testNamespace := "test"
 	testPod := createTestPod(clientSet, "test-pod", testNamespace)
-	err := WaitForPodReady(clientSet, testPod.DeepCopy(), time.Millisecond)
+	err := WaitForPodReady(clientSet, testPod.DeepCopy(), time.Millisecond, time.Millisecond)
 	assert.Error(t, err, "timed out waiting for the condition")
-}
-
-func TestGetPodsForSvc(t *testing.T) {
-	clientSet := fake.NewSimpleClientset()
-	testNamespace := "test"
-	testService := &corev1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "my-test-svc",
-			Namespace: testNamespace,
-			Labels: map[string]string{
-				"app": "testapi",
-			},
-		},
-	}
-	testPodCount := 2
-	for i := 0; i < testPodCount; i++ {
-		testPod := &corev1.Pod{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      fmt.Sprintf("test-pod-%d", i),
-				Namespace: testNamespace,
-				Labels: map[string]string{
-					"app": "testapi",
-				},
-			},
-			Status: corev1.PodStatus{
-				Phase: corev1.PodPending,
-			},
-		}
-		_, err := clientSet.CoreV1().Pods(testNamespace).Create(context.TODO(), testPod, metav1.CreateOptions{})
-		if err != nil {
-			log.Fatalln(fmt.Errorf("failed to create test pod: %w", err))
-		}
-	}
-
-	pods, err := GetPodsForSvc(testService, testNamespace, clientSet.CoreV1())
-	assert.NoError(t, err)
-	assert.Len(t, pods.Items, testPodCount)
 }
 
 func TestIsJobReady(t *testing.T) {
@@ -159,11 +123,12 @@ func TestWaitForJobReadyTimeout(t *testing.T) {
 	testJobName := "test-job"
 	testNamespace := "test-namespace"
 	_ = createTestJob(clientSet, testJobName, testNamespace)
-	err := WaitForJobReady(clientSet, testJobName, testNamespace, time.Millisecond)
+	err := WaitForJobReady(clientSet, testJobName, testNamespace, time.Millisecond, time.Millisecond)
 	assert.Error(t, err, "timed out waiting for the condition")
 }
 
 func TestWaitForJobReady(t *testing.T) {
+	l := logger.CreateDebugLogger()
 	clientSet := fake.NewSimpleClientset()
 	testJobName := "test-job"
 	testNamespace := "test-namespace"
@@ -178,9 +143,10 @@ func TestWaitForJobReady(t *testing.T) {
 	go updateJob(clientSet, testJob, updateAfterDuration)
 
 	start := time.Now()
-	err := WaitForJobReady(clientSet, testJobName, testNamespace, timeoutAfter)
+	err := WaitForJobReady(clientSet, testJobName, testNamespace, timeoutAfter, time.Millisecond)
 	end := time.Now()
 	totalDuration := end.UnixMilli() - start.UnixMilli()
+	l.Info(fmt.Sprintf("test finished after %v", totalDuration))
 	if assert.NoError(t, err) {
 		// Function should only return after the job is set to complete
 		assert.Greater(t, totalDuration, updateAfterDuration.Milliseconds())
