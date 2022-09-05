@@ -8,8 +8,8 @@ require (
 	github.com/go-logr/zapr v1.2.3
 	github.com/go-redis/redis/v9 v9.0.0-beta.2
 	github.com/spf13/cobra v1.5.0
-	github.com/stretchr/testify v1.7.0
-	go.uber.org/zap v1.21.0
+	github.com/stretchr/testify v1.8.0
+	go.uber.org/zap v1.23.0
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.25.0
