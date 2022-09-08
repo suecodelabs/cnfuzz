@@ -6,7 +6,6 @@ SHA := $(shell git rev-parse HEAD)
 VERSION_GIT := $(if $(TAG_NAME),$(TAG_NAME),$(SHA))
 VERSION := $(if $(VERSION),$(VERSION),$(VERSION_GIT))
 
-BIN_NAME ?= cnfuzz
 BIN_DIR ?= dist
 
 GIT_BRANCH := $(subst heads/,,$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null))
@@ -25,15 +24,19 @@ helm-init:
 	helm repo add minio https://charts.min.io/
 	helm dependency build chart/cnfuzz
 
-
 run:
 	go run src/main.go $(RUN_ARGS)
 
-build: init
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BIN_DIR)/$(BIN_NAME) src/main.go
+all: cnfuzz restlerwrapper
 
-build-debug: init
+cnfuzz: init
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BIN_DIR)/cnfuzz src/cmd/cnfuzz/main.go
+
+cnfuzz-debug: init
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -gcflags "all=-N -l" -o dist/cnfuzz-debug src/main.go
+
+restlerwrapper: init
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BIN_DIR)/restlerwrapper src/cmd/restlerwrapper/main.go
 
 test:
 	go test ./...

@@ -164,7 +164,7 @@ But you can also attach a debugger to a running pod inside a cluster using [DevS
 
 ```sh
 cd docs
-helm package ../charts/cnfuzz
+helm package ../chart/cnfuzz
 helm repo index --url https://suecodelabs.github.io/cnfuzz/ .
 ```
 </details>
