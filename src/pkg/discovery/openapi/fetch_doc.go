@@ -85,7 +85,7 @@ func TryGetOpenApiDoc(l logger.Logger, ip string, ports []int32, locations []str
 		// Try each port
 		for _, port := range ports {
 			proto := "http://"
-			if port == 432 {
+			if port == 443 {
 				proto = "https://"
 			}
 			baseUri := proto + ip + ":" + strconv.Itoa(int(port))
