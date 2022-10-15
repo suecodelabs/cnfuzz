@@ -106,10 +106,32 @@ func run(l logr.Logger, args Args) {
 		oaLocs = openapi.GetCommonOpenApiLocations()
 	}
 
-	apiDesc, err := openapi.TryGetOpenApiDoc(l, ip, ports, oaLocs)
+	apiDoc, err := openapi.TryGetOpenApiDoc(l, ip, ports, oaLocs)
 	if err != nil {
 		l.V(logger.ImportantLevel).Error(err, "error while retrieving OpenAPI document")
 		os.Exit(1)
+	}
+
+	apiDesc, err := openapi.ParseOpenApiDoc(l, apiDoc)
+	if err != nil {
+		l.V(logger.ImportantLevel).Error(err, "error while unmarshalling OpenAPI doc request body")
+		os.Exit(1)
+	}
+
+	// TODO save api doc to file for restler to pick it up later
+	b, err := apiDoc.DocFile.MarshalJSON()
+	if err != nil {
+		l.V(logger.ImportantLevel).Error(err, "failed to marshal OpenApi doc to bytes")
+		os.Exit(1)
+	} else {
+		if !args.dryRun {
+			err := os.WriteFile("/openapi/doc.json", b, os.FileMode(0644))
+			if err != nil {
+				l.V(logger.ImportantLevel).Error(err, "failed to write OpenApi doc to fs")
+				os.Exit(1)
+				return
+			}
+		}
 	}
 
 	// Tokensource can be nil !!! this means the API doesn't have any security (specified in the discovery doc ...)

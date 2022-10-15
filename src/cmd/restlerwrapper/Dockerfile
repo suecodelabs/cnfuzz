@@ -11,5 +11,6 @@ RUN make restlerwrapper
 
 FROM mcr.microsoft.com/restlerfuzzer/restler:v8.6.0 as final
 COPY --from=build /wrapper/dist/restlerwrapper /
-EXPOSE 8080
+COPY src/cmd/restlerwrapper/auth.py /scripts/auth.py
 ENTRYPOINT ["/restlerwrapper"]
+
