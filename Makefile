@@ -6,15 +6,17 @@ SHA := $(shell git rev-parse HEAD)
 VERSION_GIT := $(if $(TAG_NAME),$(TAG_NAME),$(SHA))
 VERSION := $(if $(VERSION),$(VERSION),$(VERSION_GIT))
 
-BIN_DIR ?= dist
-
-GIT_BRANCH := $(subst heads/,,$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null))
-GIT_COMMIT := $(subst heads/,,$(shell git rev-parse --short HEAD 2>/dev/null))
-DEV_IMAGE := cnfuzz-debug$(if $(GIT_BRANCH),:$(subst /,-,$(GIT_BRANCH)))
-CNFUZZ_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),:$(subst /,-,$(GIT_COMMIT)))
+GO_ENV_VARS ?= CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 DEFAULT_HELM_DEV_ARGS := --set minio.persistence.size=1Gi,minio.resources.requests.memory=1Gi,minio.replicas=1,minio.mode=standalone --set redis.architecture=standalone,redis.replica.replicaCount=1 --set restler.timeBudget=0.001
-KIND_EXAMPLE_IMAGE := $(APP_NAME)$(if $(GIT_COMMIT),-todo-api:$(subst /,-,$(GIT_COMMIT)))
-IMAGE ?= "cnfuzz"
+
+BIN_DIR ?= dist
+CNFUZZ_DOCKERFILE ?= "src/cmd/cnfuzz/Dockerfile"
+CNFUZZ_LOCAL_DOCKERFILE ?= "src/cmd/cnfuzz/local.Dockerfile"
+CNFUZZ_IMAGE ?= "cnfuzz"
+RESTLERWRAPPER_IMAGE ?= "restlerwrapper"
+RESTLERWRAPPER_DOCKERFILE ?= "src/cmd/restlerwrapper/Dockerfile"
+RESTLERWRAPPER_LOCAL_DOCKERFILE ?= "src/cmd/restlerwrapper/local.Dockerfile"
+EXAMPLE_API_IMAGE := cnfuzz-todo-api
 
 init:
 	mkdir -p $(BIN_DIR)
@@ -27,17 +29,6 @@ helm-init:
 run:
 	go run src/main.go $(RUN_ARGS)
 
-all: cnfuzz restlerwrapper
-
-cnfuzz: init
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BIN_DIR)/cnfuzz src/cmd/cnfuzz/main.go
-
-cnfuzz-debug: init
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -gcflags "all=-N -l" -o dist/cnfuzz-debug src/main.go
-
-restlerwrapper: init
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BIN_DIR)/restlerwrapper src/cmd/restlerwrapper/main.go
-
 test:
 	go test ./...
 
@@ -49,51 +40,66 @@ fmt: format
 format:
 	gofmt -s -l -w $(SRCS)
 
-image:
-	docker build -t $(IMAGE) .
+all: cnfuzz restlerwrapper
 
-image.local: build
-	docker build -t $(IMAGE) -f hack/local.Dockerfile .
+cnfuzz: init
+	$(GO_ENV_VARS) go build -o $(BIN_DIR)/cnfuzz src/cmd/cnfuzz/main.go
 
-image-debug:
-	docker build -t $(DEV_IMAGE) -f Dockerfile .
+cnfuzz-debug: init
+	$(GO_ENV_VARS) go build -gcflags "all=-N -l" -o $(BIN_DIR)/cnfuzz-debug src/main.go
 
-kind-init: build
-	cd example && docker build -t $(KIND_EXAMPLE_IMAGE) -f Dockerfile . && cd ..
-	docker build -t $(CNFUZZ_IMAGE) -f hack/local.Dockerfile .
-	kind load docker-image $(CNFUZZ_IMAGE) && kind load docker-image $(KIND_EXAMPLE_IMAGE)
-	helm install --wait --timeout 10m0s dev chart/cnfuzz $(DEFAULT_HELM_DEV_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+restlerwrapper: init
+	$(GO_ENV_VARS) go build -o $(BIN_DIR)/restlerwrapper src/cmd/restlerwrapper/main.go
+
+cnfuzz-image:
+	docker build -t $(CNFUZZ_IMAGE) -f $(CNFUZZ_DOCKERFILE) --no-cache .
+
+cnfuzz-image.local: cnfuzz
+	docker build -t $(CNFUZZ_IMAGE) -f $(CNFUZZ_LOCAL_DOCKERFILE) .
+
+restlerwrapper-image:
+	docker build -t $(RESTLERWRAPPER_IMAGE) -f $(RESTLERWRAPPER_DOCKERFILE) .
+
+restlerwrapper-image.local: restlerwrapper
+	docker build -t $(RESTLERWRAPPER_IMAGE) -f $(RESTLERWRAPPER_LOCAL_DOCKERFILE) .
+
+kind-init: kind-load-images
+	helm install --wait --timeout 10m0s dev chart/cnfuzz $(DEFAULT_HELM_DEV_ARGS) # $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 	kubectl apply -f example/deployment.yaml
-	kubectl set image deployment/todo-api todoapi=$(KIND_EXAMPLE_IMAGE)
+	kubectl set image deployment/todo-api todoapi=$(EXAMPLE_API_IMAGE)
 	kubectl scale deployment --replicas=1 todo-api
 
-kind-build: build
-	docker build -t $(CNFUZZ_IMAGE) -f hack/local.Dockerfile .
-	kind load docker-image $(CNFUZZ_IMAGE)
-	helm upgrade --install dev chart/cnfuzz $(DEFAULT_HELM_DEV_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+kind-build: all
+	docker build -t $(CNFUZZ_IMAGE) -f $(CNFUZZ_LOCAL_DOCKERFILE) .
+	docker build -t $(RESTLERWRAPPER_IMAGE) -f $(RESTLERWRAPPER_LOCAL_DOCKERFILE) .
+	kind load docker-image $(CNFUZZ_IMAGE) && kind load docker-image $(RESTLERWRAPPER_IMAGE)
+	helm upgrade --install dev chart/cnfuzz $(DEFAULT_HELM_DEV_ARGS) # $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+
+kind-load-images: all
+	cd example && docker build -t $(EXAMPLE_API_IMAGE) -f Dockerfile . && cd ..
+	docker build -t $(CNFUZZ_IMAGE) -f $(CNFUZZ_LOCAL_DOCKERFILE) .
+	docker build -t $(RESTLERWRAPPER_IMAGE) -f $(RESTLERWRAPPER_LOCAL_DOCKERFILE) .
+	kind load docker-image $(CNFUZZ_IMAGE) && kind load docker-image $(RESTLERWRAPPER_IMAGE) && kind load docker-image $(EXAMPLE_API_IMAGE)
 
 k8s-clean:
 	helm delete dev
 	kubectl delete pvc redis-data-dev-redis-master-0
 	kubectl delete deployment todo-api
 
-rancher-init: build
-	cd example && nerdctl -n k8s.io build -t $(KIND_EXAMPLE_IMAGE) -f Dockerfile . && cd ..
-	nerdctl -n k8s.io build -t $(CNFUZZ_IMAGE) -f hack/local.Dockerfile .
-	helm install --wait --timeout 10m0s dev chart/cnfuzz $(DEFAULT_HELM_DEV_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+rancher-init: rancher-load-images
+	helm install --wait --timeout 10m0s dev chart/cnfuzz $(DEFAULT_HELM_DEV_ARGS) # $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 	kubectl apply -f example/deployment.yaml
-	kubectl set image deployment/todo-api todoapi=$(KIND_EXAMPLE_IMAGE)
+	kubectl set image deployment/todo-api todoapi=$(EXAMPLE_API_IMAGE)
 	kubectl scale deployment --replicas=1 todo-api
 
-rancher-build: build
-	nerdctl -n k8s.io build -t $(CNFUZZ_IMAGE) -f hack/local.Dockerfile .
-	helm upgrade --install dev chart/cnfuzz $(DEFAULT_HELM_DEV_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
+rancher-build: all
+	nerdctl -n k8s.io build -t $(CNFUZZ_IMAGE) -f $(CNFUZZ_LOCAL_DOCKERFILE) .
+	nerdctl -n k8s.io build -t $(RESTLERWRAPPER_IMAGE) -f $(RESTLERWRAPPER_LOCAL_DOCKERFILE) .
+	helm upgrade --install dev chart/cnfuzz $(DEFAULT_HELM_DEV_ARGS) # $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 
-kill-jobs:
-	# Kill running jobs
-	JOBS=$(shell kubectl get jobs.batch --all-namespaces --no-headers | awk '{if ($$2 ~ "cnfuzz-") print $$2}')
-	@if [ $(JOBS) ]; then\
-        kubectl delete jobs.batch $$($(JOBS));\
-    fi
+rancher-load-images: all
+	cd example && nerdctl -n k8s.io build -t $(EXAMPLE_API_IMAGE) -f Dockerfile . && cd ..
+	nerdctl -n k8s.io build -t $(CNFUZZ_IMAGE) -f $(CNFUZZ_LOCAL_DOCKERFILE) .
+	nerctl -n k8s.io build -t $(RESTLERWRAPPER_IMAGE) -f $(RESTLERWRAPPER_LOCAL_DOCKERFILE) .
 
-.PHONY : clean
+.PHONY : clean cnfuzz restlerwrapper
