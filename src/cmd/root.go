@@ -17,7 +17,6 @@
 package cmd
 
 import (
-	"github.com/go-logr/logr"
 	"github.com/spf13/cobra"
 	"github.com/suecodelabs/cnfuzz/src/config"
 	"github.com/suecodelabs/cnfuzz/src/health"
@@ -79,7 +78,7 @@ https://github.com/suecodelabs/cnfuzz`,
 	}
 }
 
-func run(l logr.Logger, args Args) {
+func run(l logger.Logger, args Args) {
 	l.Info("starting cnfuzz")
 
 	cnf := config.LoadConfigFile(l, args.configFile, args.printConfig)

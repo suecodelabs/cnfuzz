@@ -19,7 +19,6 @@ package openapi
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/go-logr/logr"
 	"github.com/suecodelabs/cnfuzz/src/logger"
 	"net/url"
 	"strconv"
@@ -32,7 +31,7 @@ import (
 
 // UnMarshalOpenApiDoc unmarshal OpenAPI doc represented as a byte array
 // returns a WebApiDescription object that represents the OpenAPI document
-func UnMarshalOpenApiDoc(l logr.Logger, docFile []byte, uri *url.URL) (*discovery.WebApiDescription, error) {
+func UnMarshalOpenApiDoc(l logger.Logger, docFile []byte, uri *url.URL) (*discovery.WebApiDescription, error) {
 	var doc *openapi3.T
 
 	docIsVersion2 := false
@@ -69,7 +68,7 @@ func UnMarshalOpenApiDoc(l logr.Logger, docFile []byte, uri *url.URL) (*discover
 }
 
 // parseOpenApiDoc accepts a kin-openapi3 document and tries to convert it to a cnfuzz WebApiDescription object
-func parseOpenApiDoc(l logr.Logger, doc *openapi3.T, uri *url.URL, docIsVersion2 bool) (*discovery.WebApiDescription, error) {
+func parseOpenApiDoc(l logger.Logger, doc *openapi3.T, uri *url.URL, docIsVersion2 bool) (*discovery.WebApiDescription, error) {
 	// General info
 	var desc discovery.WebApiDescription
 	desc.Title = doc.Info.Title
@@ -190,7 +189,7 @@ func parseOpenApiDoc(l logr.Logger, doc *openapi3.T, uri *url.URL, docIsVersion2
 }
 
 // getMajorDocVersion tries to get the version of an OpenAPI doc
-func getMajorDocVersion(l logr.Logger, doc []byte) (version int, err error) {
+func getMajorDocVersion(l logger.Logger, doc []byte) (version int, err error) {
 	var result map[string]any
 
 	err = json.Unmarshal(doc, &result)
@@ -233,7 +232,7 @@ func transformOAuthFlow(grantType string, flow *openapi3.OAuthFlow) discovery.OA
 }
 
 // transformBody converts kin-openapi3 RequestBody to a cnfuzz Body object
-func transformBody(l logr.Logger, rBody *openapi3.RequestBody) discovery.Body {
+func transformBody(l logger.Logger, rBody *openapi3.RequestBody) discovery.Body {
 	body := discovery.Body{
 		Description: rBody.Description,
 		Required:    rBody.Required,
@@ -245,7 +244,7 @@ func transformBody(l logr.Logger, rBody *openapi3.RequestBody) discovery.Body {
 }
 
 // transformSchema converts kin-openapi3 Schema to a cnfuzz Schema object
-func transformSchema(l logr.Logger, id string, schema *openapi3.Schema) discovery.Schema {
+func transformSchema(l logger.Logger, id string, schema *openapi3.Schema) discovery.Schema {
 	schemaModel := discovery.Schema{
 		Key:        id,
 		Type:       schema.Type,
@@ -267,7 +266,7 @@ func transformSchema(l logr.Logger, id string, schema *openapi3.Schema) discover
 }
 
 // transformContent converts kin-openapi3 Content to a cnfuzz Content object
-func transformContent(l logr.Logger, contents openapi3.Content) []discovery.Content {
+func transformContent(l logger.Logger, contents openapi3.Content) []discovery.Content {
 	if contents == nil {
 		return nil
 	}

@@ -18,7 +18,6 @@ package health
 
 import (
 	"context"
-	"github.com/go-logr/logr"
 	"github.com/suecodelabs/cnfuzz/src/logger"
 	"time"
 )
@@ -39,11 +38,11 @@ type Check struct {
 }
 
 type Checker struct {
-	l        logr.Logger
+	l        logger.Logger
 	checkers []Check
 }
 
-func NewChecker(l logr.Logger) Checker {
+func NewChecker(l logger.Logger) Checker {
 	return Checker{
 		l:        l,
 		checkers: make([]Check, 0),

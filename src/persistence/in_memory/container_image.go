@@ -19,16 +19,16 @@ package in_memory
 import (
 	"context"
 	"errors"
-	"github.com/go-logr/logr"
+	"github.com/suecodelabs/cnfuzz/src/logger"
 	"github.com/suecodelabs/cnfuzz/src/model"
 )
 
 type containerImageMem struct {
-	l            logr.Logger
+	l            logger.Logger
 	fuzzedImages []*model.ContainerImage
 }
 
-func CreateContainerImageRepository(l logr.Logger) *containerImageMem {
+func CreateContainerImageRepository(l logger.Logger) *containerImageMem {
 	return &containerImageMem{
 		l: l,
 	}

@@ -18,7 +18,6 @@ package auth
 
 import (
 	"fmt"
-	"github.com/go-logr/logr"
 	"github.com/suecodelabs/cnfuzz/src/logger"
 	"net/http"
 	"strings"
@@ -51,7 +50,7 @@ func (t *Token) expired() bool {
 
 // Type returns the type of this token
 // formats the TokenType to a value that can be used in the Authorization http header
-func (t *Token) Type(l logr.Logger) string {
+func (t *Token) Type(l logger.Logger) string {
 	l.V(logger.DebugLevel).Info(fmt.Sprintf("using token type: %s (this is also used in token header Authorizations: <token type prefix> <token>", t.TokenType), "tokenType", t.TokenType)
 	if strings.EqualFold(t.TokenType, "bearer") {
 		return "Bearer"
@@ -72,18 +71,18 @@ func (t *Token) Type(l logr.Logger) string {
 }
 
 // SetAuthHeader set the authorization header in a http Request using this token
-func (t *Token) SetAuthHeader(l logr.Logger, r *http.Request) {
+func (t *Token) SetAuthHeader(l logger.Logger, r *http.Request) {
 	r.Header.Set("Authorization", t.CreateAuthHeaderValue(l))
 }
 
 // CreateAuthHeader returns a http Header holding the Authorization header from this token
-func (t *Token) CreateAuthHeader(l logr.Logger) http.Header {
+func (t *Token) CreateAuthHeader(l logger.Logger) http.Header {
 	return http.Header{
 		"Authorization": {t.CreateAuthHeaderValue(l)},
 	}
 }
 
 // CreateAuthHeaderValue creates the value for the Authorization header from this token
-func (t *Token) CreateAuthHeaderValue(l logr.Logger) string {
+func (t *Token) CreateAuthHeaderValue(l logger.Logger) string {
 	return t.Type(l) + " " + t.AccessToken
 }

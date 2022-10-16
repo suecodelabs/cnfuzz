@@ -18,7 +18,6 @@ package job
 
 import (
 	"fmt"
-	"github.com/go-logr/logr"
 	"github.com/suecodelabs/cnfuzz/src/discovery"
 	"github.com/suecodelabs/cnfuzz/src/logger"
 	"time"
@@ -87,7 +86,7 @@ func CreateRestlerJob(targetPod *v1.Pod, cnf *config.CnFuzzConfig, discoveryDoc 
 // this includes an init container that gets the OpenAPI doc from the target API with curl and volumes for transferring the information
 // it uses values from the FuzzConfig to configure the fuzz command that runs inside the RESTler container
 // returned job hasn't started yet
-func (job *restlerFuzzJob) CreateRestlerJob(l logr.Logger, tokenSource auth.ITokenSource) *batchv1.Job {
+func (job *restlerFuzzJob) CreateRestlerJob(l logger.Logger, tokenSource auth.ITokenSource) *batchv1.Job {
 	reportDir := "/reportdir"
 	// File that when created triggers the S3 CLI container to copy the reports to the S3 bucket
 	moveTriggerFile := reportDir + "/move_alert"
@@ -232,7 +231,7 @@ func (job *restlerFuzzJob) CreateRestlerJob(l logr.Logger, tokenSource auth.ITok
 // createRestlerCommand creates command string that can be run inside the RESTler container
 // the command string consists of a compile command that analyzes the OpenAPI spec and generates a fuzzing grammar
 // and the fuzz command itself
-func (job *restlerFuzzJob) createRestlerCommand(l logr.Logger, tokenSource auth.ITokenSource, reportVol string, moveTriggerFile string) string {
+func (job *restlerFuzzJob) createRestlerCommand(l logger.Logger, tokenSource auth.ITokenSource, reportVol string, moveTriggerFile string) string {
 	targetIp := job.Target.ip
 	targetPort := job.Target.port
 	timeBudget := job.TimeBudget
@@ -278,7 +277,7 @@ func (job *restlerFuzzJob) createRestlerCommand(l logr.Logger, tokenSource auth.
 	return fullCommand
 }
 
-func (job *restlerFuzzJob) createAwsCliCommand(l logr.Logger, reportMountDir string, targetReportDir string, triggerFile string) string {
+func (job *restlerFuzzJob) createAwsCliCommand(l logger.Logger, reportMountDir string, targetReportDir string, triggerFile string) string {
 	baseAwsCmd := "aws s3"
 	if len(job.S3Config.EndpointUrl) > 0 {
 		baseAwsCmd = fmt.Sprintf("aws --endpoint-url %s s3", job.S3Config.EndpointUrl)

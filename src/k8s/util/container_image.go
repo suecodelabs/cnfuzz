@@ -17,7 +17,6 @@
 package util
 
 import (
-	"github.com/go-logr/logr"
 	"github.com/suecodelabs/cnfuzz/src/logger"
 	"strings"
 )
@@ -46,7 +45,7 @@ func GetImageName(fullName string) (name string, tags []string) {
 	return name, tags[1:]
 }
 
-func SplitImageId(l logr.Logger, imageId string) (hash string, hashType string) {
+func SplitImageId(l logger.Logger, imageId string) (hash string, hashType string) {
 	l.V(logger.DebugLevel).Info("splitting imageId into hash and a hash type", "imageId", imageId)
 	// Format:
 	// docker-pullable://localhost:5000/imagename@sha256:5add8f7cf10b367af0fd4d9779a48891d9083ab56a691065421571b4d4cf4789

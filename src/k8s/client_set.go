@@ -17,7 +17,6 @@
 package k8s
 
 import (
-	"github.com/go-logr/logr"
 	"github.com/suecodelabs/cnfuzz/src/logger"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -26,7 +25,7 @@ import (
 )
 
 // CreateClientset create a client to interact with the Kubernetes API
-func CreateClientset(l logr.Logger, insideCluster bool) (clientset kubernetes.Interface) {
+func CreateClientset(l logger.Logger, insideCluster bool) (clientset kubernetes.Interface) {
 	var config *rest.Config
 	var err error
 	if insideCluster {

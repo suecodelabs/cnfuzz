@@ -20,7 +20,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-logr/logr"
 	"github.com/suecodelabs/cnfuzz/src/logger"
 
 	"github.com/suecodelabs/cnfuzz/src/discovery"
@@ -29,7 +28,7 @@ import (
 )
 
 // CreateTokenFromOAuthFlow creates a ITokenSource for a OAuthFlow
-func CreateTokenFromOAuthFlow(l logr.Logger, grantType string, clientId string, secret string, flow discovery.OAuthFlow) (ITokenSource, error) {
+func CreateTokenFromOAuthFlow(l logger.Logger, grantType string, clientId string, secret string, flow discovery.OAuthFlow) (ITokenSource, error) {
 	ctx := context.TODO()
 
 	// Just getting all the possible scopes
