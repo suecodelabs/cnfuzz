@@ -24,7 +24,6 @@ import (
 	"github.com/suecodelabs/cnfuzz/src/logger"
 	"github.com/suecodelabs/cnfuzz/src/persistence"
 	"log"
-	"os"
 )
 
 type CnFuzzCommand struct {
@@ -103,7 +102,6 @@ func run(l logger.Logger, args Args) {
 	// Start fuzzing!
 	err := k8s.StartController(l, strg, cnf, overwrites, client)
 	if err != nil {
-		l.Error(err, "error while starting cnfuzz controller")
-		os.Exit(1)
+		l.FatalError(err, "error while starting cnfuzz controller")
 	}
 }

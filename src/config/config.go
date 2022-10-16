@@ -78,8 +78,7 @@ func LoadConfigFile(l logger.Logger, configFile string, printFile bool) *CnFuzzC
 
 	data, err := os.ReadFile(configFile)
 	if err != nil {
-		l.V(logger.ImportantLevel).Error(err, "failed to read config file", "configFile", configFile)
-		os.Exit(1)
+		l.FatalError(err, "failed to read config file", "configFile", configFile)
 	}
 
 	if printFile {
@@ -88,8 +87,7 @@ func LoadConfigFile(l logger.Logger, configFile string, printFile bool) *CnFuzzC
 
 	config := &CnFuzzConfig{}
 	if err := yaml.Unmarshal(data, config); err != nil {
-		l.V(logger.ImportantLevel).Error(err, "given config file is invalid")
-		os.Exit(1)
+		l.FatalError(err, "given config file is invalid")
 	}
 
 	if config.RedisConfig == nil {

@@ -47,8 +47,8 @@ func CreateLogger(isDebug bool) Logger {
 	}
 }
 
-func (l Logger) FatalError(err error, msg string) {
-	l.V(ImportantLevel).Error(err, msg)
+func (l Logger) FatalError(err error, msg string, keysAndValues ...interface{}) {
+	l.V(ImportantLevel).Error(err, msg, keysAndValues)
 	os.Exit(1)
 }
 
