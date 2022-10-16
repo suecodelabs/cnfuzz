@@ -18,7 +18,6 @@ package openapi
 
 import (
 	"fmt"
-	"github.com/go-logr/logr"
 	"github.com/suecodelabs/cnfuzz/src/logger"
 	"io"
 	"net/http"
@@ -41,7 +40,7 @@ func GetCommonOpenApiLocations() []string {
 
 // GetRemoteOpenApiDoc get OpenApi doc from a URL
 // Use this method if the full URL to the OpenApi doc is known
-func GetRemoteOpenApiDoc(l logr.Logger, url *url.URL) ([]byte, error) {
+func GetRemoteOpenApiDoc(l logger.Logger, url *url.URL) ([]byte, error) {
 	client := http.Client{
 		Timeout: timeout, // Timeout after 2 seconds
 	}
@@ -79,7 +78,7 @@ func GetRemoteOpenApiDoc(l logr.Logger, url *url.URL) ([]byte, error) {
 }
 
 // TryGetOpenApiDoc try getting the OpenApi doc from a host without knowing the exact OpenApi doc location
-func TryGetOpenApiDoc(l logr.Logger, ip string, ports []int32, locations []string) (webApiDescription *discovery.WebApiDescription, err error) {
+func TryGetOpenApiDoc(l logger.Logger, ip string, ports []int32, locations []string) (webApiDescription *discovery.WebApiDescription, err error) {
 	if len(ports) == 0 {
 		baseUri := "http://" + ip
 		return tryGetOpenApiDoc(l, baseUri, locations)
@@ -108,7 +107,7 @@ func TryGetOpenApiDoc(l logr.Logger, ip string, ports []int32, locations []strin
 
 // tryGetOpenApiDoc attempts to retrieve the OpenAPI doc from the given locations
 // continues trying locations until a location is successful or if every location has been tried
-func tryGetOpenApiDoc(l logr.Logger, baseUri string, locations []string) (webApiDescription *discovery.WebApiDescription, err error) {
+func tryGetOpenApiDoc(l logger.Logger, baseUri string, locations []string) (webApiDescription *discovery.WebApiDescription, err error) {
 	// TODO do Api versions
 
 	for _, try := range locations {

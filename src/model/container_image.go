@@ -19,7 +19,6 @@ package model
 import (
 	"errors"
 	"fmt"
-	"github.com/go-logr/logr"
 	kutil "github.com/suecodelabs/cnfuzz/src/k8s/util"
 	"github.com/suecodelabs/cnfuzz/src/logger"
 	apiv1 "k8s.io/api/core/v1"
@@ -84,7 +83,7 @@ func CreateContainerImage(hash string, hashType string, status ImageFuzzStatus) 
 }
 
 // CreateContainerImagesFromPod extracts container info from a pod and converts their images to ContainerImages
-func CreateContainerImagesFromPod(l logr.Logger, pod *apiv1.Pod) ([]ContainerImage, error) {
+func CreateContainerImagesFromPod(l logger.Logger, pod *apiv1.Pod) ([]ContainerImage, error) {
 	var images []ContainerImage
 mainloop:
 	for _, status := range pod.Status.ContainerStatuses {

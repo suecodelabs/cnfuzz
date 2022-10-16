@@ -19,7 +19,6 @@ package k8s
 import (
 	"context"
 	"fmt"
-	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/assert"
 	"github.com/suecodelabs/cnfuzz/src/config"
 	"github.com/suecodelabs/cnfuzz/src/logger"
@@ -35,7 +34,7 @@ import (
 func TestOnAdd(t *testing.T) {
 	calledHandle := false
 	c := controller{}
-	c.handleFunc = func(l logr.Logger, clientSet kubernetes.Interface, storage *persistence.Storage, config *config.CnFuzzConfig, overwrites config.Overwrites, pod *apiv1.Pod) {
+	c.handleFunc = func(l logger.Logger, clientSet kubernetes.Interface, storage *persistence.Storage, config *config.CnFuzzConfig, overwrites config.Overwrites, pod *apiv1.Pod) {
 		calledHandle = true
 	}
 	c.OnAdd(&apiv1.Pod{})
@@ -46,7 +45,7 @@ func TestOnAdd(t *testing.T) {
 func TestOnUpdate(t *testing.T) {
 	calledHandle := false
 	c := controller{}
-	c.handleFunc = func(l logr.Logger, clientSet kubernetes.Interface, storage *persistence.Storage, config *config.CnFuzzConfig, overwrites config.Overwrites, pod *apiv1.Pod) {
+	c.handleFunc = func(l logger.Logger, clientSet kubernetes.Interface, storage *persistence.Storage, config *config.CnFuzzConfig, overwrites config.Overwrites, pod *apiv1.Pod) {
 		calledHandle = true
 	}
 	c.OnUpdate(&apiv1.Pod{}, &apiv1.Pod{})

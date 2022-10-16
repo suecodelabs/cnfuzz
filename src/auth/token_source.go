@@ -18,7 +18,6 @@ package auth
 
 import (
 	"fmt"
-	"github.com/go-logr/logr"
 	"github.com/suecodelabs/cnfuzz/src/logger"
 
 	"github.com/suecodelabs/cnfuzz/src/discovery"
@@ -31,7 +30,7 @@ type ITokenSource interface {
 
 // CreateTokenSource creates a new ITokenSource
 // Uses the schema type (BasicSecSchemaType) to create a ITokenSource for the proper auth source
-func CreateTokenSource(l logr.Logger, schema discovery.SecuritySchema, clientId string, secret string) (ITokenSource, error) {
+func CreateTokenSource(l logger.Logger, schema discovery.SecuritySchema, clientId string, secret string) (ITokenSource, error) {
 	var createdTokenSource ITokenSource
 	var err error
 	switch schema.Type {
@@ -58,7 +57,7 @@ func CreateTokenSource(l logr.Logger, schema discovery.SecuritySchema, clientId 
 }
 
 // CreateTokenSourceFromSchemas creates a new ITokenSource from the first schema in the slice
-func CreateTokenSourceFromSchemas(l logr.Logger, schemas []discovery.SecuritySchema, clientId string, secret string) (ITokenSource, error) {
+func CreateTokenSourceFromSchemas(l logger.Logger, schemas []discovery.SecuritySchema, clientId string, secret string) (ITokenSource, error) {
 	// Check if there are any security schemas
 	// This function could be improved by having a smarter algorithm for picking a schema
 	if len(schemas) > 0 {

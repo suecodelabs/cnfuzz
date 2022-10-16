@@ -17,7 +17,6 @@
 package logger
 
 import (
-	"github.com/go-logr/logr"
 	"github.com/go-logr/zapr"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -26,9 +25,9 @@ import (
 
 var observedLogs *observer.ObservedLogs
 
-func CreateDebugLogger() logr.Logger {
+func CreateDebugLogger() Logger {
 	l := zapr.NewLogger(createObservedZapLogger())
-	return l
+	return Logger{l}
 }
 
 // GetObservedLogs returns ObservedLogs object, can be used in unit tests to see if something got logged

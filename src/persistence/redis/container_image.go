@@ -18,8 +18,8 @@ package redis
 
 import (
 	"context"
-	"github.com/go-logr/logr"
 	"github.com/suecodelabs/cnfuzz/src/health"
+	"github.com/suecodelabs/cnfuzz/src/logger"
 	"time"
 
 	"github.com/go-redis/redis/v9"
@@ -27,7 +27,7 @@ import (
 )
 
 type containerImageRedis struct {
-	l      logr.Logger
+	l      logger.Logger
 	client *redis.Client
 }
 
@@ -78,7 +78,7 @@ func (repo containerImageRedis) CheckHealth(ctx context.Context) health.Health {
 	}
 }
 
-func CreateContainerImageRedis(l logr.Logger, addr string, password string, db int) *containerImageRedis {
+func CreateContainerImageRedis(l logger.Logger, addr string, password string, db int) *containerImageRedis {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: password,

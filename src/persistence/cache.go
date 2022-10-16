@@ -19,7 +19,6 @@ package persistence
 import (
 	"context"
 	"fmt"
-	"github.com/go-logr/logr"
 	"github.com/suecodelabs/cnfuzz/src/health"
 	"github.com/suecodelabs/cnfuzz/src/logger"
 	"github.com/suecodelabs/cnfuzz/src/model"
@@ -37,7 +36,7 @@ type Storage struct {
 	ContainerImageCache Cache[model.ContainerImage]
 }
 
-func InitRedisCache(l logr.Logger, addr string, port string, hc health.Checker) *Storage {
+func InitRedisCache(l logger.Logger, addr string, port string, hc health.Checker) *Storage {
 	if len(port) > 0 {
 		addr = fmt.Sprintf("%s:%s", addr, port)
 	}
@@ -50,7 +49,7 @@ func InitRedisCache(l logr.Logger, addr string, port string, hc health.Checker) 
 	return &Storage{ContainerImageCache: cICache}
 }
 
-func InitMemoryCache(l logr.Logger) *Storage {
+func InitMemoryCache(l logger.Logger) *Storage {
 	cICache := in_memory.CreateContainerImageRepository(l)
 	return &Storage{ContainerImageCache: cICache}
 }

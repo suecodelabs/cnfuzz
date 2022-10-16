@@ -17,7 +17,6 @@
 package cmd
 
 import (
-	"github.com/go-logr/logr"
 	"github.com/spf13/cobra"
 	"github.com/suecodelabs/cnfuzz/src/config"
 	"github.com/suecodelabs/cnfuzz/src/health"
@@ -25,7 +24,6 @@ import (
 	"github.com/suecodelabs/cnfuzz/src/logger"
 	"github.com/suecodelabs/cnfuzz/src/persistence"
 	"log"
-	"os"
 )
 
 type CnFuzzCommand struct {
@@ -79,7 +77,7 @@ https://github.com/suecodelabs/cnfuzz`,
 	}
 }
 
-func run(l logr.Logger, args Args) {
+func run(l logger.Logger, args Args) {
 	l.Info("starting cnfuzz")
 
 	cnf := config.LoadConfigFile(l, args.configFile, args.printConfig)
@@ -104,7 +102,6 @@ func run(l logr.Logger, args Args) {
 	// Start fuzzing!
 	err := k8s.StartController(l, strg, cnf, overwrites, client)
 	if err != nil {
-		l.Error(err, "error while starting cnfuzz controller")
-		os.Exit(1)
+		l.FatalError(err, "error while starting cnfuzz controller")
 	}
 }

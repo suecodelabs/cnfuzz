@@ -18,7 +18,6 @@ package util
 
 import (
 	"context"
-	"github.com/go-logr/logr"
 	"github.com/suecodelabs/cnfuzz/src/logger"
 	"strings"
 
@@ -26,7 +25,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func NamespaceExists(l logr.Logger, clientset kubernetes.Interface, namespace string) (bool, error) {
+func NamespaceExists(l logger.Logger, clientset kubernetes.Interface, namespace string) (bool, error) {
 	found, err := clientset.CoreV1().Namespaces().Get(context.TODO(), namespace, metav1.GetOptions{})
 	if len(namespace) < 1 || err != nil || found == nil {
 		if err != nil {
@@ -41,7 +40,7 @@ func NamespaceExists(l logr.Logger, clientset kubernetes.Interface, namespace st
 	return true, nil
 }
 
-func PodExists(l logr.Logger, clientSet kubernetes.Interface, namespace string, podName string) (bool, error) {
+func PodExists(l logger.Logger, clientSet kubernetes.Interface, namespace string, podName string) (bool, error) {
 	found, err := clientSet.CoreV1().Pods(namespace).Get(context.TODO(), podName, metav1.GetOptions{})
 	l.V(logger.DebugLevel).Info("found a pod while checking if some pod exists", "podName", podName, "foundPod", found)
 	if err != nil || found == nil {

@@ -17,7 +17,6 @@
 package config
 
 import (
-	"github.com/go-logr/logr"
 	"github.com/suecodelabs/cnfuzz/src/logger"
 	"gopkg.in/yaml.v2"
 	"os"
@@ -69,7 +68,7 @@ type S3SidecarConfig struct {
 	ContainerName string `yaml:"container_name"`
 }
 
-func LoadConfigFile(l logr.Logger, configFile string, printFile bool) *CnFuzzConfig {
+func LoadConfigFile(l logger.Logger, configFile string, printFile bool) *CnFuzzConfig {
 	if configFile == "" {
 		configFile = filepath.Join()
 		if !pathExists(configFile) {
@@ -79,8 +78,7 @@ func LoadConfigFile(l logr.Logger, configFile string, printFile bool) *CnFuzzCon
 
 	data, err := os.ReadFile(configFile)
 	if err != nil {
-		l.V(logger.ImportantLevel).Error(err, "failed to read config file", "configFile", configFile)
-		os.Exit(1)
+		l.FatalError(err, "failed to read config file", "configFile", configFile)
 	}
 
 	if printFile {
@@ -89,8 +87,7 @@ func LoadConfigFile(l logr.Logger, configFile string, printFile bool) *CnFuzzCon
 
 	config := &CnFuzzConfig{}
 	if err := yaml.Unmarshal(data, config); err != nil {
-		l.V(logger.ImportantLevel).Error(err, "given config file is invalid")
-		os.Exit(1)
+		l.FatalError(err, "given config file is invalid")
 	}
 
 	if config.RedisConfig == nil {

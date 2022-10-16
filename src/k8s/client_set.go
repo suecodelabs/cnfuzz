@@ -17,16 +17,14 @@
 package k8s
 
 import (
-	"github.com/go-logr/logr"
 	"github.com/suecodelabs/cnfuzz/src/logger"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"os"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
 // CreateClientset create a client to interact with the Kubernetes API
-func CreateClientset(l logr.Logger, insideCluster bool) (clientset kubernetes.Interface) {
+func CreateClientset(l logger.Logger, insideCluster bool) (clientset kubernetes.Interface) {
 	var config *rest.Config
 	var err error
 	if insideCluster {
@@ -39,14 +37,12 @@ func CreateClientset(l logr.Logger, insideCluster bool) (clientset kubernetes.In
 		config, err = ctrl.GetConfig()
 	}
 	if err != nil {
-		l.V(logger.ImportantLevel).Error(err, "failed to get config for creating K8S API client set")
-		os.Exit(1)
+		l.FatalError(err, "failed to get config for creating K8S API client set")
 	}
 
 	clientset, err = kubernetes.NewForConfig(config)
 	if err != nil {
-		l.V(logger.ImportantLevel).Error(err, "failed to create clientset from K8S config")
-		os.Exit(1)
+		l.FatalError(err, "failed to create clientset from K8S config")
 	}
 
 	return clientset

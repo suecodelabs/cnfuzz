@@ -17,9 +17,7 @@ package health
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/suecodelabs/cnfuzz/src/logger"
 	"net/http"
-	"os"
 )
 
 func (c *Checker) health(w http.ResponseWriter, _ *http.Request) {
@@ -61,7 +59,6 @@ func Serv(hc Checker) {
 	http.HandleFunc("/health/ready", hc.ready)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
-		hc.l.V(logger.ImportantLevel).Error(err, "failed to start webserver for health checks")
-		os.Exit(1)
+		hc.l.FatalError(err, "failed to start webserver for health checks")
 	}
 }
