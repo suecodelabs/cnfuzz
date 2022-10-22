@@ -18,7 +18,6 @@ package openapi
 
 import (
 	"fmt"
-	"github.com/suecodelabs/cnfuzz/src/pkg/discovery"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	"io"
 	"net/http"
@@ -77,7 +76,7 @@ func GetRemoteOpenApiDoc(l logger.Logger, url *url.URL) ([]byte, error) {
 }
 
 // TryGetOpenApiDoc try getting the OpenApi doc from a host without knowing the exact OpenApi doc location
-func TryGetOpenApiDoc(l logger.Logger, ip string, ports []int32, locations []string) (webApiDescription *discovery.WebApiDescription, err error) {
+func TryGetOpenApiDoc(l logger.Logger, ip string, ports []int32, locations []string) (webApiDescription UnParsedOpenApiDoc, err error) {
 	if len(ports) == 0 {
 		baseUri := "http://" + ip
 		return tryGetOpenApiDoc(l, baseUri, locations)
@@ -106,7 +105,7 @@ func TryGetOpenApiDoc(l logger.Logger, ip string, ports []int32, locations []str
 
 // tryGetOpenApiDoc attempts to retrieve the OpenAPI doc from the given locations
 // continues trying locations until a location is successful or if every location has been tried
-func tryGetOpenApiDoc(l logger.Logger, baseUri string, locations []string) (webApiDescription *discovery.WebApiDescription, err error) {
+func tryGetOpenApiDoc(l logger.Logger, baseUri string, locations []string) (webApiDescription UnParsedOpenApiDoc, err error) {
 	// TODO do Api versions
 
 	for _, try := range locations {
