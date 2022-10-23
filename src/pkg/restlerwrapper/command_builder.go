@@ -18,12 +18,11 @@ package restlerwrapper
 
 import (
 	"fmt"
-	"github.com/go-logr/logr"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	"github.com/suecodelabs/cnfuzz/src/pkg/restlerwrapper/auth"
 )
 
-func CreateRestlerCompileCommand(l logr.Logger) (cmd string, args []string) {
+func CreateRestlerCompileCommand(l logger.Logger) (cmd string, args []string) {
 	cmd = "dotnet"
 	args = []string{"/RESTler/restler/Restler.dll", "compile", "--api_spec", "/openapi/doc.json"}
 	return cmd, args
@@ -32,12 +31,12 @@ func CreateRestlerCompileCommand(l logr.Logger) (cmd string, args []string) {
 // CreateRestlerCommand creates command string that can be run inside the RESTler container
 // the command string consists of a compile command that analyzes the OpenAPI spec and generates a fuzzing grammar
 // and the fuzz command itself
-func CreateRestlerCommand(l logr.Logger, tokenSource auth.ITokenSource, targetIp, targetPort, targetScheme, timeBudget, targetPodName string) (cmd string, args []string) {
+func CreateRestlerCommand(l logger.Logger, tokenSource auth.ITokenSource, targetIp, targetPort, targetScheme, timeBudget string) (cmd string, args []string) {
 	l.V(logger.DebugLevel).Info(fmt.Sprintf("using %s:%s for restler", targetIp, targetPort), "targetIp", targetIp, "targetPort", targetPort)
 
 	// Please, UNIX philosophy people.
 	cmd = "dotnet"
-	args = []string{"/RESTler/restler/Restler.dll", "fuzz", "/Compile/grammar.py", "--dictionary_file", "/Compile/dict.json",
+	args = []string{"/RESTler/restler/Restler.dll", "fuzz", "--grammar_file", "/Compile/grammar.py", "--dictionary_file", "/Compile/dict.json",
 		"--target_ip", targetIp, "--target_port", targetPort, "--time_budget", timeBudget}
 
 	if targetScheme == "https" {
@@ -55,7 +54,7 @@ func CreateRestlerCommand(l logr.Logger, tokenSource auth.ITokenSource, targetIp
 		} else {
 			token := fmt.Sprintf("%s: %s", "Authorization", tok.CreateAuthHeaderValue(l))
 			if tokErr == nil && len(token) > 0 {
-				authCmd := fmt.Sprintf("\"python3 /scripts/auth.py '%s' '%s'\"", targetPodName, token)
+				authCmd := fmt.Sprintf("\"python3 /scripts/auth.py '%s' '%s'\"", "FIX_ME", token)
 				// Use a high refresh interval because we have a static token (for now?)
 				args = append(args, "--token_refresh_interval", "999999", "--token_refresh_command", authCmd)
 			}
