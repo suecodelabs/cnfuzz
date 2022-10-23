@@ -27,12 +27,20 @@ var observedLogs *observer.ObservedLogs
 
 func CreateDebugLogger() Logger {
 	l := zapr.NewLogger(createObservedZapLogger())
-	return Logger{l}
+	e := CreateExiter(func(i int) {})
+	return Logger{
+		l,
+		e,
+	}
 }
 
 // GetObservedLogs returns ObservedLogs object, can be used in unit tests to see if something got logged
 func GetObservedLogs() *observer.ObservedLogs {
 	return observedLogs
+}
+
+func (l Logger) GetExiter() *Exit {
+	return l.exiter
 }
 
 func createObservedZapLogger() *zap.Logger {
