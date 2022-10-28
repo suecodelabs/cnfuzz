@@ -22,7 +22,6 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"log"
-	"os"
 )
 
 const (
@@ -34,6 +33,7 @@ const (
 
 type Logger struct {
 	logr.Logger
+	exiter *Exit
 }
 
 // CreateLogger creates a new logger instance
@@ -41,15 +41,37 @@ type Logger struct {
 func CreateLogger(isDebug bool) Logger {
 	var logger logr.Logger
 	logger = zapr.NewLogger(createZapLogger(isDebug))
-	// TODO
 	return Logger{
 		logger,
+		nil,
 	}
 }
 
+// SetExiter useful for debugging
+// when the exit is set, the code won't call os.Exit($code) but will set the status on the Exit struct
+// this is useful when you want to test if a function crashes with os.Exit(1) for example.
+func (l Logger) SetExiter(exit *Exit) {
+	l.exiter = exit
+}
+
+// Fatal logs message with important level and exits with code 1
+func (l Logger) Fatal(msg string, keysAndValues ...interface{}) {
+	if keysAndValues == nil {
+		l.V(ImportantLevel).Info(msg)
+	} else {
+		l.V(ImportantLevel).Info(msg, keysAndValues)
+	}
+	l.exiter.Exit(1)
+}
+
+// FatalError logs message and error with important level and exits with code 1
 func (l Logger) FatalError(err error, msg string, keysAndValues ...interface{}) {
-	l.V(ImportantLevel).Error(err, msg, keysAndValues)
-	os.Exit(1)
+	if keysAndValues == nil {
+		l.V(ImportantLevel).Error(err, msg)
+	} else {
+		l.V(ImportantLevel).Error(err, msg, keysAndValues)
+	}
+	l.exiter.Exit(1)
 }
 
 func createZapLogger(isDebug bool) *zap.Logger {
