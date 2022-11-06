@@ -18,10 +18,10 @@ package main
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/config"
 	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/health"
 	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/k8s"
 	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/persistence"
+	"github.com/suecodelabs/cnfuzz/src/pkg/config"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	"log"
 )
@@ -64,7 +64,7 @@ https://github.com/suecodelabs/cnfuzz`,
 	cmd.command.PersistentFlags().BoolVar(&cmd.Args.printConfig, "print-config", cmd.Args.printConfig, "Print the config file")
 	cmd.command.PersistentFlags().StringVar(&cmd.Args.configFile, "config", cmd.Args.configFile, "Location of the config file to use")
 	cmd.command.PersistentFlags().StringVar(&cmd.Args.dDocIp, "ddoc-ip", cmd.Args.dDocIp, "Overwrite the IP address cnfuzz uses to get the discovery doc (useful for developers)")
-	cmd.command.PersistentFlags().Int32Var(&cmd.Args.dDocPort, "ddoc-port", cmd.Args.dDocPort, "Overwrites the port cnfuzz uses to get the discovery doc (useful for developers)")
+	cmd.command.PersistentFlags().Int32Var(&cmd.Args.dDocPort, "ddoc-port", cmd.Args.dDocPort, "DDocOverwrites the port cnfuzz uses to get the discovery doc (useful for developers)")
 
 	cmd.command.Run = func(_ *cobra.Command, _ []string) {
 		l := logger.CreateLogger(cmd.Args.isDebug)
@@ -79,8 +79,11 @@ https://github.com/suecodelabs/cnfuzz`,
 func run(l logger.Logger, args Args) {
 	l.Info("starting cnfuzz")
 
-	cnf := config.LoadConfigFile(l, args.configFile, args.printConfig)
-	overwrites := config.Overwrites{
+	cnf, err := config.LoadCnFuzzConfig(l, args.configFile, args.printConfig)
+	if err != nil {
+		l.FatalError(err, "failed to load config")
+	}
+	overwrites := config.DDocOverwrites{
 		DiscoveryDocIP:   args.dDocIp,
 		DiscoveryDocPort: args.dDocPort,
 	}
@@ -99,7 +102,7 @@ func run(l logger.Logger, args Args) {
 	go health.Serv(hc)
 	client := k8s.CreateClientset(l, !args.localConfig)
 	// Start fuzzing!
-	err := k8s.StartController(l, strg, cnf, overwrites, client)
+	err = k8s.StartController(l, strg, cnf, overwrites, client)
 	if err != nil {
 		l.FatalError(err, "error while starting cnfuzz controller")
 	}

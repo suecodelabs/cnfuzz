@@ -1,7 +1,11 @@
+{{- define "cnfuzz.configmapName" -}}
+{{ include "cnfuzz.name" . }}-config
+{{- end }}
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cnfuzz-config
+  name: {{ include "cnfuzz.configmapName" . }}
 data:
   "auth.py": |
     #!/usr/bin/env python3
@@ -11,6 +15,19 @@ data:
   "config.yaml": |
     namespace: {{ $.Values.namespace }}
     only_fuzz_marked: {{ $.Values.onlyMarked }}
+    configmap_name: {{ include "cnfuzz.configmapName" . }}
+    restlerwrapper:
+      image:
+        image: {{ $.Values.restlerwrapper.image.image }}
+        pullPolicy: {{ $.Values.restlerwrapper.image.pullPolicy }}
+        tag: {{ $.Values.restlerwrapper.image.tag }}
+      restler:
+        time_budget: {{ $.Values.restler.timeBudget }}
+        cpu_limit: {{ $.Values.restler.resources.limits.cpu }} 
+        memory_limit: {{ $.Values.restler.resources.limits.memory }}
+        cpu_request: {{ $.Values.restler.resources.requests.cpu }}
+        memory_request:  {{ $.Values.restler.resources.requests.memory }}
+        telemetry_opt_out: "{{ $.Values.restler.telemetryOptOut }}"
     {{- if $.Values.redis.enabled }}
     cache_solution: redis
     redis:
@@ -19,15 +36,6 @@ data:
     {{ else }}
     cache_solution: in_memory
     {{- end }}
-    restler:
-      image: "{{ $.Values.restler.image.repository }}:{{ $.Values.restler.image.tag }}"
-      init_image: "{{ $.Values.restler.initImage.repository }}:{{ $.Values.restler.initImage.tag }}"
-      time_budget: {{ $.Values.restler.timeBudget }}
-      cpu_limit: {{ $.Values.restler.resources.limits.cpu }} 
-      memory_limit: {{ $.Values.restler.resources.limits.memory }}
-      cpu_request: {{ $.Values.restler.resources.requests.cpu }}
-      memory_request:  {{ $.Values.restler.resources.requests.memory }}
-      telemetry_opt_out: "{{ $.Values.restler.telemetryOptOut }}"
     auth:
       username: "{{ $.Values.auth.userName }}"
       secret: "{{ $.Values.auth.secret }}"
@@ -49,6 +57,3 @@ data:
       access_key: "{{ $.Values.s3.accessKey }}"
       secret_key: "{{ $.Values.s3.secretKey }}"
       {{- end }}
-      sidecar: 
-        image: "{{ $.Values.s3.sidecar.image.repository }}:{{ $.Values.s3.sidecar.image.tag }}"
-        container_name: "{{ $.Values.s3.sidecar.name }}"

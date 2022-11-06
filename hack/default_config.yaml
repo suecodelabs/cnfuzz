@@ -1,16 +1,19 @@
-namespace: 
+# namespace: 
 only_fuzz_marked: true
 cache_solution: in_memory
 
-restler:
-  image: mcr.microsoft.com/restlerfuzzer/restler:v8.6.0
-  initImage: curlimages/curl:7.81.0
-  time_budget: 1
-  cpu_limit: 1000 
-  memory_limit: 1024
-  cpu_request: 1000
-  memory_request:  1024
-  telemetry_opt_out: true
+restlerwrapper:
+  image:
+    image: ghcr.io/suecodelabs/cnfuzz-restlerwrapper
+    pullPolicy: IfNotPresent
+    tag:
+  restler:
+    time_budget: 1
+    cpu_limit: 1000 
+    memory_limit: 1024
+    cpu_request: 1000
+    memory_request:  1024
+    telemetry_opt_out: true
 auth:
   username: 
   secret: "0d5989ed-d60c-470e-b1b5-576fcf0f5d8c"

@@ -52,12 +52,6 @@ redisCnf:
   port: 6379
 
 restler:
-  image:
-    repository: mcr.microsoft.com/restlerfuzzer/restler
-    tag: v8.6.0
-  initImage:
-    repository: curlimages/curl
-    tag: 7.81.0
   timeBudget: "1" # hour
   resources:
     limits:
@@ -85,11 +79,18 @@ s3:
       tag: latest
     name: cnfuzz-s3-sidecar
 
-image:
+controllerImage:
   repository: ghcr.io/suecodelabs/cnfuzz
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
+
+restlerwrapper:
+  image:
+    image: ghcr.io/suecodelabs/cnfuzz-restlerwrapper
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ""
 
 serviceAccount:
   # Specifies whether a service account should be created

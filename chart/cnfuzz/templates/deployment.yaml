@@ -29,11 +29,11 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.controllerImage.repository }}:{{ .Values.controllerImage.tag | default .Chart.AppVersion }}"
           args:
             - "--config"
             - {{ $.Values.configFile | default "/config/config.yaml" }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.controllerImage.pullPolicy }}
           ports:
             - name: http
               containerPort: 8080

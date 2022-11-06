@@ -16,7 +16,7 @@
 
 package config
 
-type Overwrites struct {
+type DDocOverwrites struct {
 	DiscoveryDocIP   string
 	DiscoveryDocPort int32
 }
