@@ -55,11 +55,11 @@ restler:
   timeBudget: "1" # hour
   resources:
     limits:
-      cpu: 1000 # m
-      memory: 1024 # Mi
+      cpu: 1000m
+      memory: 1024Mi
     requests:
-      cpu: 1000 # m
-      memory: 1024 # Mi
+      cpu: 1000m
+      memory: 1024Mi
   telemetryOptOut: true
 
 auth:

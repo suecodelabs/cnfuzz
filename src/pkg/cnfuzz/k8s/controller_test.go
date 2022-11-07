@@ -20,10 +20,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/stretchr/testify/assert"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/config"
 	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/model"
 	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/persistence"
 	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/persistence/in_memory"
+	config "github.com/suecodelabs/cnfuzz/src/pkg/config"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
@@ -34,7 +34,7 @@ import (
 func TestOnAdd(t *testing.T) {
 	calledHandle := false
 	c := controller{}
-	c.handleFunc = func(l logger.Logger, clientSet kubernetes.Interface, storage *persistence.Storage, config *config.CnFuzzConfig, overwrites config.Overwrites, pod *apiv1.Pod) {
+	c.handleFunc = func(l logger.Logger, clientSet kubernetes.Interface, storage *persistence.Storage, config *config.CnFuzzConfig, overwrites config.DDocOverwrites, pod *apiv1.Pod) {
 		calledHandle = true
 	}
 	c.OnAdd(&apiv1.Pod{})
@@ -45,7 +45,7 @@ func TestOnAdd(t *testing.T) {
 func TestOnUpdate(t *testing.T) {
 	calledHandle := false
 	c := controller{}
-	c.handleFunc = func(l logger.Logger, clientSet kubernetes.Interface, storage *persistence.Storage, config *config.CnFuzzConfig, overwrites config.Overwrites, pod *apiv1.Pod) {
+	c.handleFunc = func(l logger.Logger, clientSet kubernetes.Interface, storage *persistence.Storage, config *config.CnFuzzConfig, overwrites config.DDocOverwrites, pod *apiv1.Pod) {
 		calledHandle = true
 	}
 	c.OnUpdate(&apiv1.Pod{}, &apiv1.Pod{})

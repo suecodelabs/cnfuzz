@@ -9,10 +9,10 @@ restlerwrapper:
     tag:
   restler:
     time_budget: 1
-    cpu_limit: 1000 
-    memory_limit: 1024
-    cpu_request: 1000
-    memory_request:  1024
+    cpu_limit: 1000m
+    memory_limit: 1024Mi
+    cpu_request: 1000m
+    memory_request: 1024Mi
     telemetry_opt_out: true
 auth:
   username: 

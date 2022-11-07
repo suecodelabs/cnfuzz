@@ -19,7 +19,9 @@ package k8s
 import (
 	"context"
 	"fmt"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/config"
+	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/k8s/job"
+
+	config "github.com/suecodelabs/cnfuzz/src/pkg/config"
 	"github.com/suecodelabs/cnfuzz/src/pkg/discovery/openapi"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	v1 "k8s.io/api/core/v1"
@@ -27,7 +29,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func StartFuzzJobWithName(l logger.Logger, client kubernetes.Interface, cnfConfig *config.CnFuzzConfig, overwrites config.Overwrites, podName, podNamespace string) {
+func StartFuzzJobWithName(l logger.Logger, client kubernetes.Interface, cnfConfig *config.CnFuzzConfig, overwrites config.DDocOverwrites, podName, podNamespace string) {
 	pod, err := client.CoreV1().Pods(podNamespace).Get(context.TODO(), podName, metav1.GetOptions{})
 	if err != nil {
 		l.FatalError(err, "error while getting pod info from cluster")
@@ -39,7 +41,7 @@ func StartFuzzJobWithName(l logger.Logger, client kubernetes.Interface, cnfConfi
 	}
 }
 
-func StartFuzzJob(l logger.Logger, client kubernetes.Interface, cnfConfig *config.CnFuzzConfig, overwrites config.Overwrites, pod *v1.Pod) error {
+func StartFuzzJob(l logger.Logger, client kubernetes.Interface, cnfConfig *config.CnFuzzConfig, overwrites config.DDocOverwrites, pod *v1.Pod) error {
 	annos := GetAnnotations(&pod.ObjectMeta)
 
 	var ip string
@@ -67,25 +69,22 @@ func StartFuzzJob(l logger.Logger, client kubernetes.Interface, cnfConfig *confi
 		oaLocs = openapi.GetCommonOpenApiLocations()
 	}
 
+	// Check if the open api doc exists
 	apiDesc, err := openapi.TryGetOpenApiDoc(l, ip, ports, oaLocs)
 	if err != nil {
 		return fmt.Errorf("error while retrieving OpenAPI document from target %s: %w", pod.Name, err)
 	}
 
-	var _ = apiDesc
-	/*
-		TODO start restler wrapper instead
-		restlerJob := job.CreateRestlerJob(pod, cnfConfig, apiDesc)
-		j := restlerJob.CreateRestlerJob(l, tokenSource)
-		createdJob, err := client.BatchV1().Jobs(j.Namespace).Create(context.TODO(), j, metav1.CreateOptions{})
-		if err != nil {
-			l.V(logger.ImportantLevel).Error(err, "error while starting restler job", "restlerJobName", j.Name, "restlerJobNamespace", j.Namespace, "targetName", pod.Name)
-		}
+	restlerJob := job.CreateRestlerWrapperJob(l, pod, cnfConfig, apiDesc)
+	createdJob, err := client.BatchV1().Jobs(restlerJob.Namespace).Create(context.TODO(), restlerJob, metav1.CreateOptions{})
+	if err != nil {
+		l.V(logger.ImportantLevel).Error(err, "error while starting restler job", "restlerJobName", restlerJob.Name, "restlerJobNamespace", restlerJob.Namespace, "targetName", pod.Name)
+	}
 
-		// TODO wait until the job is finished
+	// TODO wait until the job is finished
+	var _ = createdJob
 
-		l.V(logger.InfoLevel).Info("completed job", "jobName", restlerJob.JobName)
-	*/
+	l.V(logger.InfoLevel).Info("completed job", "jobName", restlerJob.Name)
 
 	return nil
 }

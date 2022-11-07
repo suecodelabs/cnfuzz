@@ -23,14 +23,14 @@ import (
 )
 
 type CnFuzzConfig struct {
-	Namespace      string          `yaml:"namespace" `
-	OnlyFuzzMarked bool            `yaml:"only_fuzz_marked"`
-	CacheSolution  string          `yaml:"cache_solution"`
-	ConfigmapName  string          `yaml:"configmap_name"`
-	RestlerWrapper *RestlerWrapper `yaml:"restlerwrapper"`
-	RedisConfig    *RedisConfig    `yaml:"redis"`
-	AuthConfig     *AuthConfig     `yaml:"auth"`
-	S3Config       *S3Config       `yaml:"s3"`
+	Namespace            string                `yaml:"namespace" `
+	OnlyFuzzMarked       bool                  `yaml:"only_fuzz_marked"`
+	CacheSolution        string                `yaml:"cache_solution"`
+	ConfigmapName        string                `yaml:"configmap_name"`
+	RestlerWrapperConfig *RestlerWrapperConfig `yaml:"restlerwrapper"`
+	RedisConfig          *RedisConfig          `yaml:"redis"`
+	AuthConfig           *AuthConfig           `yaml:"auth"`
+	S3Config             *S3Config             `yaml:"s3"`
 }
 
 type ImageConfig struct {
@@ -39,15 +39,15 @@ type ImageConfig struct {
 	Tag        string `yaml:"tag"`
 }
 
-type RestlerWrapper struct {
-	ImageConfig    `yaml:"image"`
-	*RestlerConfig `yaml:"restler"`
+type RestlerWrapperConfig struct {
+	ImageConfig   ImageConfig    `yaml:"image"`
+	RestlerConfig *RestlerConfig `yaml:"restler"`
 }
 
 type RestlerConfig struct {
 	TimeBudget      string `yaml:"time_budget"`
-	CpuLimit        int64  `yaml:"cpu_limit"`
-	MemoryLimit     int64  `yaml:"memory_limit"`
+	CpuLimit        string `yaml:"cpu_limit"`
+	MemoryLimit     string `yaml:"memory_limit"`
 	CpuRequest      string `yaml:"cpu_request"`
 	MemoryRequest   string `yaml:"memory_request"`
 	TelemetryOptOut string `yaml:"telemetry_opt_out"`
@@ -81,7 +81,7 @@ func LoadCnFuzzConfig(l logger.Logger, configFile string, printFile bool) (*CnFu
 		return nil, err
 	}
 
-	if config.RestlerWrapper == nil {
+	if config.RestlerWrapperConfig == nil {
 		return nil, fmt.Errorf("give config file doesn't contain configuration for the restlerwrapper")
 	}
 
