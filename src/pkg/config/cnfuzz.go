@@ -20,7 +20,10 @@ import (
 	"fmt"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	"gopkg.in/yaml.v2"
+	"regexp"
 )
+
+const imageRegex = "[a-z0-9]([-a-z0-9]*[a-z0-9])?"
 
 type CnFuzzConfig struct {
 	Namespace            string                `yaml:"namespace" `
@@ -37,6 +40,23 @@ type ImageConfig struct {
 	Image      string `yaml:"image"`
 	PullPolicy string `yaml:"pullPolicy"`
 	Tag        string `yaml:"tag"`
+}
+
+func (cnf ImageConfig) GetImage() string {
+	var containerImage string
+	if len(cnf.Tag) > 0 {
+		containerImage = fmt.Sprintf("%s:%s", cnf.Image, cnf.Tag)
+	} else {
+		containerImage = cnf.Image
+	}
+	return containerImage
+}
+
+func (cnf ImageConfig) Validate() (bool, error) {
+	if len(cnf.Image) == 0 {
+		return false, fmt.Errorf("image is empty")
+	}
+	return regexp.MatchString(imageRegex, cnf.GetImage())
 }
 
 type RestlerWrapperConfig struct {
@@ -83,6 +103,14 @@ func LoadCnFuzzConfig(l logger.Logger, configFile string, printFile bool) (*CnFu
 
 	if config.RestlerWrapperConfig == nil {
 		return nil, fmt.Errorf("give config file doesn't contain configuration for the restlerwrapper")
+	}
+	v, err := config.RestlerWrapperConfig.ImageConfig.Validate()
+	if !v || err != nil {
+		if err != nil {
+			l.Error(err, "given restler wrapper image is invalid")
+			return nil, err
+		}
+		return nil, fmt.Errorf("given restler wrapper image is invalid, needs to match '%s'", imageRegex)
 	}
 
 	return config, nil

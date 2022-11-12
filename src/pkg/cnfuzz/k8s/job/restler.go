@@ -40,7 +40,12 @@ func CreateRestlerWrapperJob(l logger.Logger, targetPod *v1.Pod, cnf *config.CnF
 	jobName := "cnfuzz-job-" + targetPod.Name
 	namespace := targetPod.Namespace
 	containerName := "cnfuzz-job-" + targetPod.Name + "-restler"
-	containerImage := fmt.Sprintf("%s:%s", imgCnf.Image, imgCnf.Tag)
+	var containerImage string
+	if len(imgCnf.Tag) > 0 {
+		containerImage = fmt.Sprintf("%s:%s", imgCnf.Image, imgCnf.Tag)
+	} else {
+		containerImage = imgCnf.Image
+	}
 	pullPolicy := v1.PullIfNotPresent
 	if len(imgCnf.PullPolicy) > 0 {
 		pullPolicy = v1.PullPolicy(imgCnf.PullPolicy)
