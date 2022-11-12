@@ -59,7 +59,7 @@ func (l Logger) Fatal(msg string, keysAndValues ...interface{}) {
 	if keysAndValues == nil {
 		l.V(ImportantLevel).Info(msg)
 	} else {
-		l.V(ImportantLevel).Info(msg, keysAndValues)
+		l.V(ImportantLevel).Info(msg, keysAndValues...)
 	}
 	l.exiter.Exit(1)
 }
@@ -69,7 +69,7 @@ func (l Logger) FatalError(err error, msg string, keysAndValues ...interface{}) 
 	if keysAndValues == nil {
 		l.V(ImportantLevel).Error(err, msg)
 	} else {
-		l.V(ImportantLevel).Error(err, msg, keysAndValues)
+		l.V(ImportantLevel).Error(err, msg, keysAndValues...)
 	}
 	l.exiter.Exit(1)
 }
