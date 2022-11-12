@@ -85,8 +85,7 @@ func CreateRestlerWrapperJob(l logger.Logger, targetPod *v1.Pod, cnf *config.CnF
 							Name:            containerName,
 							Image:           containerImage,
 							ImagePullPolicy: pullPolicy,
-							// Command: []string{"/bin/sh", "-c"},
-							Args: []string{"--ip", targetIp, "--port", targetPort, "--d-doc", targetDiscDocLoc}, // TODO I want to replace this with simply the pod name and ddoc location
+							Args:            []string{"--ip", targetIp, "--port", targetPort, "--d-doc", targetDiscDocLoc}, // TODO I want to replace this with simply the pod name and ddoc location
 							Env: []v1.EnvVar{
 								{
 									Name:  "RESTLER_TELEMETRY_OPTOUT",
