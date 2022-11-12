@@ -40,13 +40,16 @@ func CollectInfoFromAddr(l logger.Logger, ip string, ports []int32, oaLocs []str
 		l.FatalError(err, "error while unmarshalling OpenAPI doc request body")
 	}
 
-	// TODO save api doc to file for restler to pick it up later
 	b, err := apiDoc.DocFile.MarshalJSON()
 	if err != nil {
 		l.FatalError(err, "failed to marshal OpenApi doc to bytes")
 	} else {
 		if !dryRun {
-			err := os.WriteFile("/openapi/doc.json", b, os.FileMode(0644))
+			err := os.Mkdir("/openapi", os.FileMode(0755))
+			if err != nil {
+				l.FatalError(err, "failed to create 'openapi' dir to write OpenApi doc into")
+			}
+			err = os.WriteFile("/openapi/doc.json", b, os.FileMode(0644))
 			if err != nil {
 				l.FatalError(err, "failed to write OpenApi doc to fs")
 			}
