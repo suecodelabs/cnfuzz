@@ -54,7 +54,7 @@ func CreateRestlerCommand(l logger.Logger, tokenSource auth.ITokenSource, target
 		} else {
 			token := fmt.Sprintf("%s: %s", "Authorization", tok.CreateAuthHeaderValue(l))
 			if tokErr == nil && len(token) > 0 {
-				authCmd := fmt.Sprintf("\"python3 /scripts/auth.py '%s' '%s'\"", "FIX_ME", token)
+				authCmd := fmt.Sprintf("python3 /scripts/auth.py '%s' '%s'", "FIX_ME", token)
 				// Use a high refresh interval because we have a static token (for now?)
 				args = append(args, "--token_refresh_interval", "999999", "--token_refresh_command", authCmd)
 			}
