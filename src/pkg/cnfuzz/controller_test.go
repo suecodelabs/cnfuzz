@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package k8s
+package cnfuzz
 
 import (
 	"context"

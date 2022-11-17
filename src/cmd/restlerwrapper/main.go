@@ -21,9 +21,9 @@ import (
 	"github.com/suecodelabs/cnfuzz/src/pkg/discovery/openapi"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	"github.com/suecodelabs/cnfuzz/src/pkg/restlerwrapper"
+	"github.com/suecodelabs/cnfuzz/src/pkg/restlerwrapper/restler"
 	"log"
-	"os/exec"
-	"strings"
+	"os"
 )
 
 type Command struct {
@@ -32,11 +32,14 @@ type Command struct {
 }
 
 type Args struct {
-	isDebug    bool
-	dDocLoc    string
-	targetIp   string
-	targetPort int32
-	dryRun     bool
+	isDebug         bool
+	localConfig     bool
+	dDocLoc         string
+	targetPod       string
+	targetNamespace string
+	targetPort      int32
+	dDocIp          string
+	dryRun          bool
 }
 
 func main() {
@@ -45,22 +48,31 @@ func main() {
 			Use: "rw <flags>",
 		},
 		Args: &Args{
-			isDebug:    false,
-			dDocLoc:    "/swagger/doc.json",
-			targetIp:   "",
-			targetPort: 0,
-			dryRun:     false,
+			isDebug:         false,
+			localConfig:     false,
+			dDocLoc:         "/swagger/doc.json",
+			targetPod:       "",
+			targetNamespace: "default",
+			targetPort:      0,
+			dDocIp:          "",
+			dryRun:          false,
 		},
 	}
 
-	cmd.command.PersistentFlags().BoolVarP(&cmd.Args.isDebug, "debug", "d", cmd.isDebug, "Enable debug mode")
+	cmd.command.PersistentFlags().BoolVar(&cmd.Args.localConfig, "local-config", cmd.Args.localConfig, "Use the local kubeconfig instead of getting it from the cluster")
 	cmd.command.PersistentFlags().StringVar(&cmd.Args.dDocLoc, "d-doc", cmd.Args.dDocLoc, "Uri of the discovery document (open API document)")
-	cmd.command.PersistentFlags().StringVar(&cmd.Args.targetIp, "ip", cmd.Args.targetIp, "Set the IP of the target service")
+	cmd.command.PersistentFlags().StringVar(&cmd.Args.targetPod, "pod", cmd.Args.targetPod, "Set the pod name of the target")
+	cmd.command.PersistentFlags().StringVar(&cmd.Args.targetNamespace, "ns", cmd.Args.targetPod, "Set the namespace of the target")
 	cmd.command.PersistentFlags().Int32Var(&cmd.Args.targetPort, "port", cmd.Args.targetPort, "Set the port of the target service")
-	cmd.command.PersistentFlags().BoolVar(&cmd.dryRun, "dry-run", cmd.Args.dryRun, "Do a dry run, run without executing the Restler commands")
+	cmd.command.PersistentFlags().BoolVarP(&cmd.Args.isDebug, "debug", "d", cmd.isDebug, "Enable debug mode")
+	cmd.command.PersistentFlags().StringVar(&cmd.Args.dDocIp, "ddoc-ip", cmd.Args.dDocIp, "Dev flag: Overwrite the IP that is used to get the OpenApi doc")
+	cmd.command.PersistentFlags().BoolVar(&cmd.dryRun, "dry-run", cmd.Args.dryRun, "Dev flag: Do a dry run, run without executing the Restler commands")
 
 	cmd.command.Run = func(_ *cobra.Command, _ []string) {
 		l := logger.CreateLogger(cmd.Args.isDebug)
+		if cmd.Args.isDebug {
+			l.V(logger.InfoLevel).Info("running in debug mode")
+		}
 		run(l, *cmd.Args)
 	}
 
@@ -70,52 +82,34 @@ func main() {
 }
 
 func run(l logger.Logger, args Args) {
-	// parse the passed arguments
-	var ip string
-	if len(args.targetIp) > 0 {
-		ip = args.targetIp
-	} else {
-		l.Fatal("no target IP given")
-	}
-
 	var ports []int32
 	if args.targetPort != 0 { // if ports is empty TryGetOpenApiDoc will guess the port
 		ports = append(ports, args.targetPort)
 	}
-
-	openApiDocLocation := args.dDocLoc
-	var oaLocs []string
-	if len(openApiDocLocation) > 0 {
-		oaLocs = append(oaLocs, openApiDocLocation)
-	} else {
-		oaLocs = openapi.GetCommonOpenApiLocations()
+	l.V(logger.DebugLevel).Info("fetching info from target ...")
+	info := restlerwrapper.CollectInfo(l, args.targetPod, args.targetNamespace, args.dDocIp, args.dDocLoc, ports, args.localConfig)
+	if !args.dryRun {
+		l.V(logger.DebugLevel).Info("writing OpenApi document to a file so Restler can pick it up later")
+		writeDocToFile(l, info.UnparsedApiDoc)
 	}
 
-	info := restlerwrapper.CollectInfoFromAddr(l, ip, ports, oaLocs, args.dryRun)
+	l.V(logger.DebugLevel).Info("executing Restler commands")
+	restler.ExecuteRestlerCmds(l, args.dryRun, info)
+	l.V(logger.InfoLevel).Info("job finished, exiting now ...")
+}
 
-	compileCmd, compileArgs := restlerwrapper.CreateRestlerCompileCommand(l)
-	if !args.dryRun {
-		out, err := exec.Command(compileCmd, compileArgs...).Output()
-		if err != nil {
-			l.FatalError(err, "error while compiling restler resources")
-		}
-		l.V(logger.DebugLevel).Info(string(out[:]))
+func writeDocToFile(l logger.Logger, apiDoc openapi.UnParsedOpenApiDoc) {
+	b, err := apiDoc.DocFile.MarshalJSON()
+	if err != nil {
+		l.FatalError(err, "failed to marshal OpenApi doc to bytes")
 	} else {
-		fullCmd := compileCmd + " " + strings.Join(compileArgs, " ")
-		l.V(logger.DebugLevel).Info("(running as dry run) generated compile cmd:")
-		l.V(logger.DebugLevel).Info(fullCmd)
-	}
-
-	restlerCmd, restlerArgs := restlerwrapper.CreateRestlerCommand(l, info.TokenSource, ip, info.ApiDesc.DiscoveryDoc.Port(), info.ApiDesc.DiscoveryDoc.Scheme, "1")
-	if !args.dryRun {
-		out, err := exec.Command(restlerCmd, restlerArgs...).Output()
+		err := os.Mkdir("/openapi", os.FileMode(0755))
 		if err != nil {
-			l.FatalError(err, "error while executing restler fuzzing")
+			l.FatalError(err, "failed to create 'openapi' dir to write OpenApi doc into")
 		}
-		l.V(logger.DebugLevel).Info(string(out[:]))
-	} else {
-		fullCmd := restlerCmd + " " + strings.Join(restlerArgs, " ")
-		l.V(logger.DebugLevel).Info("(running as dry run) generated restler cmd:")
-		l.V(logger.DebugLevel).Info(fullCmd)
+		err = os.WriteFile("/openapi/doc.json", b, os.FileMode(0644))
+		if err != nil {
+			l.FatalError(err, "failed to write OpenApi doc to fs")
+		}
 	}
 }

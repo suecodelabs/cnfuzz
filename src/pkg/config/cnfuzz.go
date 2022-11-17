@@ -60,8 +60,9 @@ func (cnf ImageConfig) Validate() (bool, error) {
 }
 
 type RestlerWrapperConfig struct {
-	ImageConfig   ImageConfig    `yaml:"image"`
-	RestlerConfig *RestlerConfig `yaml:"restler"`
+	ImageConfig    ImageConfig    `yaml:"image"`
+	RestlerConfig  *RestlerConfig `yaml:"restler"`
+	ServiceAccount string         `yaml:"service_account"`
 }
 
 type RestlerConfig struct {

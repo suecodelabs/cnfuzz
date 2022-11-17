@@ -18,6 +18,7 @@ package main
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz"
 	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/health"
 	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/k8s"
 	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/persistence"
@@ -102,7 +103,7 @@ func run(l logger.Logger, args Args) {
 	go health.Serv(hc)
 	client := k8s.CreateClientset(l, !args.localConfig)
 	// Start fuzzing!
-	err = k8s.StartController(l, strg, cnf, overwrites, client)
+	err = cnfuzz.StartController(l, strg, cnf, overwrites, client)
 	if err != nil {
 		l.FatalError(err, "error while starting cnfuzz controller")
 	}

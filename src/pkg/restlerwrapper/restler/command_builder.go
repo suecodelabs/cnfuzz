@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package restlerwrapper
+package restler
 
 import (
 	"fmt"
@@ -31,7 +31,7 @@ func CreateRestlerCompileCommand(l logger.Logger) (cmd string, args []string) {
 // CreateRestlerCommand creates command string that can be run inside the RESTler container
 // the command string consists of a compile command that analyzes the OpenAPI spec and generates a fuzzing grammar
 // and the fuzz command itself
-func CreateRestlerCommand(l logger.Logger, tokenSource auth.ITokenSource, targetIp, targetPort, targetScheme, timeBudget string) (cmd string, args []string) {
+func CreateRestlerCommand(l logger.Logger, tokenSource auth.ITokenSource, targetIp, targetPort, targetName, targetScheme, timeBudget string) (cmd string, args []string) {
 	l.V(logger.DebugLevel).Info(fmt.Sprintf("using %s:%s for restler", targetIp, targetPort), "targetIp", targetIp, "targetPort", targetPort)
 
 	// Please, UNIX philosophy people.
@@ -54,7 +54,7 @@ func CreateRestlerCommand(l logger.Logger, tokenSource auth.ITokenSource, target
 		} else {
 			token := fmt.Sprintf("%s: %s", "Authorization", tok.CreateAuthHeaderValue(l))
 			if tokErr == nil && len(token) > 0 {
-				authCmd := fmt.Sprintf("python3 /scripts/auth.py '%s' '%s'", "FIX_ME", token)
+				authCmd := fmt.Sprintf("python3 /scripts/auth.py '%s' '%s'", targetName, token)
 				// Use a high refresh interval because we have a static token (for now?)
 				args = append(args, "--token_refresh_interval", "999999", "--token_refresh_command", authCmd)
 			}

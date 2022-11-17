@@ -20,7 +20,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/k8s/job"
-
 	config "github.com/suecodelabs/cnfuzz/src/pkg/config"
 	"github.com/suecodelabs/cnfuzz/src/pkg/discovery/openapi"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
@@ -28,18 +27,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
-
-func StartFuzzJobWithName(l logger.Logger, client kubernetes.Interface, cnfConfig *config.CnFuzzConfig, overwrites config.DDocOverwrites, podName, podNamespace string) {
-	pod, err := client.CoreV1().Pods(podNamespace).Get(context.TODO(), podName, metav1.GetOptions{})
-	if err != nil {
-		l.FatalError(err, "error while getting pod info from cluster")
-	}
-
-	err = StartFuzzJob(l, client, cnfConfig, overwrites, pod)
-	if err != nil {
-		l.FatalError(err, "error while fuzzing pod")
-	}
-}
 
 func StartFuzzJob(l logger.Logger, client kubernetes.Interface, cnfConfig *config.CnFuzzConfig, overwrites config.DDocOverwrites, pod *v1.Pod) error {
 	annos := GetAnnotations(&pod.ObjectMeta)

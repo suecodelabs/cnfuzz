@@ -17,6 +17,7 @@ data:
     only_fuzz_marked: {{ $.Values.onlyMarked }}
     configmap_name: {{ include "cnfuzz.configmapName" . }}
     restlerwrapper:
+      service_account: {{ $.Values.restlerwrapper.serviceAccountName }}
       image:
         image: {{ $.Values.restlerwrapper.image.image }}
         pullPolicy: {{ $.Values.restlerwrapper.image.pullPolicy }}

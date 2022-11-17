@@ -40,6 +40,8 @@ func CreateRestlerWrapperJob(l logger.Logger, targetPod *v1.Pod, cnf *config.CnF
 	jobName := "cnfuzz-job-" + targetPod.Name
 	namespace := targetPod.Namespace
 	containerName := "cnfuzz-job-" + targetPod.Name + "-restler"
+	serviceAcc := cnf.RestlerWrapperConfig.ServiceAccount
+
 	var containerImage string
 	if len(imgCnf.Tag) > 0 {
 		containerImage = fmt.Sprintf("%s:%s", imgCnf.Image, imgCnf.Tag)
@@ -50,7 +52,7 @@ func CreateRestlerWrapperJob(l logger.Logger, targetPod *v1.Pod, cnf *config.CnF
 	if len(imgCnf.PullPolicy) > 0 {
 		pullPolicy = v1.PullPolicy(imgCnf.PullPolicy)
 	}
-	targetIp := targetPod.Status.PodIP
+	// targetIp := targetPod.Status.PodIP
 	targetPort := dDoc.Uri.Port()
 	targetDiscDocLoc := dDoc.Uri.Path // TODO Is this correct?
 	telemetryOptOut := restlerCnf.TelemetryOptOut
@@ -58,6 +60,12 @@ func CreateRestlerWrapperJob(l logger.Logger, targetPod *v1.Pod, cnf *config.CnF
 	memoryRequest := resource.MustParse(restlerCnf.MemoryRequest)
 	cpuLimit := resource.MustParse(restlerCnf.CpuLimit)
 	memoryLimit := resource.MustParse(restlerCnf.MemoryLimit)
+
+	restlerWrapperArgs := []string{"--pod", targetPod.Name, "--ns", targetPod.Namespace, "--port", targetPort, "--d-doc", targetDiscDocLoc}
+	debugMode := false // TODO take value from arguments/config
+	if debugMode {
+		restlerWrapperArgs = append(restlerWrapperArgs, "--debug")
+	}
 
 	restlerSpec := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
@@ -85,7 +93,7 @@ func CreateRestlerWrapperJob(l logger.Logger, targetPod *v1.Pod, cnf *config.CnF
 							Name:            containerName,
 							Image:           containerImage,
 							ImagePullPolicy: pullPolicy,
-							Args:            []string{"--ip", targetIp, "--port", targetPort, "--d-doc", targetDiscDocLoc}, // TODO I want to replace this with simply the pod name and ddoc location
+							Args:            restlerWrapperArgs,
 							Env: []v1.EnvVar{
 								{
 									Name:  "RESTLER_TELEMETRY_OPTOUT",
@@ -104,7 +112,8 @@ func CreateRestlerWrapperJob(l logger.Logger, targetPod *v1.Pod, cnf *config.CnF
 							},
 						},
 					},
-					RestartPolicy: v1.RestartPolicyNever,
+					ServiceAccountName: serviceAcc,
+					RestartPolicy:      v1.RestartPolicyNever,
 				},
 			},
 		},
