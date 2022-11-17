@@ -19,7 +19,7 @@ package model
 import (
 	"errors"
 	"fmt"
-	kutil "github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/k8s/util"
+	kutil "github.com/suecodelabs/cnfuzz/src/pkg/k8s/util"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	apiv1 "k8s.io/api/core/v1"
 	"strconv"

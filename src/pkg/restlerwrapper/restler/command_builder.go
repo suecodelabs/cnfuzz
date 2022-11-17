@@ -18,8 +18,8 @@ package restler
 
 import (
 	"fmt"
+	"github.com/suecodelabs/cnfuzz/src/pkg/auth"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
-	"github.com/suecodelabs/cnfuzz/src/pkg/restlerwrapper/auth"
 )
 
 func CreateRestlerCompileCommand(l logger.Logger) (cmd string, args []string) {

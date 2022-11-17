@@ -19,11 +19,11 @@ package restlerwrapper
 import (
 	"context"
 	"fmt"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/k8s"
+	"github.com/suecodelabs/cnfuzz/src/pkg/auth"
 	"github.com/suecodelabs/cnfuzz/src/pkg/discovery"
 	"github.com/suecodelabs/cnfuzz/src/pkg/discovery/openapi"
+	"github.com/suecodelabs/cnfuzz/src/pkg/k8s"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
-	"github.com/suecodelabs/cnfuzz/src/pkg/restlerwrapper/auth"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"strings"

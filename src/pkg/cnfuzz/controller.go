@@ -18,11 +18,11 @@ package cnfuzz
 
 import (
 	"context"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/k8s"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/k8s/util"
 	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/model"
 	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/persistence"
 	"github.com/suecodelabs/cnfuzz/src/pkg/config"
+	"github.com/suecodelabs/cnfuzz/src/pkg/k8s"
+	"github.com/suecodelabs/cnfuzz/src/pkg/k8s/util"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/informers"

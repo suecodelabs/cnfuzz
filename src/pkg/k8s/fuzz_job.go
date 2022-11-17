@@ -19,9 +19,9 @@ package k8s
 import (
 	"context"
 	"fmt"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/k8s/job"
 	config "github.com/suecodelabs/cnfuzz/src/pkg/config"
 	"github.com/suecodelabs/cnfuzz/src/pkg/discovery/openapi"
+	"github.com/suecodelabs/cnfuzz/src/pkg/k8s/job"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

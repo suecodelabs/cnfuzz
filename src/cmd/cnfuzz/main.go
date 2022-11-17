@@ -19,10 +19,10 @@ package main
 import (
 	"github.com/spf13/cobra"
 	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/health"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/k8s"
 	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/persistence"
 	"github.com/suecodelabs/cnfuzz/src/pkg/config"
+	"github.com/suecodelabs/cnfuzz/src/pkg/health"
+	"github.com/suecodelabs/cnfuzz/src/pkg/k8s"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	"log"
 )
