@@ -69,7 +69,7 @@ jobs:
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push cnfuzz Docker image
-        id: build-and-push
+        id: build-and-push-cnfuzz
         uses: docker/build-push-action@v3
         with:
           context: .
@@ -87,7 +87,7 @@ jobs:
 
       # https://github.com/docker/build-push-action
       - name: Build and push restlerwrapper Docker image
-        id: build-and-push
+        id: build-and-push-restlerwrapper
         uses: docker/build-push-action@v3
         with:
           context: .
