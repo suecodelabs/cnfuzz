@@ -27,13 +27,13 @@ helm-init:
 
 
 run:
-	go run src/main.go $(RUN_ARGS)
+	go run src/cmd/cnfuzz/main.go $(RUN_ARGS)
 
 build: init
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BIN_DIR)/$(BIN_NAME) src/main.go
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BIN_DIR)/$(BIN_NAME) src/cmd/cnfuzz/main.go
 
 build-debug: init
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -gcflags "all=-N -l" -o dist/cnfuzz-debug src/main.go
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -gcflags "all=-N -l" -o dist/cnfuzz-debug src/cmd/cnfuzz/main.go
 
 test:
 	go test ./...
@@ -47,17 +47,17 @@ format:
 	gofmt -s -l -w $(SRCS)
 
 image:
-	docker build -t $(IMAGE) .
+	docker build -t $(IMAGE) -f src/cmd/cnfuzz/Dockerfile .
 
 image.local: build
-	docker build -t $(IMAGE) -f hack/local.Dockerfile .
+	docker build -t $(IMAGE) -f src/cmd/cnfuzz/local.Dockerfile .
 
 image-debug:
-	docker build -t $(DEV_IMAGE) -f Dockerfile .
+	docker build -t $(DEV_IMAGE) -f src/cmd/cnfuzz/Dockerfile .
 
 kind-init: build
-	cd example && docker build -t $(KIND_EXAMPLE_IMAGE) -f Dockerfile . && cd ..
-	docker build -t $(CNFUZZ_IMAGE) -f hack/local.Dockerfile .
+	cd example && docker build -t $(KIND_EXAMPLE_IMAGE) -f src/cmd/cnfuzz/Dockerfile . && cd ..
+	docker build -t $(CNFUZZ_IMAGE) -f src/cmd/cnfuzz/local.Dockerfile .
 	kind load docker-image $(CNFUZZ_IMAGE) && kind load docker-image $(KIND_EXAMPLE_IMAGE)
 	helm install --wait --timeout 10m0s dev chart/cnfuzz $(DEFAULT_HELM_DEV_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 	kubectl apply -f example/deployment.yaml
@@ -65,7 +65,7 @@ kind-init: build
 	kubectl scale deployment --replicas=1 todo-api
 
 kind-build: build
-	docker build -t $(CNFUZZ_IMAGE) -f hack/local.Dockerfile .
+	docker build -t $(CNFUZZ_IMAGE) -f src/cmd/cnfuzz/local.Dockerfile .
 	kind load docker-image $(CNFUZZ_IMAGE)
 	helm upgrade --install dev chart/cnfuzz $(DEFAULT_HELM_DEV_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 
@@ -75,15 +75,15 @@ k8s-clean:
 	kubectl delete deployment todo-api
 
 rancher-init: build
-	cd example && nerdctl -n k8s.io build -t $(KIND_EXAMPLE_IMAGE) -f Dockerfile . && cd ..
-	nerdctl -n k8s.io build -t $(CNFUZZ_IMAGE) -f hack/local.Dockerfile .
+	cd example && nerdctl -n k8s.io build -t $(KIND_EXAMPLE_IMAGE) -f src/cmd/cnfuzz/Dockerfile . && cd ..
+	nerdctl -n k8s.io build -t $(CNFUZZ_IMAGE) -f src/cmd/cnfuzz/local.Dockerfile .
 	helm install --wait --timeout 10m0s dev chart/cnfuzz $(DEFAULT_HELM_DEV_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 	kubectl apply -f example/deployment.yaml
 	kubectl set image deployment/todo-api todoapi=$(KIND_EXAMPLE_IMAGE)
 	kubectl scale deployment --replicas=1 todo-api
 
 rancher-build: build
-	nerdctl -n k8s.io build -t $(CNFUZZ_IMAGE) -f hack/local.Dockerfile .
+	nerdctl -n k8s.io build -t $(CNFUZZ_IMAGE) -f src/cmd/cnfuzz/local.Dockerfile .
 	helm upgrade --install dev chart/cnfuzz $(DEFAULT_HELM_DEV_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
 
 kill-jobs:
