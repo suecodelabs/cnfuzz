@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package restlerwrapper
+package api_info
 
 import (
 	"context"

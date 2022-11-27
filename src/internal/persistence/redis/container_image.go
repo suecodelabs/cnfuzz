@@ -18,7 +18,7 @@ package redis
 
 import (
 	"context"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/model"
+	"github.com/suecodelabs/cnfuzz/src/internal/model"
 	"github.com/suecodelabs/cnfuzz/src/pkg/health"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	"time"

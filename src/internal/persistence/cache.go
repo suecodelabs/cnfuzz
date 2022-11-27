@@ -19,9 +19,9 @@ package persistence
 import (
 	"context"
 	"fmt"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/model"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/persistence/in_memory"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/persistence/redis"
+	"github.com/suecodelabs/cnfuzz/src/internal/model"
+	"github.com/suecodelabs/cnfuzz/src/internal/persistence/in_memory"
+	"github.com/suecodelabs/cnfuzz/src/internal/persistence/redis"
 	"github.com/suecodelabs/cnfuzz/src/pkg/health"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 )

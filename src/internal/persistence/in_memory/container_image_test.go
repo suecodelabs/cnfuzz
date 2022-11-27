@@ -19,7 +19,7 @@ package in_memory
 import (
 	"context"
 	"github.com/stretchr/testify/assert"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/model"
+	"github.com/suecodelabs/cnfuzz/src/internal/model"
 	"testing"
 )
 

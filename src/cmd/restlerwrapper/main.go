@@ -18,10 +18,10 @@ package main
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/suecodelabs/cnfuzz/src/internal/api_info"
+	"github.com/suecodelabs/cnfuzz/src/internal/restler"
 	"github.com/suecodelabs/cnfuzz/src/pkg/discovery/openapi"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
-	"github.com/suecodelabs/cnfuzz/src/pkg/restlerwrapper"
-	"github.com/suecodelabs/cnfuzz/src/pkg/restlerwrapper/restler"
 	"log"
 	"os"
 )
@@ -87,7 +87,7 @@ func run(l logger.Logger, args Args) {
 		ports = append(ports, args.targetPort)
 	}
 	l.V(logger.DebugLevel).Info("fetching info from target ...")
-	info := restlerwrapper.CollectInfo(l, args.targetPod, args.targetNamespace, args.dDocIp, args.dDocLoc, ports, args.localConfig)
+	info := api_info.CollectInfo(l, args.targetPod, args.targetNamespace, args.dDocIp, args.dDocLoc, ports, args.localConfig)
 	if !args.dryRun {
 		l.V(logger.DebugLevel).Info("writing OpenApi document to a file so Restler can pick it up later")
 		writeDocToFile(l, info.UnparsedApiDoc)

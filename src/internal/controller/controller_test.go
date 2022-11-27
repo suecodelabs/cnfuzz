@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package cnfuzz
+package controller
 
 import (
 	"context"
 	"fmt"
 	"github.com/stretchr/testify/assert"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/model"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/persistence"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/persistence/in_memory"
+	"github.com/suecodelabs/cnfuzz/src/internal/model"
+	"github.com/suecodelabs/cnfuzz/src/internal/persistence"
+	"github.com/suecodelabs/cnfuzz/src/internal/persistence/in_memory"
 	config "github.com/suecodelabs/cnfuzz/src/pkg/config"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	apiv1 "k8s.io/api/core/v1"

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package cnfuzz
+package controller
 
 import (
 	"context"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/model"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/persistence"
+	"github.com/suecodelabs/cnfuzz/src/internal/model"
+	"github.com/suecodelabs/cnfuzz/src/internal/persistence"
 	"github.com/suecodelabs/cnfuzz/src/pkg/config"
 	"github.com/suecodelabs/cnfuzz/src/pkg/k8s"
 	"github.com/suecodelabs/cnfuzz/src/pkg/k8s/util"

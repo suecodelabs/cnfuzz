@@ -19,7 +19,7 @@ package in_memory
 import (
 	"context"
 	"errors"
-	"github.com/suecodelabs/cnfuzz/src/pkg/cnfuzz/model"
+	"github.com/suecodelabs/cnfuzz/src/internal/model"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 )
 

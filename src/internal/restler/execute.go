@@ -18,13 +18,13 @@ package restler
 
 import (
 	"fmt"
+	"github.com/suecodelabs/cnfuzz/src/internal/api_info"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
-	"github.com/suecodelabs/cnfuzz/src/pkg/restlerwrapper"
 	"os/exec"
 	"strings"
 )
 
-func ExecuteRestlerCmds(l logger.Logger, dryRun bool, info restlerwrapper.TargetInfo) {
+func ExecuteRestlerCmds(l logger.Logger, dryRun bool, info api_info.TargetInfo) {
 	compileCmd, compileArgs := CreateRestlerCompileCommand(l)
 	if !dryRun {
 		out, err := exec.Command(compileCmd, compileArgs...).Output()
