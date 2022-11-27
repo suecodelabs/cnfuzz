@@ -56,7 +56,7 @@ image-debug:
 	docker build -t $(DEV_IMAGE) -f src/cmd/cnfuzz/Dockerfile .
 
 kind-init: build
-	cd example && docker build -t $(KIND_EXAMPLE_IMAGE) -f src/cmd/cnfuzz/Dockerfile . && cd ..
+	cd example && docker build -t $(KIND_EXAMPLE_IMAGE) . && cd ..
 	docker build -t $(CNFUZZ_IMAGE) -f src/cmd/cnfuzz/local.Dockerfile .
 	kind load docker-image $(CNFUZZ_IMAGE) && kind load docker-image $(KIND_EXAMPLE_IMAGE)
 	helm install --wait --timeout 10m0s dev chart/cnfuzz $(DEFAULT_HELM_DEV_ARGS) $(if $(GIT_COMMIT),--set image.tag=$(subst /,-,$(GIT_COMMIT)))
