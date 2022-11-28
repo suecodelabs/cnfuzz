@@ -30,7 +30,7 @@ helm-init:
 	helm dependency build chart/cnfuzz
 
 run:
-	go run src/main.go $(RUN_ARGS)
+	go run src/cmd/cnfuzz/main.go $(RUN_ARGS)
 
 test:
 	go test ./...

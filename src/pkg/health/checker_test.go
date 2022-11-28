@@ -17,10 +17,11 @@
 package health
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	logger2 "github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	"go.uber.org/zap/zapcore"
-	"testing"
 )
 
 func TestNewChecker(t *testing.T) {
@@ -70,5 +71,4 @@ func TestRegisterCheck(t *testing.T) {
 			assert.Equal(t, c.expectedStatus, testCheckMap[StatusKey])
 		}
 	}
-
 }
