@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"github.com/suecodelabs/cnfuzz/src/internal/model"
 	"github.com/suecodelabs/cnfuzz/src/internal/persistence"
 	"github.com/suecodelabs/cnfuzz/src/pkg/config"
@@ -164,7 +165,7 @@ func handlePodEvent(l logger.Logger, client kubernetes.Interface, storage *persi
 
 	/* TODO singleInstance and k8s job options
 	if singleInstance { */
-	k8s.StartFuzzJob(l, client, config, overwrites, pod) // TODO
+	go k8s.StartFuzzJob(l, client, config, overwrites, pod) // TODO
 	/* } else {
 		startKubernetesJob()
 	}*/
@@ -180,12 +181,15 @@ func containsUnfuzzedImages(l logger.Logger, pod *apiv1.Pod, cache persistence.C
 		return
 	}
 
+	l.V(logger.DebugLevel).Info(fmt.Sprintf("found %d images inside pod", len(images)))
+
 	// Check if there are new images
 	containsUnfuzzedImages = false
 	for _, image := range images {
 		// Check if the image is known
 		hashKey, _ := image.String()
 		foundImage, found, err := cache.GetByKey(context.TODO(), hashKey)
+		// l.V(logger.DebugLevel).Info(fmt.Sprintf("found image %s in cache", foundImage.Hash), "status", foundImage.Status, "hash", foundImage.Hash, "hashType", foundImage.HashType)
 		if err != nil {
 			l.V(logger.ImportantLevel).Error(err, "error while getting image from cache")
 		} else if !found {

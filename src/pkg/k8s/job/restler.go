@@ -61,10 +61,12 @@ func CreateRestlerWrapperJob(l logger.Logger, targetPod *v1.Pod, cnf *config.CnF
 	cpuLimit := resource.MustParse(restlerCnf.CpuLimit)
 	memoryLimit := resource.MustParse(restlerCnf.MemoryLimit)
 
-	restlerWrapperArgs := []string{"--pod", targetPod.Name, "--ns", targetPod.Namespace, "--port", targetPort, "--d-doc", targetDiscDocLoc}
-	debugMode := false // TODO take value from arguments/config
-	if debugMode {
+	restlerWrapperArgs := []string{"--pod", targetPod.Name, "--ns", targetPod.Namespace, "--port", targetPort, "--d-doc", targetDiscDocLoc, "--time-budget", cnf.RestlerWrapperConfig.RestlerConfig.TimeBudget}
+	if config.RunCnf.IsDebugMode {
 		restlerWrapperArgs = append(restlerWrapperArgs, "--debug")
+	}
+	if config.RunCnf.IsDryRun {
+		restlerWrapperArgs = append(restlerWrapperArgs, "--dry-run")
 	}
 
 	restlerSpec := &batchv1.Job{

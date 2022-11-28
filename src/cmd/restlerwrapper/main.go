@@ -20,6 +20,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/suecodelabs/cnfuzz/src/internal/api_info"
 	"github.com/suecodelabs/cnfuzz/src/internal/restler"
+	"github.com/suecodelabs/cnfuzz/src/pkg/config"
 	"github.com/suecodelabs/cnfuzz/src/pkg/discovery/openapi"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	"log"
@@ -32,12 +33,13 @@ type Command struct {
 }
 
 type Args struct {
-	isDebug         bool
 	localConfig     bool
+	isDebug         bool
 	dDocLoc         string
 	targetPod       string
 	targetNamespace string
 	targetPort      int32
+	timeBudget      string
 	dDocIp          string
 	dryRun          bool
 }
@@ -48,29 +50,32 @@ func main() {
 			Use: "rw <flags>",
 		},
 		Args: &Args{
-			isDebug:         false,
 			localConfig:     false,
+			isDebug:         false,
 			dDocLoc:         "/swagger/doc.json",
 			targetPod:       "",
 			targetNamespace: "default",
 			targetPort:      0,
+			timeBudget:      "1",
 			dDocIp:          "",
 			dryRun:          false,
 		},
 	}
 
 	cmd.command.PersistentFlags().BoolVar(&cmd.Args.localConfig, "local-config", cmd.Args.localConfig, "Use the local kubeconfig instead of getting it from the cluster")
+	cmd.command.PersistentFlags().BoolVarP(&cmd.Args.isDebug, "debug", "d", cmd.isDebug, "Enable debug mode")
 	cmd.command.PersistentFlags().StringVar(&cmd.Args.dDocLoc, "d-doc", cmd.Args.dDocLoc, "Uri of the discovery document (open API document)")
 	cmd.command.PersistentFlags().StringVar(&cmd.Args.targetPod, "pod", cmd.Args.targetPod, "Set the pod name of the target")
 	cmd.command.PersistentFlags().StringVar(&cmd.Args.targetNamespace, "ns", cmd.Args.targetPod, "Set the namespace of the target")
 	cmd.command.PersistentFlags().Int32Var(&cmd.Args.targetPort, "port", cmd.Args.targetPort, "Set the port of the target service")
-	cmd.command.PersistentFlags().BoolVarP(&cmd.Args.isDebug, "debug", "d", cmd.isDebug, "Enable debug mode")
+	cmd.command.PersistentFlags().StringVar(&cmd.Args.timeBudget, "time-budget", cmd.Args.timeBudget, "Set the time budget for RESTler")
 	cmd.command.PersistentFlags().StringVar(&cmd.Args.dDocIp, "ddoc-ip", cmd.Args.dDocIp, "Dev flag: Overwrite the IP that is used to get the OpenApi doc")
 	cmd.command.PersistentFlags().BoolVar(&cmd.dryRun, "dry-run", cmd.Args.dryRun, "Dev flag: Do a dry run, run without executing the Restler commands")
 
 	cmd.command.Run = func(_ *cobra.Command, _ []string) {
-		l := logger.CreateLogger(cmd.Args.isDebug)
-		if cmd.Args.isDebug {
+		config.CreateRunConfig(cmd.Args.isDebug, cmd.Args.dryRun, cmd.Args.localConfig)
+		l := logger.CreateLogger(config.RunCnf.IsDebugMode, config.RunCnf.LogLevel)
+		if config.RunCnf.IsDebugMode {
 			l.V(logger.InfoLevel).Info("running in debug mode")
 		}
 		run(l, *cmd.Args)
@@ -87,14 +92,14 @@ func run(l logger.Logger, args Args) {
 		ports = append(ports, args.targetPort)
 	}
 	l.V(logger.DebugLevel).Info("fetching info from target ...")
-	info := api_info.CollectInfo(l, args.targetPod, args.targetNamespace, args.dDocIp, args.dDocLoc, ports, args.localConfig)
+	info := api_info.CollectInfo(l, args.targetPod, args.targetNamespace, args.dDocIp, args.dDocLoc, ports)
 	if !args.dryRun {
 		l.V(logger.DebugLevel).Info("writing OpenApi document to a file so Restler can pick it up later")
 		writeDocToFile(l, info.UnparsedApiDoc)
 	}
 
 	l.V(logger.DebugLevel).Info("executing Restler commands")
-	restler.ExecuteRestlerCmds(l, args.dryRun, info)
+	restler.ExecuteRestlerCmds(l, config.RunCnf.IsDryRun, args.timeBudget, info)
 	l.V(logger.InfoLevel).Info("job finished, exiting now ...")
 }
 

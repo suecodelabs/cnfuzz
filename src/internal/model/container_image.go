@@ -113,6 +113,7 @@ mainloop:
 			return nil, createErr
 		}
 
+		l.V(logger.PerformanceTestLevel).Info("found image inside pod", "imageHash", newImage.Hash)
 		images = append(images, newImage)
 	}
 	return images, nil

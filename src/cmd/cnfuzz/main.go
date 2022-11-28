@@ -68,7 +68,8 @@ https://github.com/suecodelabs/cnfuzz`,
 	cmd.command.PersistentFlags().Int32Var(&cmd.Args.dDocPort, "ddoc-port", cmd.Args.dDocPort, "DDocOverwrites the port cnfuzz uses to get the discovery doc (useful for developers)")
 
 	cmd.command.Run = func(_ *cobra.Command, _ []string) {
-		l := logger.CreateLogger(cmd.Args.isDebug)
+		config.CreateRunConfig(cmd.Args.isDebug, false, cmd.Args.localConfig)
+		l := logger.CreateLogger(config.RunCnf.IsDebugMode, config.RunCnf.LogLevel)
 		run(l, *cmd.Args)
 	}
 
@@ -101,7 +102,7 @@ func run(l logger.Logger, args Args) {
 	}
 
 	go health.Serv(hc)
-	client := k8s.CreateClientset(l, !args.localConfig)
+	client := k8s.CreateClientset(l, !config.RunCnf.LocalK8sConfig)
 	// Start fuzzing!
 	err = controller.StartController(l, strg, cnf, overwrites, client)
 	if err != nil {

@@ -62,7 +62,6 @@ func TestFindPodInfoAndFuzz(t *testing.T) {
 
 func TestContainsUnfuzzedImages(t *testing.T) {
 	l := logger.CreateDebugLogger()
-	// func containsUnfuzzedImages(pod *apiv1.Pod, repo repository.IContainerImageRepository) (allImages []model.ContainerImage, containsUnfuzzedImages bool) {
 	imageRepo := in_memory.CreateContainerImageRepository(l)
 	existingImageName := "mycontainer"
 	existingImage, _ := model.CreateContainerImage("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", "sha256", model.Fuzzed)

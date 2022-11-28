@@ -16,7 +16,7 @@
 
 package redis
 
-/* TODO redis mock doesn't support v9
+/* TODO redis mock doesn't support v9 https://github.com/go-redis/redismock/issues/37
 var testContainerImage = model.ContainerImage{
 	Hash:     "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
 	HashType: "sha256",

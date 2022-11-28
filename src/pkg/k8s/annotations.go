@@ -65,7 +65,6 @@ func GetAnnotations(objectMeta *metav1.ObjectMeta) Annotations {
 		Secret:             secret,
 		Username:           username,
 	}
-
 }
 
 // getAnnotationFromMeta get a single annotation value from Kubernetes object meta

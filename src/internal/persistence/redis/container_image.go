@@ -54,6 +54,7 @@ func (repo containerImageRedis) GetByKey(ctx context.Context, key string) (obj *
 	} else if err != nil {
 		return nil, false, err
 	}
+	repo.l.V(logger.DebugLevel).Info("received a container image from redis", "result", val)
 
 	imgRepo, convErr := model.ContainerImageFromString(key, val)
 	if convErr != nil {

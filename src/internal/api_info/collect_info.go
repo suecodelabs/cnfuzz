@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/suecodelabs/cnfuzz/src/pkg/auth"
+	"github.com/suecodelabs/cnfuzz/src/pkg/config"
 	"github.com/suecodelabs/cnfuzz/src/pkg/discovery"
 	"github.com/suecodelabs/cnfuzz/src/pkg/discovery/openapi"
 	"github.com/suecodelabs/cnfuzz/src/pkg/k8s"
@@ -37,9 +38,9 @@ type TargetInfo struct {
 	TokenSource    auth.ITokenSource
 }
 
-func CollectInfo(l logger.Logger, targetPodName, targetNamespace, dDocIp string, dDocLoc string, ports []int32, useLocalConfig bool) TargetInfo {
+func CollectInfo(l logger.Logger, targetPodName, targetNamespace, dDocIp string, dDocLoc string, ports []int32) TargetInfo {
 	l.V(logger.DebugLevel).Info("getting pod info")
-	pod := GetPod(l, targetPodName, targetNamespace, useLocalConfig)
+	pod := GetPod(l, targetPodName, targetNamespace, config.RunCnf.LocalK8sConfig)
 	targetAddr := fmt.Sprintf("%s.%s.pod", strings.ReplaceAll(pod.Status.PodIP, ".", "-"), pod.Namespace)
 	annos := k8s.GetAnnotations(&pod.ObjectMeta)
 

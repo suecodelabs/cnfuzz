@@ -24,7 +24,7 @@ import (
 	"strings"
 )
 
-func ExecuteRestlerCmds(l logger.Logger, dryRun bool, info api_info.TargetInfo) {
+func ExecuteRestlerCmds(l logger.Logger, dryRun bool, timeBudget string, info api_info.TargetInfo) {
 	compileCmd, compileArgs := CreateRestlerCompileCommand(l)
 	if !dryRun {
 		out, err := exec.Command(compileCmd, compileArgs...).Output()
@@ -38,7 +38,7 @@ func ExecuteRestlerCmds(l logger.Logger, dryRun bool, info api_info.TargetInfo) 
 		l.V(logger.DebugLevel).Info(fullCmd)
 	}
 
-	restlerCmd, restlerArgs := CreateRestlerCommand(l, info.TokenSource, info.TargetAddr, info.ApiDesc.DiscoveryDoc.Port(), info.ApiDesc.Title, info.ApiDesc.DiscoveryDoc.Scheme, "1")
+	restlerCmd, restlerArgs := CreateRestlerCommand(l, info.TokenSource, info.TargetAddr, info.ApiDesc.DiscoveryDoc.Port(), info.ApiDesc.Title, info.ApiDesc.DiscoveryDoc.Scheme, timeBudget)
 	if !dryRun {
 		out, err := exec.Command(restlerCmd, restlerArgs...).Output()
 		if err != nil {

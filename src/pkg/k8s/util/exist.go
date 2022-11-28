@@ -43,7 +43,8 @@ func NamespaceExists(l logger.Logger, clientset kubernetes.Interface, namespace 
 
 func PodExists(l logger.Logger, clientSet kubernetes.Interface, namespace string, podName string) (bool, error) {
 	found, err := clientSet.CoreV1().Pods(namespace).Get(context.TODO(), podName, metav1.GetOptions{})
-	l.V(logger.DebugLevel).Info(fmt.Sprintf("found a pod while checking if pod %s exists", podName), "podName", podName, "foundPod", found)
+	l.V(logger.DebugLevel).Info(fmt.Sprintf("found a pod while checking if pod %s exists", podName), "podName", podName)
+	l.V(logger.PerformanceTestLevel).Info("found pod", "foundPod", found)
 	if err != nil || found == nil {
 		if err != nil {
 			if strings.Contains(err.Error(), "not found") {
