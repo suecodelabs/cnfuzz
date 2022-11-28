@@ -31,6 +31,9 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.controllerImage.repository }}:{{ .Values.controllerImage.tag | default .Chart.AppVersion }}"
           args:
+            {{- if .Values.debugMode }}
+            - "--debug"
+            {{- end }}
             - "--config"
             - {{ $.Values.configFile | default "/config/config.yaml" }}
           imagePullPolicy: {{ .Values.controllerImage.pullPolicy }}

@@ -47,6 +47,7 @@ fullnameOverride: ""
 namespace:
 onlyMarked: true
 # cache_solution: "redis" # in_memory or redis
+debugMode: false
 
 redisCnf:
   port: 6379
