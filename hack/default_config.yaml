@@ -4,11 +4,11 @@ cache_solution: in_memory
 
 restlerwrapper:
   image:
-    image: ghcr.io/suecodelabs/cnfuzz-restlerwrapper
+    image: restlerwrapper
     pullPolicy: IfNotPresent
     tag:
   restler:
-    time_budget: 1
+    time_budget: 0.001
     cpu_limit: 1000m
     memory_limit: 1024Mi
     cpu_request: 1000m
