@@ -47,7 +47,11 @@ type Args struct {
 func main() {
 	cmd := Command{
 		command: &cobra.Command{
-			Use: "rw <flags>",
+			Use:   "restlerwrapper <flags>",
+			Short: "A wrapper around Restler fuzzer build for CnFuzz",
+			Long: `A wrapper around Restler fuzzer build for CnFuzz.
+More info here:
+https://github.com/suecodelabs/cnfuzz`,
 		},
 		Args: &Args{
 			localConfig:     false,
