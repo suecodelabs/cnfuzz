@@ -25,12 +25,18 @@ const (
 	InMemory
 )
 
+// StorageTypes that cnfuzz supports.
+// Currently contains Redis and InMemory support.
+// These strings are used to map the value from the config to a StorageType type.
 var StorageTypes = [2]string{"redis", "in_memory"}
 
+// String() returns the string equivalent of the enumeration
 func (s StorageType) String() string {
 	return StorageTypes[s]
 }
 
+// StorageTypeFromString creates a StorageType from a string.
+// For example, calling this method with 'redis' returns Redis.
 func StorageTypeFromString(value string) (StorageType, error) {
 	for i := 0; i < len(StorageTypes); i++ {
 		if StorageTypes[i] == value {

@@ -95,7 +95,7 @@ func run(l logger.Logger, args Args) {
 	info := api_info.CollectInfo(l, args.targetPod, args.targetNamespace, args.dDocIp, args.dDocLoc, ports)
 	if !args.dryRun {
 		l.V(logger.DebugLevel).Info("writing OpenApi document to a file so Restler can pick it up later")
-		writeDocToFile(l, info.UnparsedApiDoc)
+		writeDocToFile(l, info.UnparsedApiDoc, "/openapi")
 	}
 
 	l.V(logger.DebugLevel).Info("executing Restler commands")
@@ -103,7 +103,8 @@ func run(l logger.Logger, args Args) {
 	l.V(logger.InfoLevel).Info("job finished, exiting now ...")
 }
 
-func writeDocToFile(l logger.Logger, apiDoc openapi.UnParsedOpenApiDoc) {
+// writeDocToFile write unparsed Open API doc to the file system
+func writeDocToFile(l logger.Logger, apiDoc openapi.UnParsedOpenApiDoc, directory string) {
 	b, err := apiDoc.DocFile.MarshalJSON()
 	if err != nil {
 		l.FatalError(err, "failed to marshal OpenApi doc to bytes")

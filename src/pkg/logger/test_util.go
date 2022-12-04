@@ -26,6 +26,7 @@ import (
 
 var observedLogs *observer.ObservedLogs
 
+// CreateDebugLogger creates a logger with settings optimized for debugging CnFuzz.
 func CreateDebugLogger() Logger {
 	l := zapr.NewLogger(createObservedZapLogger())
 	e := CreateExiter(func(i int) {})
@@ -35,7 +36,7 @@ func CreateDebugLogger() Logger {
 	}
 }
 
-// GetObservedLogs returns ObservedLogs object, can be used in unit tests to see if something got logged
+// GetObservedLogs returns ObservedLogs object, can be used in unit tests to see if something got logged.
 func GetObservedLogs() *observer.ObservedLogs {
 	return observedLogs
 }

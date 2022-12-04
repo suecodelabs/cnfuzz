@@ -73,6 +73,7 @@ func ContainerImageFromString(hashString string, statusString string) (image Con
 	}, nil
 }
 
+// CreateContainerImage create a ContainerImage from a hash, hashtype and fuzz status
 func CreateContainerImage(hash string, hashType string, status ImageFuzzStatus) (ContainerImage, error) {
 	img := ContainerImage{
 		Hash:     hash,

@@ -32,8 +32,8 @@ import (
 	"time"
 )
 
-// controller that handles Kubernetes events
-// if it detects a pod with an image that hasn't been fuzzed yet, it will try to fuzz the pod
+// controller that handles Kubernetes events.
+// if it detects a pod with an image that hasn't been fuzzed yet, it will try to fuzz the pod.
 type controller struct {
 	log        logger.Logger
 	client     kubernetes.Interface
@@ -43,6 +43,7 @@ type controller struct {
 	handleFunc func(l logger.Logger, clientSet kubernetes.Interface, storage *persistence.Storage, config *config.CnFuzzConfig, overwrites config.DDocOverwrites, pod *apiv1.Pod)
 }
 
+// NewController is used to create an instance of controller.
 func NewController(l logger.Logger, client kubernetes.Interface, storage *persistence.Storage, config *config.CnFuzzConfig, overwrites config.DDocOverwrites) *controller {
 	return &controller{
 		log:        l,
@@ -58,7 +59,7 @@ func (c controller) handleEvent(pod *apiv1.Pod) {
 	c.handleFunc(c.log, c.client, c.storage, c.config, c.overwrites, pod)
 }
 
-// StartController start informers that listen for Kubernetes events and let the EventHandler react on the events
+// StartController start informers that listen for Kubernetes events and let the EventHandler react on the events.
 func StartController(l logger.Logger, storage *persistence.Storage, config *config.CnFuzzConfig, overwrites config.DDocOverwrites, client kubernetes.Interface) (err error) {
 	myEventHandler := NewController(l, client, storage, config, overwrites)
 
@@ -78,7 +79,7 @@ func StartController(l logger.Logger, storage *persistence.Storage, config *conf
 	select {}
 }
 
-// OnAdd handles an add event
+// OnAdd handles an add event.
 func (c controller) OnAdd(obj any) {
 	// Object types
 	switch object := obj.(type) {
@@ -90,7 +91,7 @@ func (c controller) OnAdd(obj any) {
 
 }
 
-// OnUpdate handles an update event
+// OnUpdate handles an update event.
 func (c controller) OnUpdate(oldObj any, newObj any) {
 	switch newObject := newObj.(type) {
 	case *apiv1.Pod:
@@ -111,14 +112,14 @@ func (c controller) OnUpdate(oldObj any, newObj any) {
 
 }
 
-// OnDelete handles a delete event
+// OnDelete handles a delete event.
 func (c controller) OnDelete(obj any) {
 	// We just ignore these completely
 	// No point in fuzzing a deleted object
 }
 
-// handlePodEvent method that handles an event for a pod
-// it decides if the pod needs to be fuzzed and can start the fuzzing process when the pod is ready
+// handlePodEvent method that handles an event for a Pod.
+// it decides if the pod needs to be fuzzed and can start the fuzzing process when the Pod is ready.
 func handlePodEvent(l logger.Logger, client kubernetes.Interface, storage *persistence.Storage, config *config.CnFuzzConfig, overwrites config.DDocOverwrites, pod *apiv1.Pod) {
 	annos := k8s.GetAnnotations(&pod.ObjectMeta)
 
@@ -171,7 +172,7 @@ func handlePodEvent(l logger.Logger, client kubernetes.Interface, storage *persi
 	}*/
 }
 
-// containsUnfuzzedImages gets images from a Pod and checks inside the repository if any of the images are unknown or haven't been fuzzed earlier
+// containsUnfuzzedImages gets images from a Pod and checks inside the repository if any of the images are unknown or haven't been fuzzed earlier.
 func containsUnfuzzedImages(l logger.Logger, pod *apiv1.Pod, cache persistence.Cache[model.ContainerImage]) (allImages []model.ContainerImage, containsUnfuzzedImages bool) {
 	// Get all images inside pod
 	images, err := model.CreateContainerImagesFromPod(l, pod)

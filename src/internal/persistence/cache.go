@@ -26,16 +26,20 @@ import (
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 )
 
+// Cache is an interface with functions that are needed for a cache solution to work with CnFuzz
 type Cache[T any] interface {
 	Create(ctx context.Context, model T) error
 	Update(ctx context.Context, model T) error
 	GetByKey(ctx context.Context, key string) (obj *T, found bool, err error)
 }
 
+// Storage is a struct that has functions for every type that needs to be cached for CnFuzz.
+// Currently only model.ContainerImage gets cached.
 type Storage struct {
 	ContainerImageCache Cache[model.ContainerImage]
 }
 
+// InitRedisCache initializes cache for Redis and returns Storage that can be used to interact with the redis instance.
 func InitRedisCache(l logger.Logger, addr string, port string, hc health.Checker) *Storage {
 	if len(port) > 0 {
 		addr = fmt.Sprintf("%s:%s", addr, port)
@@ -49,6 +53,7 @@ func InitRedisCache(l logger.Logger, addr string, port string, hc health.Checker
 	return &Storage{ContainerImageCache: cICache}
 }
 
+// InitMemoryCache initialize cache for InMemory and returns Storage that can be used to interact with in memory storage.
 func InitMemoryCache(l logger.Logger) *Storage {
 	cICache := in_memory.CreateContainerImageRepository(l)
 	return &Storage{ContainerImageCache: cICache}

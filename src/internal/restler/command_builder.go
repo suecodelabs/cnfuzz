@@ -22,6 +22,10 @@ import (
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 )
 
+// CreateRestlerCompileCommand creates the command that starts the restler compile command
+// Output can be used like this:
+//
+//	exec.Command(cmd, args...)
 func CreateRestlerCompileCommand(l logger.Logger) (cmd string, args []string) {
 	cmd = "dotnet"
 	args = []string{"/RESTler/restler/Restler.dll", "compile", "--api_spec", "/openapi/doc.json"}

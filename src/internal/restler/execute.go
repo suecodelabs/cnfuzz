@@ -24,6 +24,7 @@ import (
 	"strings"
 )
 
+// ExecuteRestlerCmds executes Restler compile and fuzz commands
 func ExecuteRestlerCmds(l logger.Logger, dryRun bool, timeBudget string, info api_info.TargetInfo) {
 	compileCmd, compileArgs := CreateRestlerCompileCommand(l)
 	if !dryRun {

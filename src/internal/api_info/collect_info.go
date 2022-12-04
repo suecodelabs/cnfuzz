@@ -30,6 +30,7 @@ import (
 	"strings"
 )
 
+// TargetInfo info about a target pod for fuzzing.
 type TargetInfo struct {
 	TargetAddr     string
 	Annos          k8s.Annotations
@@ -38,6 +39,8 @@ type TargetInfo struct {
 	TokenSource    auth.ITokenSource
 }
 
+// CollectInfo collects info from target pod.
+// returns TargetInfo.
 func CollectInfo(l logger.Logger, targetPodName, targetNamespace, dDocIp string, dDocLoc string, ports []int32) TargetInfo {
 	l.V(logger.DebugLevel).Info("getting pod info")
 	pod := GetPod(l, targetPodName, targetNamespace, config.RunCnf.LocalK8sConfig)
@@ -73,6 +76,7 @@ func CollectInfo(l logger.Logger, targetPodName, targetNamespace, dDocIp string,
 	}
 }
 
+// GetPod get a Pod struct with a pod name and namespace.
 func GetPod(l logger.Logger, targetPodName, targetNamespace string, useLocalConfig bool) *corev1.Pod {
 	// parse the passed arguments
 	var podName string
@@ -90,6 +94,7 @@ func GetPod(l logger.Logger, targetPodName, targetNamespace string, useLocalConf
 	return pod
 }
 
+// GetOpenApiDoc get the OpenApi doc in discovery.WebApiDescription struct from a target host.
 func GetOpenApiDoc(l logger.Logger, host string, ports []int32, oaLocs []string) (openapi.UnParsedOpenApiDoc, *discovery.WebApiDescription) {
 	apiDoc, err := openapi.TryGetOpenApiDoc(l, host, ports, oaLocs)
 	if err != nil {
@@ -103,6 +108,8 @@ func GetOpenApiDoc(l logger.Logger, host string, ports []int32, oaLocs []string)
 	return apiDoc, apiDesc
 }
 
+// CreateTokenSource creates a auth.ITokenSource from a discovery.WebApiDescription, username and secret.
+// auth.ITokenSource that this function returns can be nil. This happens when the API doesn't have any security info specified.
 func CreateTokenSource(l logger.Logger, apiDesc *discovery.WebApiDescription, username, secret string) auth.ITokenSource {
 	// Tokensource can be nil !!! this means the API doesn't have any security (specified in the discovery doc ...)
 	tokenSource, authErr := auth.CreateTokenSourceFromSchemas(l, apiDesc.SecuritySchemes, username, secret) // TODO cnf.AuthConfig.Username, cnf.AuthConfig.Secret)

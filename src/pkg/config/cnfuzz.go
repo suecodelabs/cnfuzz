@@ -42,6 +42,7 @@ type ImageConfig struct {
 	Tag        string `yaml:"tag"`
 }
 
+// GetImage returns a full image Uri from an ImageConfig.
 func (cnf ImageConfig) GetImage() string {
 	var containerImage string
 	if len(cnf.Tag) > 0 {
@@ -52,6 +53,7 @@ func (cnf ImageConfig) GetImage() string {
 	return containerImage
 }
 
+// Validate validates an ImageConfig. This includes checking if the image is empty and matching it against the regex "[a-z0-9]([-a-z0-9]*[a-z0-9])?".
 func (cnf ImageConfig) Validate() (bool, error) {
 	if len(cnf.Image) == 0 {
 		return false, fmt.Errorf("image is empty")
@@ -91,6 +93,7 @@ type S3Config struct {
 	SecretKey    string `yaml:"secret_key"`
 }
 
+// LoadCnFuzzConfig loads configuration for CnFuzz from the given file location.
 func LoadCnFuzzConfig(l logger.Logger, configFile string, printFile bool) (*CnFuzzConfig, error) {
 	config := &CnFuzzConfig{}
 
