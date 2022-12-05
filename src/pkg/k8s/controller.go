@@ -18,12 +18,14 @@ package k8s
 
 import (
 	"context"
+	"fmt"
 	"github.com/suecodelabs/cnfuzz/src/internal/model"
 	"github.com/suecodelabs/cnfuzz/src/internal/persistence"
 	config3 "github.com/suecodelabs/cnfuzz/src/pkg/config"
 	"github.com/suecodelabs/cnfuzz/src/pkg/k8s/util"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	apiv1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
@@ -147,11 +149,20 @@ func handlePodEvent(l logger.Logger, client kubernetes.Interface, storage *persi
 	l.V(logger.DebugLevel).Info("caught event for pod", "podName", pod.Name, "podNamespace", pod.Namespace)
 	l.V(logger.DebugLevel).Info("waiting until pod is in a ready state ...")
 
-	/* TODO err := util.WaitForPodReady(client, pod, time.Minute)
+	// TODO the waiting and refreshing is more of a temporary fix that needs more attention
+	err = util.WaitForPodReady(client, context.TODO(), pod, time.Minute)
 	if err != nil {
-		logger.Error(fmt.Errorf("failed to wait on pod %s being ready: %w", pod.Name, err).Error())
+		l.V(logger.ImportantLevel).Error(err, fmt.Sprintf("failed to wait on pod %s being ready.", pod.Name), "podName", pod.Name, "podNamespace", pod.Namespace)
 		return
-	} */
+	}
+
+	// refresh pod info
+	if len(pod.Status.ContainerStatuses) == 0 {
+		pod, err = client.CoreV1().Pods(pod.Namespace).Get(context.TODO(), pod.Name, metav1.GetOptions{})
+		if err != nil {
+			l.V(logger.ImportantLevel).Error(err, fmt.Sprintf("failed to refresh pod %s info because it doesn't contain any container status", pod.Name), "podName", pod.Name, "podNamespace", pod.Namespace)
+		}
+	}
 
 	_, containsUnfuzzedImages := containsUnfuzzedImages(l, pod, storage.ContainerImageCache)
 	if !containsUnfuzzedImages {

@@ -74,6 +74,7 @@ func TestSplitImageId1(t *testing.T) {
 		{name: "short-hash-test", imageId: "docker-pullable://bla.com/imagename@sha256:a", wantHash: "a", wantHashType: "sha256"},
 		{name: "just-hash-and-type-test", imageId: "sha256:46aa7ac68facde8183f9df7c059b7e7e1ac45ae73157512d9a1ce57ae4fe5eec", wantHash: "46aa7ac68facde8183f9df7c059b7e7e1ac45ae73157512d9a1ce57ae4fe5eec", wantHashType: "sha256"},
 		{name: "import-image-test", imageId: "docker.io/library/import-2022-08-13@sha256:93111023a527ada85fbcde874074801dbc5ba2e72683211b66771d139b9c150a", wantHash: "93111023a527ada85fbcde874074801dbc5ba2e72683211b66771d139b9c150a", wantHashType: "sha256"},
+		{name: "zyd6-image", imageId: "docker.io/yuzodngzheng/demoimage@sha256:cd189d2ad1ee9c122e0f67efb7dfe7cfaef3fafc21b5290c1da117c7130c1db7", wantHash: "cd189d2ad1ee9c122e0f67efb7dfe7cfaef3fafc21b5290c1da117c7130c1db7", wantHashType: "sha256"},
 	}
 
 	for _, tt := range tests {
