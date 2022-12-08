@@ -2,8 +2,27 @@ apiVersion: v1
 entries:
   cnfuzz:
   - apiVersion: v2
+    appVersion: v0.2.1
+    created: "2022-12-08T19:32:36.302335265+01:00"
+    dependencies:
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: ^17.0.0
+    - condition: minio.enabled
+      name: minio
+      repository: https://charts.min.io/
+      version: ^4.0.12
+    description: A Helm chart for cnfuzz
+    digest: 2db5e2f51c0d67ea39b69ead7bcb426c9d292f957815df5ca01098bd36f970ce
+    name: cnfuzz
+    type: application
+    urls:
+    - https://suecodelabs.github.io/cnfuzz/cnfuzz-0.2.1.tgz
+    version: 0.2.1
+  - apiVersion: v2
     appVersion: v0.2.0
-    created: "2022-08-16T12:05:16.947446+02:00"
+    created: "2022-12-08T19:32:36.297519555+01:00"
     dependencies:
     - condition: redis.enabled
       name: redis
@@ -22,7 +41,7 @@ entries:
     version: 0.2.0
   - apiVersion: v2
     appVersion: v0.1.2
-    created: "2022-08-16T12:05:16.939924+02:00"
+    created: "2022-12-08T19:32:36.293339067+01:00"
     dependencies:
     - condition: redis.enabled
       name: redis
@@ -41,7 +60,7 @@ entries:
     version: 0.1.2
   - apiVersion: v2
     appVersion: v0.1.1
-    created: "2022-08-16T12:05:16.934234+02:00"
+    created: "2022-12-08T19:32:36.288954758+01:00"
     dependencies:
     - condition: redis.enabled
       name: redis
@@ -60,7 +79,7 @@ entries:
     version: 0.1.1
   - apiVersion: v2
     appVersion: v0.1.0
-    created: "2022-08-16T12:05:16.925955+02:00"
+    created: "2022-12-08T19:32:36.284633159+01:00"
     dependencies:
     - condition: redis.enabled
       name: redis
@@ -79,7 +98,7 @@ entries:
     version: 0.1.0
   - apiVersion: v2
     appVersion: v0.0.3-alpha
-    created: "2022-08-16T12:05:16.916974+02:00"
+    created: "2022-12-08T19:32:36.28004265+01:00"
     dependencies:
     - condition: redis.enabled
       name: redis
@@ -96,4 +115,4 @@ entries:
     urls:
     - https://suecodelabs.github.io/cnfuzz/cnfuzz-0.0.3-alpha.tgz
     version: 0.0.3-alpha
-generated: "2022-08-16T12:05:16.906852+02:00"
+generated: "2022-12-08T19:32:36.275446441+01:00"
