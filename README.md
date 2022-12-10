@@ -161,8 +161,8 @@ Useful flags for debugging:
 --time-budget 0.001 # RESTler jobs complete almost instantly
 ```
 
-**NOTE:** *The Devspace setup is currently broken :(*
-*see [issue #84](https://github.com/suecodelabs/cnfuzz/issues/84)
+**NOTE:** *The Devspace setup is currently broken :(*  
+*see [issue #84](https://github.com/suecodelabs/cnfuzz/issues/84)*
 
 The code can be debugged in your IDE (outside the cluster) with the `--inside-cluster=false` flag.
 But you can also attach a debugger to a running pod inside a cluster using [DevSpace](https://github.com/loft-sh/devspace).
