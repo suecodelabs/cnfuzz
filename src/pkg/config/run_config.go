@@ -16,7 +16,29 @@
 
 package config
 
-type DDocOverwrites struct {
-	DiscoveryDocIP   string
-	DiscoveryDocPort int32
+import "github.com/suecodelabs/cnfuzz/src/pkg/logger"
+
+var RunCnf RunConfig
+
+type RunConfig struct {
+	IsDebugMode    bool
+	IsDryRun       bool
+	LogLevel       int
+	LocalK8sConfig bool
+}
+
+func CreateRunConfig(debugMode, dryRun, localK8sConfig bool) {
+	cnf := RunConfig{
+		IsDebugMode:    debugMode,
+		IsDryRun:       dryRun,
+		LocalK8sConfig: localK8sConfig,
+	}
+
+	if debugMode {
+		cnf.LogLevel = logger.PerformanceTestLevel
+	} else {
+		cnf.LogLevel = logger.ImportantLevel
+	}
+
+	RunCnf = cnf
 }

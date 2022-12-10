@@ -23,10 +23,13 @@ const (
 	OpenApiV3Source = "OpenApi3"
 )
 
-// WebApiDescription description of a web API
+// WebApiDescription description of a web API.
 // holds information about:
+//
 // - endpoints (requests, responses, parameters, etc.)
+//
 // - global information (URL, version, description, title, etc.)
+//
 // - how to authenticate with the API (security information)
 type WebApiDescription struct {
 	// DiscoverySource The source of the doc (OpenAPIv2, OpenAPIv3, etc.)
@@ -41,7 +44,7 @@ type WebApiDescription struct {
 	SecuritySchemes []SecuritySchema
 }
 
-// Endpoint information about an endpoint inside an API
+// Endpoint information about an endpoint inside an API.
 type Endpoint struct {
 	Path        string
 	Method      string // POST, GET, etc.
@@ -78,16 +81,17 @@ type Response struct {
 	Content     []Content
 }
 
-// Content content in a request
-// example:
-// ContentType could for example be 'application/json
-// And Schema holds information about the content like its format (keys and types) and if it's nullable
+// Content in a request.
+//
+// ContentType could for example be 'application/json.
+//
+// And Schema holds information about the content like its format (keys and types) and if it's nullable.
 type Content struct {
 	ContentType string
 	Schema      Schema
 }
 
-// Schema holds information about an object
+// Schema holds information about an object.
 // like a json object, xml object, html document, etc.
 type Schema struct {
 	Key        string
@@ -99,7 +103,8 @@ type Schema struct {
 	Properties []Schema
 }
 
-// SecuritySchema defines a security scheme
+// SecuritySchema defines a security scheme.
+//
 // https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md#security-scheme-object
 type SecuritySchema struct {
 	Key string
@@ -114,7 +119,8 @@ type SecuritySchema struct {
 	// Scheme string?
 }
 
-// OAuthFlow configuration for a OAuth flow
+// OAuthFlow configuration for a OAuth flow.
+//
 // https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md#oauthFlowsObject
 type OAuthFlow struct {
 	GrantType        string

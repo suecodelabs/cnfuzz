@@ -18,7 +18,6 @@ package openapi
 
 import (
 	"fmt"
-	"github.com/suecodelabs/cnfuzz/src/pkg/discovery"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	"io"
 	"net/http"
@@ -77,7 +76,7 @@ func GetRemoteOpenApiDoc(l logger.Logger, url *url.URL) ([]byte, error) {
 }
 
 // TryGetOpenApiDoc try getting the OpenApi doc from a host without knowing the exact OpenApi doc location
-func TryGetOpenApiDoc(l logger.Logger, ip string, ports []int32, locations []string) (webApiDescription *discovery.WebApiDescription, err error) {
+func TryGetOpenApiDoc(l logger.Logger, ip string, ports []int32, locations []string) (webApiDescription UnParsedOpenApiDoc, err error) {
 	if len(ports) == 0 {
 		baseUri := "http://" + ip
 		return tryGetOpenApiDoc(l, baseUri, locations)
@@ -85,11 +84,11 @@ func TryGetOpenApiDoc(l logger.Logger, ip string, ports []int32, locations []str
 		// Try each port
 		for _, port := range ports {
 			proto := "http://"
-			if port == 432 {
+			if port == 443 {
 				proto = "https://"
 			}
 			baseUri := proto + ip + ":" + strconv.Itoa(int(port))
-			l.V(logger.DebugLevel).Info("trying to get OpenAPI doc from base uri ...", "docUri", baseUri)
+			l.V(logger.DebugLevel).Info("trying to get OpenAPI doc from base Uri ...", "docUri", baseUri)
 
 			result, err := tryGetOpenApiDoc(l, baseUri, locations)
 			if err != nil {
@@ -101,12 +100,12 @@ func TryGetOpenApiDoc(l logger.Logger, ip string, ports []int32, locations []str
 			}
 		}
 	}
-	return nil, fmt.Errorf("failed to get OpenAPI doc")
+	return UnParsedOpenApiDoc{}, fmt.Errorf("failed to get OpenAPI doc")
 }
 
 // tryGetOpenApiDoc attempts to retrieve the OpenAPI doc from the given locations
 // continues trying locations until a location is successful or if every location has been tried
-func tryGetOpenApiDoc(l logger.Logger, baseUri string, locations []string) (webApiDescription *discovery.WebApiDescription, err error) {
+func tryGetOpenApiDoc(l logger.Logger, baseUri string, locations []string) (webApiDescription UnParsedOpenApiDoc, err error) {
 	// TODO do Api versions
 
 	for _, try := range locations {
@@ -115,19 +114,15 @@ func tryGetOpenApiDoc(l logger.Logger, baseUri string, locations []string) (webA
 			l.V(logger.InfoLevel).Error(err, "generated URI while attempting to find the OpenAPI doc is invalid")
 			continue
 		}
-		l.V(logger.DebugLevel).Info("trying to get OpenAPI doc from guessed uri ...", "docUri", fullUri)
+		l.V(logger.DebugLevel).Info("trying to get OpenAPI doc from guessed Uri ...", "docUri", fullUri)
 
-		body, err := GetRemoteOpenApiDoc(l, fullUri)
-
-		result, err := UnMarshalOpenApiDoc(l, body, fullUri)
+		doc, err := GetRemoteOpenApiDoc(l, fullUri)
 		if err != nil {
-			l.V(logger.ImportantLevel).Error(err, "error while unmarshalling OpenAPI doc request body")
-			continue
-		} else {
-			// Found the OpenApi Doc :)
-			return result, nil
+			return UnParsedOpenApiDoc{}, err
 		}
+		return UnMarshalOpenApiDoc(l, doc, fullUri)
+		// Found the OpenApi Doc :)
 	}
 
-	return nil, fmt.Errorf("failed to get the OpenApi doc from %s", baseUri)
+	return UnParsedOpenApiDoc{}, fmt.Errorf("failed to get the OpenApi doc from %s", baseUri)
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package k8s
+package controller
 
 import (
 	"context"
@@ -23,7 +23,7 @@ import (
 	"github.com/suecodelabs/cnfuzz/src/internal/model"
 	"github.com/suecodelabs/cnfuzz/src/internal/persistence"
 	"github.com/suecodelabs/cnfuzz/src/internal/persistence/in_memory"
-	"github.com/suecodelabs/cnfuzz/src/pkg/config"
+	config "github.com/suecodelabs/cnfuzz/src/pkg/config"
 	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
@@ -34,7 +34,7 @@ import (
 func TestOnAdd(t *testing.T) {
 	calledHandle := false
 	c := controller{}
-	c.handleFunc = func(l logger.Logger, clientSet kubernetes.Interface, storage *persistence.Storage, config *config.CnFuzzConfig, overwrites config.Overwrites, pod *apiv1.Pod) {
+	c.handleFunc = func(l logger.Logger, clientSet kubernetes.Interface, storage *persistence.Storage, config *config.CnFuzzConfig, overwrites config.DDocOverwrites, pod *apiv1.Pod) {
 		calledHandle = true
 	}
 	c.OnAdd(&apiv1.Pod{})
@@ -45,7 +45,7 @@ func TestOnAdd(t *testing.T) {
 func TestOnUpdate(t *testing.T) {
 	calledHandle := false
 	c := controller{}
-	c.handleFunc = func(l logger.Logger, clientSet kubernetes.Interface, storage *persistence.Storage, config *config.CnFuzzConfig, overwrites config.Overwrites, pod *apiv1.Pod) {
+	c.handleFunc = func(l logger.Logger, clientSet kubernetes.Interface, storage *persistence.Storage, config *config.CnFuzzConfig, overwrites config.DDocOverwrites, pod *apiv1.Pod) {
 		calledHandle = true
 	}
 	c.OnUpdate(&apiv1.Pod{}, &apiv1.Pod{})
@@ -62,7 +62,6 @@ func TestFindPodInfoAndFuzz(t *testing.T) {
 
 func TestContainsUnfuzzedImages(t *testing.T) {
 	l := logger.CreateDebugLogger()
-	// func containsUnfuzzedImages(pod *apiv1.Pod, repo repository.IContainerImageRepository) (allImages []model.ContainerImage, containsUnfuzzedImages bool) {
 	imageRepo := in_memory.CreateContainerImageRepository(l)
 	existingImageName := "mycontainer"
 	existingImage, _ := model.CreateContainerImage("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", "sha256", model.Fuzzed)

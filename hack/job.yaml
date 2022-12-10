@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cnfuzz-test
+spec:
+  template:
+    metadata:
+    spec:
+      containers:
+      - image: restlerwrapper
+        imagePullPolicy: Never
+        name: cnfuzz-test
+        command: ["/restlerwrapper"]
+        args: [ "-d", "--ip", "10.244.0.7", "--port", "8080"]
+      restartPolicy: Never

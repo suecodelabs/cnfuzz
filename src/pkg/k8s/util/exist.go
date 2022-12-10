@@ -18,8 +18,10 @@ package util
 
 import (
 	"context"
-	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
+	"fmt"
 	"strings"
+
+	"github.com/suecodelabs/cnfuzz/src/pkg/logger"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -42,7 +44,8 @@ func NamespaceExists(l logger.Logger, clientset kubernetes.Interface, namespace 
 
 func PodExists(l logger.Logger, clientSet kubernetes.Interface, namespace string, podName string) (bool, error) {
 	found, err := clientSet.CoreV1().Pods(namespace).Get(context.TODO(), podName, metav1.GetOptions{})
-	l.V(logger.DebugLevel).Info("found a pod while checking if some pod exists", "podName", podName, "foundPod", found)
+	l.V(logger.DebugLevel).Info(fmt.Sprintf("found a pod while checking if pod %s exists", podName), "podName", podName)
+	l.V(logger.PerformanceTestLevel).Info("found pod", "foundPod", found)
 	if err != nil || found == nil {
 		if err != nil {
 			if strings.Contains(err.Error(), "not found") {

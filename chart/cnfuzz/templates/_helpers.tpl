@@ -60,3 +60,14 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create the name of the service account to use for restlerwrapper jobs
+*/}}
+{{- define "restlerwrapper.serviceAccountName" -}}
+{{- if .Values.restlerwrapper.serviceAccount.create }}
+{{- default (printf "%s-job" (include "cnfuzz.fullname" .)) .Values.restlerwrapper.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.restlerwrapper.serviceAccount.name }}
+{{- end }}
+{{- end }}

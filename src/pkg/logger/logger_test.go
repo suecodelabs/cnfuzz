@@ -42,3 +42,17 @@ func TestFatal(t *testing.T) {
 	theMsg := logs.FilterMessage(msg)
 	assert.Equal(t, theMsg.All()[0].Message, msg)
 }
+
+func TestFatalKeysValues(t *testing.T) {
+	l := CreateDebugLogger()
+	msg := "this is a test crash"
+	testKey := "key"
+	testVal := "value"
+	l.Fatal(msg, testKey, testVal)
+	assert.Equal(t, 1, l.GetExiter().status)
+	logs := GetObservedLogs()
+	theMsg := logs.FilterMessage(msg)
+	assert.Equal(t, theMsg.All()[0].Message, msg)
+	assert.Equal(t, theMsg.All()[0].Context[0].Key, testKey)
+	assert.Equal(t, theMsg.All()[0].Context[0].String, testVal)
+}

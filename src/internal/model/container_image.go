@@ -73,6 +73,7 @@ func ContainerImageFromString(hashString string, statusString string) (image Con
 	}, nil
 }
 
+// CreateContainerImage create a ContainerImage from a hash, hashtype and fuzz status
 func CreateContainerImage(hash string, hashType string, status ImageFuzzStatus) (ContainerImage, error) {
 	img := ContainerImage{
 		Hash:     hash,
@@ -113,6 +114,7 @@ mainloop:
 			return nil, createErr
 		}
 
+		l.V(logger.PerformanceTestLevel).Info("found image inside pod", "imageHash", newImage.Hash)
 		images = append(images, newImage)
 	}
 	return images, nil

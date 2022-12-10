@@ -22,6 +22,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"log"
+	"os"
 )
 
 const (
@@ -38,9 +39,9 @@ type Logger struct {
 
 // CreateLogger creates a new logger instance
 // isDebug: if enabled, the logger prints debug logs, otherwise it prints info level and above
-func CreateLogger(isDebug bool) Logger {
+func CreateLogger(isDebug bool, logLevel int) Logger {
 	var logger logr.Logger
-	logger = zapr.NewLogger(createZapLogger(isDebug))
+	logger = zapr.NewLogger(createZapLogger(isDebug, logLevel))
 	return Logger{
 		logger,
 		nil,
@@ -59,7 +60,7 @@ func (l Logger) Fatal(msg string, keysAndValues ...interface{}) {
 	if keysAndValues == nil {
 		l.V(ImportantLevel).Info(msg)
 	} else {
-		l.V(ImportantLevel).Info(msg, keysAndValues)
+		l.V(ImportantLevel).Info(msg, keysAndValues...)
 	}
 	l.exiter.Exit(1)
 }
@@ -69,21 +70,28 @@ func (l Logger) FatalError(err error, msg string, keysAndValues ...interface{}) 
 	if keysAndValues == nil {
 		l.V(ImportantLevel).Error(err, msg)
 	} else {
-		l.V(ImportantLevel).Error(err, msg, keysAndValues)
+		l.V(ImportantLevel).Error(err, msg, keysAndValues...)
 	}
 	l.exiter.Exit(1)
 }
 
-func createZapLogger(isDebug bool) *zap.Logger {
+func createZapLogger(isDebug bool, logLevel int) *zap.Logger {
 	var zLogger *zap.Logger
 	var err error
 	if isDebug {
-		/* zc := zap.NewDevelopmentConfig()
-		zc.Level = zap.NewAtomicLevelAt(DebugLevel)
-		zLogger, err = zc.Build() */
-		zLogger, err = zap.NewDevelopment() // defaults to debug level
+		core := zapcore.NewCore(
+			zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
+			os.Stderr,
+			zapcore.Level(logLevel),
+		)
+		zLogger = zap.New(core)
 	} else {
-		zLogger, err = zap.NewProduction()
+		core := zapcore.NewCore(
+			zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+			os.Stderr,
+			zapcore.Level(logLevel),
+		)
+		zLogger = zap.New(core)
 	}
 	if err != nil {
 		log.Fatalf("failed to create logger:\n%s", err)

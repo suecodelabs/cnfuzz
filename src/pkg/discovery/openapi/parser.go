@@ -29,64 +29,74 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
+type UnParsedOpenApiDoc struct {
+	DocFile    *openapi3.T
+	Uri        *url.URL
+	IsVersion2 bool
+}
+
 // UnMarshalOpenApiDoc unmarshal OpenAPI doc represented as a byte array
 // returns a WebApiDescription object that represents the OpenAPI document
-func UnMarshalOpenApiDoc(l logger.Logger, docFile []byte, uri *url.URL) (*discovery.WebApiDescription, error) {
+func UnMarshalOpenApiDoc(l logger.Logger, docFile []byte, uri *url.URL) (UnParsedOpenApiDoc, error) {
 	var doc *openapi3.T
 
 	docIsVersion2 := false
 	var err error
 	version, err := getMajorDocVersion(l, docFile)
 	if err != nil {
-		return nil, fmt.Errorf("error while trying to read the used OpenAPI version in the retrieved doc: %w", err)
+		return UnParsedOpenApiDoc{}, fmt.Errorf("error while trying to read the used OpenAPI version in the retrieved doc: %w", err)
 	} else {
 		if version == 2 {
 			docIsVersion2 = true
 		} else if version == 3 {
 			docIsVersion2 = false
 		} else {
-			return nil, fmt.Errorf("unknown OpenApi version")
+			return UnParsedOpenApiDoc{}, fmt.Errorf("unknown OpenApi version")
 		}
 	}
 
 	if docIsVersion2 {
 		var doc2 openapi2.T
 		if err := json.Unmarshal(docFile, &doc2); err != nil {
-			return nil, fmt.Errorf("error while trying to unmarshal the OpenAPI doc: %w", err)
+			return UnParsedOpenApiDoc{}, fmt.Errorf("error while trying to unmarshal the OpenAPI doc: %w", err)
 		}
 		doc, err = conv.ToV3(&doc2)
 		if err != nil {
-			return nil, fmt.Errorf("error while trying to convert the OpenAPI v2 struct to a v3 struct: %w", err)
+			return UnParsedOpenApiDoc{}, fmt.Errorf("error while trying to convert the OpenAPI v2 struct to a v3 struct: %w", err)
 		}
 	} else {
 		doc, err = openapi3.NewLoader().LoadFromDataWithPath(docFile, uri)
 		if err != nil {
-			return nil, fmt.Errorf("error while loading OpenAPI doc from %s: %w", uri.String(), err)
+			return UnParsedOpenApiDoc{}, fmt.Errorf("error while loading OpenAPI doc from %s: %w", uri.String(), err)
 		}
 	}
-	return parseOpenApiDoc(l, doc, uri, docIsVersion2)
+	return UnParsedOpenApiDoc{
+		DocFile:    doc,
+		Uri:        uri,
+		IsVersion2: docIsVersion2,
+	}, nil
 }
 
-// parseOpenApiDoc accepts a kin-openapi3 document and tries to convert it to a cnfuzz WebApiDescription object
-func parseOpenApiDoc(l logger.Logger, doc *openapi3.T, uri *url.URL, docIsVersion2 bool) (*discovery.WebApiDescription, error) {
+// ParseOpenApiDoc accepts a kin-openapi3 document and tries to convert it to a cnfuzz WebApiDescription object
+func ParseOpenApiDoc(l logger.Logger, doc UnParsedOpenApiDoc) (*discovery.WebApiDescription, error) {
 	// General info
 	var desc discovery.WebApiDescription
-	desc.Title = doc.Info.Title
-	desc.Description = doc.Info.Description
-	desc.Version = doc.Info.Version
-	if uri == nil {
+	desc.Title = doc.DocFile.Info.Title
+	desc.Description = doc.DocFile.Info.Description
+	desc.Version = doc.DocFile.Info.Version
+	if doc.Uri == nil {
 		return nil, fmt.Errorf("URL cant be empty or nil")
 	}
 
-	if docIsVersion2 {
+	if doc.IsVersion2 {
 		desc.DiscoverySource = discovery.OpenApiV2Source
 	} else {
 		desc.DiscoverySource = discovery.OpenApiV3Source
 	}
-	desc.DiscoveryDoc = *uri
+	desc.DiscoveryDoc = *doc.Uri
 
 	// Endpoints
-	for strPath, pathObj := range doc.Paths {
+	for strPath, pathObj := range doc.DocFile.Paths {
 		for method, operation := range pathObj.Operations() {
 			endpoint := discovery.Endpoint{
 				Method:      method,
@@ -142,7 +152,7 @@ func parseOpenApiDoc(l logger.Logger, doc *openapi3.T, uri *url.URL, docIsVersio
 	}
 
 	// Security
-	for key, scheme := range doc.Components.SecuritySchemes {
+	for key, scheme := range doc.DocFile.Components.SecuritySchemes {
 		schemeValue := scheme.Value
 		newSchema := discovery.SecuritySchema{
 			Key:              key,

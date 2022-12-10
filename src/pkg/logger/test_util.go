@@ -21,10 +21,12 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
+	"os"
 )
 
 var observedLogs *observer.ObservedLogs
 
+// CreateDebugLogger creates a logger with settings optimized for debugging CnFuzz.
 func CreateDebugLogger() Logger {
 	l := zapr.NewLogger(createObservedZapLogger())
 	e := CreateExiter(func(i int) {})
@@ -34,7 +36,7 @@ func CreateDebugLogger() Logger {
 	}
 }
 
-// GetObservedLogs returns ObservedLogs object, can be used in unit tests to see if something got logged
+// GetObservedLogs returns ObservedLogs object, can be used in unit tests to see if something got logged.
 func GetObservedLogs() *observer.ObservedLogs {
 	return observedLogs
 }
@@ -44,8 +46,14 @@ func (l Logger) GetExiter() *Exit {
 }
 
 func createObservedZapLogger() *zap.Logger {
-	core, logs := observer.New(zapcore.Level(PerformanceTestLevel)) // TODO implement variable info level
-	zLogger := zap.New(core)
+	observedCore, logs := observer.New(zapcore.Level(PerformanceTestLevel)) // TODO implement variable info level
+	core := zapcore.NewCore(
+		zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
+		os.Stderr,
+		zapcore.Level(PerformanceTestLevel),
+	)
+	zLogger := zap.New(zapcore.NewTee(observedCore, core))
+	zap.ReplaceGlobals(zLogger)
 	defer zLogger.Sync()
 	observedLogs = logs
 	return zLogger
