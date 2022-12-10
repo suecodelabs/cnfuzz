@@ -131,24 +131,38 @@ For building the project you can use the [`Makefile`](./Makefile).
 #### Build Docker image
 
 ```sh
-IMAGE=myrepo/cnfuzz make image
+CNFUZZ_IMAGE=myrepo/cnfuzz RESTLERWRAPPER_IMAGE=myrepo/restlerwrapper make image
 ```
 #### Compile binary
 
 ```sh
-# Compile project to binary dist/cnfuzz
-make build
+# Compile project to binaries in dist/
+make all
 ```
 </details>
 <details markdown="1"><summary><h3>Debugging</h3></summary>
 
 Useful flags for debugging:
 ```yaml
---debug # cnfuzz outputs extra logging
---inside-cluster=false # cnfuzz will use your local config in $HOME/.kube/config (by default)
---restler-time-budget 0.001 # RESTler jobs complete almost instantly
---cache in_memory # use in memory cache for fuzzed images, cache gets deleted when cnfuzz exits
+# cnfuzz
+--debug # extra logging
+--local-config # cnfuzz will use your local config in $HOME/.kube/config (by default)
+--config "hack/default_config.yaml"
+--ddoc-ip localhost # overwrite the OpenApi doc source IP
+--ddoc-port 8080 # overwrite the OpenApi doc source port
+
+# restlerwrapper
+--debug
+--pod todo-api-xxxxxxxxxx-xxxxx
+--port 8080 # set the port of the target service
+--ddoc-ip localhost # overwrite the IP that is used to get the OpenApi doc
+--dry-run # don't do anything, just print the commands to the console
+--local-config
+--time-budget 0.001 # RESTler jobs complete almost instantly
 ```
+
+**NOTE:** *The Devspace setup is currently broken :(*
+*see [issue #84](https://github.com/suecodelabs/cnfuzz/issues/84)
 
 The code can be debugged in your IDE (outside the cluster) with the `--inside-cluster=false` flag.
 But you can also attach a debugger to a running pod inside a cluster using [DevSpace](https://github.com/loft-sh/devspace).
@@ -172,9 +186,11 @@ helm repo index --url https://suecodelabs.github.io/cnfuzz/ .
 ## Roadmap
 
 - [x] Opensource graduation research project ❤️
-- [ ] Support [Kustomize](https://kubernetes.io/docs/tasks/manage-kubernetes-objects/kustomization/)
+- [x] Get more control over the Restler runtime
+- [ ] Convert the output of Restler to a format that is easier to consume
 - [ ] Integrate more tightly with Kubernetes
 - [ ] Autodiscovery of possible URI prefixes
+- [ ] Add some form of dashboarding
 
 ## Sponsors
 
