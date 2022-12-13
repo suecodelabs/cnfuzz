@@ -54,6 +54,8 @@ cnfuzz-debug: init
 restlerwrapper: init
 	$(GO_ENV_VARS) go build -o $(BIN_DIR)/restlerwrapper src/cmd/restlerwrapper/main.go
 
+image: cnfuzz-image restlerwrapper-image
+
 cnfuzz-image:
 	docker build -t $(CNFUZZ_IMAGE) -f $(CNFUZZ_DOCKERFILE) --no-cache .
 
