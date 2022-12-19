@@ -83,8 +83,8 @@ github.com/evanphx/json-patch/v5 v5.6.0/go.mod h1:G79N1coSVB93tBe7j6PhzjmR3/2Vvl
 github.com/flowstack/go-jsonschema v0.1.1/go.mod h1:yL7fNggx1o8rm9RlgXv7hTBWxdBM0rVwpMwimd3F3N0=
 github.com/fsnotify/fsnotify v1.6.0 h1:n+5WquG0fcWoWp6xPWfHdbskMCQaFnG6PfBrh1Ky4HY=
 github.com/fsnotify/fsnotify v1.6.0/go.mod h1:sl3t1tCWJFWoRz9R8WJCbQihKKwmorjAbSClcnxKAGw=
-github.com/getkin/kin-openapi v0.110.0 h1:1GnJALxsltcSzCMqgtqKlLhYQeULv3/jesmV2sC5qE0=
-github.com/getkin/kin-openapi v0.110.0/go.mod h1:QtwUNt0PAAgIIBEvFWYfB7dfngxtAaqCX1zYHMZDeK8=
+github.com/getkin/kin-openapi v0.111.0 h1:zspOcFKBCQOY8d9Yockcbit8iVR2hco9qLaoQoj7kmw=
+github.com/getkin/kin-openapi v0.111.0/go.mod h1:QtwUNt0PAAgIIBEvFWYfB7dfngxtAaqCX1zYHMZDeK8=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20191125211704-12ad95a8df72/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
