@@ -4,8 +4,8 @@ metadata:
   name: cnfuzz-test
 spec:
   template:
-    metadata:
     spec:
+      serviceAccount: restlerwrapper-job
       containers:
       - image: restlerwrapper
         imagePullPolicy: Never
@@ -13,3 +13,38 @@ spec:
         command: ["/restlerwrapper"]
         args: [ "-d", "--ip", "10.244.0.7", "--port", "8080"]
       restartPolicy: Never
+---
+# Source: cnfuzz/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: restlerwrapper-job
+---
+# Source: cnfuzz/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: restlerwrapper-job
+  # namespace: default
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+---
+# Source: cnfuzz/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: restlerwrapper-job
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: restlerwrapper-job
+subjects:
+  - kind: ServiceAccount
+    name: restlerwrapper-job
+    namespace: default
+---
