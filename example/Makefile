@@ -13,5 +13,5 @@ build: swag
 image:
 	docker build -t $(IMAGE) .
 
-docker.start:
+docker.start: image
 	docker run --rm -p 8080:8080 --name temp-todo-api $(IMAGE)
