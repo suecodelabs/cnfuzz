@@ -3,7 +3,7 @@ module github.com/suecodelabs/cnfuzz
 go 1.18
 
 require (
-	github.com/getkin/kin-openapi v0.113.0
+	github.com/getkin/kin-openapi v0.116.0
 	github.com/go-logr/logr v1.2.3
 	github.com/go-logr/zapr v1.2.3
 	github.com/go-redis/redis/v9 v9.0.0-rc.2
